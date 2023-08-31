@@ -36,6 +36,11 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
+Protocol/protocol_process.c \
+Protocol/protocol_reciver.c \
+Protocol/protocol_transmit.c \
+Public/crc.c \
+Public/fifo.c \
 Src/main.c \
 Src/gpio.c \
 Src/usart.c \
@@ -122,7 +127,8 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
--Ififo \
+-IPublic \
+-IProtocol \
 -IInc \
 -IDrivers/STM32G4xx_HAL_Driver/Inc \
 -IDrivers/STM32G4xx_HAL_Driver/Inc/Legacy \

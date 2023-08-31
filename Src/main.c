@@ -25,6 +25,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
+#include "protocol.h"
+#include "fifo.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -38,7 +40,8 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+#define RX_BUFFER_SIZE 256
+uint8_t receive_buff[RX_BUFFER_SIZE];
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -90,6 +93,9 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   printf("hello world\r\n");
+  bytefifo_init();
+  __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+  HAL_UART_Receive_DMA(&huart1, (uint8_t*)receive_buff, 256);  /* USER CODE END 2 */  
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -98,6 +104,8 @@ int main(void)
   {
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
     HAL_Delay(500);
+
+    protocol_parse();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
