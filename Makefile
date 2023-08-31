@@ -36,6 +36,8 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
+fsm/fsm_manage.c \
+fsm/key_fsm.c \
 Protocol/protocol_process.c \
 Protocol/protocol_reciver.c \
 Protocol/protocol_transmit.c \
@@ -127,6 +129,7 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
+-Ifsm \
 -IPublic \
 -IProtocol \
 -IInc \
