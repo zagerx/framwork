@@ -36,6 +36,7 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
+Src/sensor.c \
 fsm/fsm_manage.c \
 fsm/key_fsm.c \
 Protocol/protocol_process.c \
