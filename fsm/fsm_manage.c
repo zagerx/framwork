@@ -12,7 +12,7 @@ void fsm_manage_addfsm_list(fsm_cb_t *cb)
 
 void fsm_manage_delfsm_list(fsm_cb_t *cb)
 {
-
+  
 }
 
 fsm_cb_t* fsm_manage_getfsm(void)

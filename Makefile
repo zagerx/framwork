@@ -36,6 +36,7 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
+Public/mesg_list.c \
 Hardware/aht20.c \
 Hardware/as5600.c \
 Hardware/analog_i2c/i2c_bitops.c \
@@ -43,6 +44,7 @@ Hardware/analog_i2c/i2c_bus.c \
 Hardware/analog_i2c/i2c_core.c \
 Src/sensor.c \
 fsm/fsm_manage.c \
+fsm/aht20_fsm.c \
 fsm/key_fsm.c \
 fsm/as5600_fsm.c \
 Protocol/protocol_process.c \

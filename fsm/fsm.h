@@ -19,11 +19,11 @@ typedef struct fsm_cb fsm_cb_t;
 typedef fsm_rt_t *fsm_t(fsm_cb_t*);
 
 
-/*状态机控制块*/
+/*×????ú?????é*/
 struct fsm_cb{
     unsigned char chState;//????????
     unsigned char sig;
-    fsm_t *fsm;//状态机指针
+    fsm_t *fsm;//×????ú????
 };
 
 

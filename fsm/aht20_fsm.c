@@ -1,7 +1,9 @@
 #include "aht20_fsm.h"
 #include "stdio.h"
 #include "aht20.h"
-#include "systick.h"
+#include "mesg_list.h"
+
+// #include "systick.h"
 
 
 #undef NULL
@@ -12,9 +14,13 @@
 #define AHT20_RESET_FSM()               \
         do { this.chState = START; } while(0)
 				
-aht20_get_t aht20_fsm_ctrlblock;
-
-int aht20_get_init(aht20_get_t *ptThis)
+fsm_cb_t aht20_fsm_ctrlblock;
+float buf[6] = {0};
+mesg_node_t mesg_block;
+enum{
+	AHT20_MESG,
+};
+int aht20_fsm_init(fsm_cb_t *ptThis)
 {
     if(ptThis == NULL) {
         return -1; 
@@ -23,15 +29,13 @@ int aht20_get_init(aht20_get_t *ptThis)
     this.chState = 0;
     return 0;
 }
-fsm_rt_t aht20_get_process(aht20_get_t *ptThis)
+fsm_rt_t aht20_fsm_process(fsm_cb_t *ptThis)
 {
-	float buf[6] = {0};
 	static unsigned int t0 = 0;
 	unsigned char sta_byte = 0;
 	static unsigned char busy_cnt = 0;
     enum {
-    START = 0,
-		INIT,
+		INIT = USER,
 		MEASURE_START,
 		WAIT_MEASURE,
 		MEASURE_END,
@@ -40,7 +44,7 @@ fsm_rt_t aht20_get_process(aht20_get_t *ptThis)
     switch (this.chState) {
      case START:
 			aht20_init();
-			if(aht20_get_statusbyte()&0x08)
+			if(aht20_fsm_statusbyte()&0x08)
 			{
 				this.chState = MEASURE_START;
 				printf("aht20 init ok\r\n");
@@ -55,13 +59,18 @@ fsm_rt_t aht20_get_process(aht20_get_t *ptThis)
 				this.chState = MEASURE_END;
 			}
 		case MEASURE_END:
-			sta_byte = aht20_get_temp_humi(buf);
+			sta_byte = fsm_cb_temp_humi(buf);
 			if(sta_byte & 0x80)
 			{
 				/*传感器数据已更新*/
 				printf("%f %f\r\n",buf[0],buf[1]);
+				/*添加到mesg_list*/
+				mesg_block.pmsg->id = AHT20_MESG;
+				mesg_block.pmsg->pdata = buf;
+				mesg_block.pmsg->len = 2;
+				mesg_list_tailinsert(&mesg_block);
 				this.chState = GET_END_WAIT;			
-				t0 = HAL_GetTick();				
+				t0 = HAL_GetTick();			
 			}else{
 				if(busy_cnt++>10)
 				{

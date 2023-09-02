@@ -22,7 +22,7 @@ int as5600_fsm_init(fsm_cb_t *ptThis)
     this.chState = START;
     return 0;
 }
-float a_angle;
+static float a_angle;
 fsm_rt_t as5600_fsm_process(fsm_cb_t *ptThis)
 {
     enum {
