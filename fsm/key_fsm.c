@@ -7,7 +7,7 @@ static volatile float buf[2];
 fsm_cb_t* keyfsm_creat(void)
 {
   keyfsm_cb.fsm = (fsm_t*)keyfsm_process;
-  keyfsm_cb.state = START;
+  keyfsm_cb.chState = START;
   keyfsm_cb.sig = 0;
   return &keyfsm_cb;
 }
@@ -17,13 +17,13 @@ fsm_rt_t keyfsm_process(fsm_cb_t *me)
     enum {
     WAIT = USER,
     };
-    switch (me->state)
+    switch (me->chState)
     {
     case START:
     case WAIT:
       if (me->sig == 1)//°´¼ü±»´¥·¢
       {
-        me->state = EXIT;
+        me->chState = EXIT;
         buf[0] = 0.78f;
         buf[1] = 0.89f;
         // me->pdata = (void *)buf;

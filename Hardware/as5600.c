@@ -3,6 +3,7 @@
 #include "stdio.h"
 
 #define AS5600_ADDR 0X36
+#define Angle_Hight_Register_Addr 0x0C //寄存器高位地址
 static i2c_dev_t as5600;
 
 static void as5600_readmulitbyte(unsigned char *buf,unsigned char len)
@@ -27,9 +28,8 @@ void as5600_init(void)
 {
 	as5600.i2c_phy = hw_i2c_init();
 }
-#define Angle_Hight_Register_Addr 0x0C //寄存器高位地址
 
-float as5600_readsensorrawdata(void)
+float as5600_getangle(void)
 {
     unsigned char tepbuf[2];
     unsigned char regs_addr = 0x0C;

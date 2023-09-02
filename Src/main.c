@@ -64,6 +64,10 @@ void add(float a)
 {
   a= a+1;
 }
+#include "fsm.h"
+#include "as5600_fsm.h"
+extern fsm_cb_t as5600_fsm_ctrlblock;
+
 /* USER CODE END 0 */
 
 /**
@@ -101,7 +105,7 @@ int main(void)
   bytefifo_init();
   __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
   HAL_UART_Receive_DMA(&huart1, (uint8_t*)receive_buff, 256);  /* USER CODE END 2 */  
-  as5600_init();
+  as5600_fsm_init(&as5600_fsm_ctrlblock);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -112,8 +116,7 @@ int main(void)
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
     HAL_Delay(500);
     protocol_parse();
-    angle = as5600_readsensorrawdata();
-    add(angle);
+    as5600_fsm_process(&as5600_fsm_ctrlblock);
     
     /* USER CODE END WHILE */
 

@@ -44,6 +44,7 @@ Hardware/analog_i2c/i2c_core.c \
 Src/sensor.c \
 fsm/fsm_manage.c \
 fsm/key_fsm.c \
+fsm/as5600_fsm.c \
 Protocol/protocol_process.c \
 Protocol/protocol_reciver.c \
 Protocol/protocol_transmit.c \

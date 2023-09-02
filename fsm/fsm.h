@@ -21,7 +21,7 @@ typedef fsm_rt_t *fsm_t(fsm_cb_t*);
 
 /*状态机控制块*/
 struct fsm_cb{
-    unsigned char state;//状态机的内部状态
+    unsigned char chState;//????????
     unsigned char sig;
     fsm_t *fsm;//状态机指针
 };

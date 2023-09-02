@@ -4,6 +4,7 @@
     "fsm.h": "c",
     "key_fsm.h": "c",
     "pid.h": "c",
-    "analog_i2c.h": "c"
+    "analog_i2c.h": "c",
+    "as5600.h": "c"
   }
 }
