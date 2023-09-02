@@ -3,6 +3,7 @@
     "protocol.h": "c",
     "fsm.h": "c",
     "key_fsm.h": "c",
-    "pid.h": "c"
+    "pid.h": "c",
+    "analog_i2c.h": "c"
   }
 }

@@ -27,6 +27,7 @@
 #include "stdio.h"
 #include "protocol.h"
 #include "fifo.h"
+#include "as5600.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,7 +59,11 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+volatile float angle = 0.0f;
+void add(float a)
+{
+  a= a+1;
+}
 /* USER CODE END 0 */
 
 /**
@@ -68,7 +73,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+  
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -96,16 +101,20 @@ int main(void)
   bytefifo_init();
   __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
   HAL_UART_Receive_DMA(&huart1, (uint8_t*)receive_buff, 256);  /* USER CODE END 2 */  
+  as5600_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  float aa;
   while (1)
   {
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
     HAL_Delay(500);
-
     protocol_parse();
+    angle = as5600_readsensorrawdata();
+    add(angle);
+    
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
