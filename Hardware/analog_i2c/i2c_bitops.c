@@ -4,40 +4,40 @@ static void i2c_bitops_start(i2c_bus_t *i2c_bus)
 {	
 //	i2c_bus->set_sda_out();
 	i2c_bus->set_sda(1);
-	i2c_bus->set_scl(1);
+	i2c_bus->set_scl(i2c_bus->scl,1);
 	i2c_bus->delayus(10);
 	i2c_bus->set_sda(0);
 	i2c_bus->delayus(10);
-	i2c_bus->set_scl(0);
+	i2c_bus->set_scl(i2c_bus->scl,0);
 }
 static void i2c_bitops_stop(i2c_bus_t *i2c_bus)
 {
 //	i2c_bus->set_sda_out();
 	i2c_bus->set_sda(0);				//stop:when CLK is high DATA change form low to high
-	i2c_bus->set_scl(1);
+	i2c_bus->set_scl(i2c_bus->scl,1);
 	i2c_bus->delayus(3);
 	i2c_bus->set_sda(1);								
 	i2c_bus->delayus(5);	
 }
 static void i2c_bitops_create_ack(i2c_bus_t *i2c_bus)
 {
-	i2c_bus->set_scl(0);
+	i2c_bus->set_scl(i2c_bus->scl,0);
 	i2c_bus->set_sda_out();
 	i2c_bus->set_sda(0);
 	i2c_bus->delayus(5);
-	i2c_bus->set_scl(1);
+	i2c_bus->set_scl(i2c_bus->scl,1);
 	i2c_bus->delayus(5);
-	i2c_bus->set_scl(0);	
+	i2c_bus->set_scl(i2c_bus->scl,0);	
 }
 static void i2c_bitops_create_nack(i2c_bus_t *i2c_bus)
 {
-	i2c_bus->set_scl(1);	
+	i2c_bus->set_scl(i2c_bus->scl,1);	
 	i2c_bus->set_sda_out();
 	i2c_bus->set_sda(1);
 	i2c_bus->delayus(2);
-	i2c_bus->set_scl(1);
+	i2c_bus->set_scl(i2c_bus->scl,1);
 	i2c_bus->delayus(2);
-	i2c_bus->set_scl(0);	
+	i2c_bus->set_scl(i2c_bus->scl,0);	
 }
 static char i2c_bitops_wait_ack(i2c_bus_t *i2c_bus)
 {
@@ -45,7 +45,7 @@ static char i2c_bitops_wait_ack(i2c_bus_t *i2c_bus)
    i2c_bus->set_sda(1);
    i2c_bus->delayus(3);;
 	 i2c_bus->set_sda_in();
-   i2c_bus->set_scl(1);
+   i2c_bus->set_scl(i2c_bus->scl,1);
    i2c_bus->delayus(5);;
 
     while ( i2c_bus->get_sda() ) {
@@ -54,14 +54,14 @@ static char i2c_bitops_wait_ack(i2c_bus_t *i2c_bus)
             return 1;
         }
     }
-    i2c_bus->set_scl(0);
+    i2c_bus->set_scl(i2c_bus->scl,0);
     return 0;	
 }
 static void i2c_bitops_send_byte(i2c_bus_t *i2c_bus,unsigned char data)
 {
     uint8_t t;
     i2c_bus->set_sda_out();
-    i2c_bus->set_scl(0);
+    i2c_bus->set_scl(i2c_bus->scl,0);
     for ( t = 0; t < 8; t++ ){
 			if ((data & 0x80 ) >> 7 ){
 					i2c_bus->set_sda(1);
@@ -70,9 +70,9 @@ static void i2c_bitops_send_byte(i2c_bus_t *i2c_bus,unsigned char data)
 			}
 			data <<= 1;
 			i2c_bus->delayus(3);
-			i2c_bus->set_scl(1);
+			i2c_bus->set_scl(i2c_bus->scl,1);
 			i2c_bus->delayus(3);
-			i2c_bus->set_scl(0);
+			i2c_bus->set_scl(i2c_bus->scl,0);
 			i2c_bus->delayus(3);
     }
 }
@@ -82,9 +82,9 @@ static unsigned char i2c_bitops_recv_byte(i2c_bus_t *i2c_bus)
 		i2c_bus->set_sda_in();
 	
     for ( i = 0; i < 8; i++ ){
-			i2c_bus->set_scl(0);
+			i2c_bus->set_scl(i2c_bus->scl,0);
 			i2c_bus->delayus(5);
-			i2c_bus->set_scl(1);
+			i2c_bus->set_scl(i2c_bus->scl,1);
 			receive <<= 1;
 			if(i2c_bus->get_sda()) 
 			{

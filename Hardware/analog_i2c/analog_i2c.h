@@ -49,7 +49,7 @@ typedef struct i2c_dev_mesg
 typedef struct i2c_bus
 {
 	void (*set_sda)(int8_t state);
-	void (*set_scl)(int8_t state);
+  void (*set_scl)(const char* pinname,int8_t state);
 	unsigned char (*get_sda)(void);
 	void (*delayus)(uint32_t us);
 	void (*set_sda_out)(void);
