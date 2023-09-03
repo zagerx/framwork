@@ -1,19 +1,12 @@
 #include "analog_i2c.h"
 #include "main.h"
-// #include "stm32f0xx.h"
-// #define	I2C1_SDA_PORT	GPIOB
-// #define	I2C1_SDA_PIN	GPIO_PIN_9
-// #define I2C1_SDA_RCC	RCC_AHBPeriph_GPIOB
 
-// #define	I2C1_SCL_PORT	GPIOA
-// #define	I2C1_SCL_PIN	GPIO_PIN_15
-// #define I2C1_SCL_RCC	RCC_AHBPeriph_GPIOA
-
-
-
-
+const char *i2c_nubmer = "i2c_01";
 eio_pin_t i2c_gpio_scl;
 eio_pin_t i2c_gpio_sda;
+
+
+
 
 static const GPIO_TypeDef *gpio_table[] =
 {
@@ -61,7 +54,7 @@ static void gpio_set_sda(int8_t state)
                             state ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
-static void gpio_set_scl(const char* pinname,int8_t state)
+static void gpio_set_scl(int8_t state)
 {
 		HAL_GPIO_WritePin(i2c_gpio_scl.data.gpio_x,
                             i2c_gpio_scl.data.pin,
@@ -109,10 +102,14 @@ static void gpio_delayus(unsigned int Time)
 **	
 **	返回值:总线对象	
 */
-i2c_bus_t* hw_i2c_init(void)
+i2c_bus_t* hw_i2c_init(const char *i2c_name)
 {
-	_translate_pin_name("A.15",&i2c_gpio_scl);
-	_translate_pin_name("B.09",&i2c_gpio_sda);	
+	if(!strcmp(i2c_name,i2c_nubmer))
+	{
+			_translate_pin_name("A.15",&i2c_gpio_scl);
+			_translate_pin_name("B.09",&i2c_gpio_sda);		
+	}
+
   GPIO_InitTypeDef GPIO_InitStruct = {0};
   GPIO_InitStruct.Pin = i2c_gpio_scl.data.pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
@@ -137,8 +134,6 @@ i2c_bus_t* hw_i2c_init(void)
 	i2c_bus1.set_sda_in = gpio_set_in;
 	i2c_bus1.set_sda_out = gpio_set_sda_out;
 	i2c_bus1.delayus = gpio_delayus;
-	
-
 
 	return &i2c_bus1;
 }
