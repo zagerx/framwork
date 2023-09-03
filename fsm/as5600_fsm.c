@@ -39,6 +39,7 @@ fsm_rt_t as5600_fsm_process(fsm_cb_t *ptThis)
         break;
       case MEASURE_START:
         a_angle = as5600_getangle();
+        printf("a_angle %f\r\n",a_angle);
     }
     return fsm_rt_on_going;
 }

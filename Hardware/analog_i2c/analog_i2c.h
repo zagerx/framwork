@@ -5,6 +5,38 @@
 #define I2C_BUS_WR            0x0000
 #define I2C_BUS_RD						0x0001
 
+
+#include "stdbool.h"
+/* public define ------------------------------------------------------------ */
+enum pin_mode
+{
+    PIN_MODE_INPUT = 0,
+    PIN_MODE_INPUT_PULLUP,
+    PIN_MODE_INPUT_PULLDOWN,
+    PIN_MODE_OUTPUT,
+    PIN_MODE_OUTPUT_OD,
+
+    PIN_MODE_MAX
+};
+
+/* public typedef ----------------------------------------------------------- */
+#include "main.h"
+typedef struct eio_pin_data
+{
+    GPIO_TypeDef *gpio_x;
+    uint16_t pin;
+} eio_pin_data_t;
+
+// Class
+typedef struct eio_pin
+{
+    /* private */
+    eio_pin_data_t data;
+    enum pin_mode mode;
+    bool status;
+} eio_pin_t;
+
+
 typedef struct i2c_dev_mesg
 {
     unsigned short  addr;
@@ -22,10 +54,13 @@ typedef struct i2c_bus
 	void (*delayus)(uint32_t us);
 	void (*set_sda_out)(void);
 	void (*set_sda_in)(void);
+	const char *scl;
+	const char *sda;	
 }i2c_bus_t;
 
 typedef struct i2c_dev{
 	i2c_bus_t *i2c_phy;
+
 }i2c_dev_t;
 
 //extern int i2c_bus_xfer(i2c_dev_t *i2c_dev,i2c_dev_mesg_t *msgs);

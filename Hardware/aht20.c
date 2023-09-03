@@ -309,6 +309,7 @@ uint8_t AHT10ReadData(uint16_t *temperature,uint16_t *humidity)
 #else 
 
 static i2c_dev_t aht200;
+
 static void aht20_readmulitbyte(unsigned char *buf,unsigned char len)
 {
 	i2c_dev_mesg_t msg;

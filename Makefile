@@ -138,6 +138,7 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
+-Ic_bsp \
 -IHardware \
 -Ifsm \
 -IPublic \

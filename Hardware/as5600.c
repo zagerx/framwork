@@ -5,7 +5,8 @@
 #define AS5600_ADDR 0X36
 #define Angle_Hight_Register_Addr 0x0C //寄存器高位地址
 static i2c_dev_t as5600;
-
+const char *as5600_scl = "A.15";
+const char *as5600_sda = "B.09";
 static void as5600_readmulitbyte(unsigned char *buf,unsigned char len)
 {
 	i2c_dev_mesg_t msg;
@@ -27,6 +28,8 @@ static void as5600_writemulitbyte(unsigned char *buf,unsigned char len)
 void as5600_init(void)
 {
 	as5600.i2c_phy = hw_i2c_init();
+	as5600.i2c_phy->scl = as5600_scl;
+	as5600.i2c_phy->sda = as5600_sda;
 }
 
 float as5600_getangle(void)

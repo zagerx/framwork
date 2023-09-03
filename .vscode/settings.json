@@ -7,6 +7,8 @@
     "analog_i2c.h": "c",
     "as5600.h": "c",
     "crc.h": "c",
-    "aht20_fsm.h": "c"
+    "aht20_fsm.h": "c",
+    "eio_pin.h": "c",
+    "stdbool.h": "c"
   }
 }
