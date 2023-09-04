@@ -26,6 +26,45 @@ static bool _check_pin_name_valid(const char *name);
 static void _translate_pin_name(const char *name, eio_pin_data_t *data);
 
 /* public functions --------------------------------------------------------- */
+
+void eio_pin_mode(eio_pin_t * const me, const char *name, enum pin_mode mode)
+{
+    _translate_pin_name(name, &me->data);
+    me->mode = mode;
+
+    /* Configure GPIO pin. */
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    if (mode == PIN_MODE_INPUT)
+    {
+        GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+    }
+    else if (mode == PIN_MODE_INPUT_PULLUP)
+    {
+        GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+        GPIO_InitStruct.Pull = GPIO_PULLUP;
+    }
+    else if (mode == PIN_MODE_INPUT_PULLUP)
+    {
+        GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+        GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+    }
+    else if (mode == PIN_MODE_OUTPUT)
+    {
+        GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+    }
+    else if (mode == PIN_MODE_OUTPUT_OD)
+    {
+        GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+        GPIO_InitStruct.Pull = GPIO_PULLUP;
+    }
+
+    GPIO_InitStruct.Pin = me->data.pin;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(me->data.gpio_x, &GPIO_InitStruct);
+}
+
 /**
   * @brief  EIO pin initialization.
   * @param  me      this pointer
@@ -104,15 +143,15 @@ void eio_pin_set_status(eio_pin_t * const me, bool status)
     //elab_assert(me != NULL);
     //elab_assert(me->mode == PIN_MODE_OUTPUT || me->mode == PIN_MODE_OUTPUT_OD);
     
-    if (status != me->status)
-    {
+    // if (status != me->status)
+    // {
         HAL_GPIO_WritePin(me->data.gpio_x,
                             me->data.pin,
                             status ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
-        eio_pin_get_status(me);
+        // eio_pin_get_status(me);
         //elab_assert(me->status == status);
-    }
+    // }
 }
 
 /* private functions -------------------------------------------------------- */

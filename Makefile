@@ -36,6 +36,7 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
+c_bsp/eio_pin.c \
 Public/mesg_list.c \
 Hardware/as5600.c \
 Hardware/analog_i2c/i2c_bitops.c \

@@ -22,7 +22,6 @@ enum pin_mode
     PIN_MODE_INPUT_PULLDOWN,
     PIN_MODE_OUTPUT,
     PIN_MODE_OUTPUT_OD,
-
     PIN_MODE_MAX
 };
 
@@ -46,7 +45,7 @@ typedef struct eio_pin
 void eio_pin_init(eio_pin_t * const me, const char *name, enum pin_mode mode);
 bool eio_pin_get_status(eio_pin_t * const me);
 void eio_pin_set_status(eio_pin_t * const me, bool status);
-
+void eio_pin_mode(eio_pin_t * const me, const char *name, enum pin_mode mode);
 #ifdef __cplusplus
 }
 #endif
