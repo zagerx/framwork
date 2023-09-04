@@ -36,22 +36,25 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
+ContrlBlock/capa_fsm.c \
+ContrlBlock/highflow_fsm.c \
+ContrlBlock/contrl_fsm.c \
 Public/mesg_list.c \
 Hardware/aht20.c \
 Hardware/as5600.c \
 Hardware/analog_i2c/i2c_bitops.c \
 Hardware/analog_i2c/i2c_bus.c \
 Hardware/analog_i2c/i2c_core.c \
-Src/sensor.c \
-fsm/fsm_manage.c \
-fsm/aht20_fsm.c \
-fsm/key_fsm.c \
-fsm/as5600_fsm.c \
+Sensor/sensor_fsm_manage.c \
+Sensor/aht20_fsm.c \
+Sensor/key_fsm.c \
+Sensor/as5600_fsm.c \
 Protocol/protocol_process.c \
 Protocol/protocol_reciver.c \
 Protocol/protocol_transmit.c \
 Public/crc.c \
 Public/fifo.c \
+Src/global_data.c \
 Src/main.c \
 Src/gpio.c \
 Src/usart.c \
@@ -138,6 +141,9 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
+-IContrlBlock \
+-ISensor \
+-IMode \
 -IHardware \
 -Ifsm \
 -IPublic \

@@ -1,5 +1,7 @@
 #ifndef __FSM__H
 #define __FSM__H
+
+
 typedef enum {
     fsm_rt_err          = -1,    //!< fsm error, error code can be get from other interface
     fsm_rt_cpl          = 0,     //!< fsm complete

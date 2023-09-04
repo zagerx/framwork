@@ -7,6 +7,7 @@
     "analog_i2c.h": "c",
     "as5600.h": "c",
     "crc.h": "c",
-    "aht20_fsm.h": "c"
+    "aht20_fsm.h": "c",
+    "highflow_fsm.h": "c"
   }
 }
