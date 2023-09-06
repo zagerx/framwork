@@ -109,19 +109,21 @@ int main(void)
   HAL_UART_Receive_DMA(&huart1, (uint8_t*)receive_buff, 256);  /* USER CODE END 2 */  
   as5600_fsm_init(&as5600_fsm_ctrlblock);
   fsm_cb_t *p_tempcontrl_cb;
-  p_tempcontrl_cb = contrl_fsm_creat();
+  // p_tempcontrl_cb = contrl_fsm_creat();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   float aa;
+  contrl_fsm_init();
   while (1)
   {
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
     HAL_Delay(500);
     // protocol_parse();
     // as5600_fsm_process(&as5600_fsm_ctrlblock);
-    contrl_fsm_process(p_tempcontrl_cb);
+    // contrl_fsm_process(p_tempcontrl_cb);
+    control_proess();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

@@ -21,11 +21,14 @@ fsm_rt_t hf_fsm_process(fsm_cb_t *me)
     switch (me->chState)
     {
     case START:
+      printf("hf_fsm   start\r\n");
+      break;
     case WAIT:
       /*启动电机的事件发生 */
-      printf("hf_fsm   WAIT\r\n");
+      me->chState = RUNING;
       break;
     case RUNING:
+
       /*获取目标流量*/
       /*查看当前流量*/
       /*计算如何爬坡*/

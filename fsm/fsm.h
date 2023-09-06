@@ -28,6 +28,14 @@ struct fsm_cb{
     fsm_t *fsm;//¡Á????¨²????
 };
 
+#define DISPATCH_FSM(me_) ((me_)->fsm)((me_))
+#define TRAN_STATE(me,targe) do{\
+                            (me)->chState = EXIT;\
+                            (me)->fsm(me);\
+                            (me)->fsm = (targe);\
+                            (me)->chState = START;\
+                            (me)->fsm(me);\
+                                  }while(0)
 
 
 
