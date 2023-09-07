@@ -19,6 +19,7 @@
 #include "./protocol.h"
 #include "fifo.h"
 #include "stdio.h"
+#include "global_data.h"
 /*********************************************************************************************************
 ** Function name(º¯ÊýÃû³Æ):						protocol_parse()
 **
@@ -66,7 +67,8 @@ void protocol_parse(void)
 			printf("recive cmd 02\r\n");
 			break;
 		case 0x01:
-			printf("recive cmd 01\r\n");
+			// printf("recive cmd 01\r\n");
+			set_keysensor_data(E_KEY_EVENT_HOLD);
 			break;
 		case 0x03:
 			printf("recive cmd 03\r\n");

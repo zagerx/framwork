@@ -32,42 +32,10 @@ struct fsm_cb{
 #define TRAN_STATE(me,targe) do{\
                             (me)->chState = EXIT;\
                             (me)->fsm(me);\
-                            (me)->fsm = (targe);\
+                            (me)->fsm = (fsm_t *)(targe);\
                             (me)->chState = START;\
                             (me)->fsm(me);\
                                   }while(0)
 
-
-
-
-
-
-
-#undef this
-#define this (*ptThis)
-#define TRAN_FSM(_state)               \
-        do { this.chState = _state; } while(0)
-
-
-
-// struct  fsm{
-//     FsmState     _State; 
-//     FSMsingle   sig;                                                                                                                                                
-//     bool        running;
-// };
-
-// //×´Ì¬µ÷¶È
-// #define FsmDispatch(me_, e_) ((me_)->_State)((me_), (e_))
-// /*×´Ì¬Ç¨ÒÆ*/
-// #define QFSM_TRAN(me, target_)          do{\
-//                                             { \
-//                                             FSMsingle sig; \
-//                                             sig = FSM_EXIT_SIG; \
-//                                             (*(me)->_State)((me), (sig)); \
-//                                             ((FSM *)me)->_State = (FsmState)(target_); \
-//                                             sig = FSM_ENTER_SIG; \
-//                                             (*(me)->_State)((me), (sig)); \
-//                                             }\
-//                                         }while(0)
-// FSM* CreateFsmMachine(void);
 #endif
+

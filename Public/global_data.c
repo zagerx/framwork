@@ -1,21 +1,14 @@
 // #include "fsm.h"
 #include "key_fsm.h"
+#include "global_data.h"
 
-
-float key_databuf[2] = {0};
-unsigned char aht20_databuf[2];
-unsigned short mpu6050_databuf[4] = {0};
-// typedef struct sensor_data
-// {
-//   float buf1[2];
-//   unsigned char buf2[2];
-//   unsigned short buf3[4];
-// }sensor_data_t;
-// sensor_data_t sensor_data; 
+// unsigned char key_databuf[2] = {0};
+// unsigned char aht20_databuf[2];
+// unsigned short mpu6050_databuf[4] = {0};
 
 typedef struct key_data
 {
-  float buf[2];
+  unsigned char key_data;
 }key_data_t;
 typedef struct aht20_data
 {
@@ -28,11 +21,26 @@ typedef struct mpu6050_data
 
 typedef struct sensor_data
 {
-  key_data_t buf1[2];
+  unsigned char key_data;
   aht20_data_t buf2[2];
   mpu6050_data_t buf3[4];
 }sensor_data_t;
  
+sensor_data_t g_sensor_data;
+
+void set_keysensor_data(unsigned char data)
+{
+  g_sensor_data.key_data = data;
+}
+
+
+unsigned char get_keysensor_data(void)
+{
+  return g_sensor_data.key_data;
+}
+
+
+
 
 typedef struct sensor
 {

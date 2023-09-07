@@ -28,10 +28,15 @@
 #include "protocol.h"
 #include "fifo.h"
 #include "as5600.h"
+#include "fsm.h"
+#include "as5600_fsm.h"
+#include "contrl_block.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+extern fsm_cb_t as5600_fsm_ctrlblock;
+
 
 /* USER CODE END PTD */
 
@@ -59,17 +64,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-volatile float angle = 0.0f;
-void add(float a)
-{
-  a= a+1;
-}
-#include "fsm.h"
-#include "as5600_fsm.h"
-extern fsm_cb_t as5600_fsm_ctrlblock;
-#include "contrl_fsm.h"
-extern fsm_cb_t contrl_cb;
-
 /* USER CODE END 0 */
 
 /**
@@ -107,22 +101,18 @@ int main(void)
   bytefifo_init();
   __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
   HAL_UART_Receive_DMA(&huart1, (uint8_t*)receive_buff, 256);  /* USER CODE END 2 */  
-  as5600_fsm_init(&as5600_fsm_ctrlblock);
-  fsm_cb_t *p_tempcontrl_cb;
-  // p_tempcontrl_cb = contrl_fsm_creat();
+  // as5600_fsm_init(&as5600_fsm_ctrlblock);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  float aa;
-  contrl_fsm_init();
+  sys_state_init();
   while (1)
   {
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
     HAL_Delay(500);
-    // protocol_parse();
+    protocol_parse();
     // as5600_fsm_process(&as5600_fsm_ctrlblock);
-    // contrl_fsm_process(p_tempcontrl_cb);
     control_proess();
     /* USER CODE END WHILE */
 

@@ -8,6 +8,10 @@
     "as5600.h": "c",
     "crc.h": "c",
     "aht20_fsm.h": "c",
-    "highflow_fsm.h": "c"
+    "highflow_fsm.h": "c",
+    "contrl_mode.h": "c",
+    "cpap_adjust.h": "c",
+    "highflow_adjust.h": "c",
+    "global_data.h": "c"
   }
 }

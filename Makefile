@@ -36,9 +36,10 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
-ContrlBlock/capa_fsm.c \
-ContrlBlock/highflow_fsm.c \
-ContrlBlock/contrl_fsm.c \
+ContrlBlock/contrl_block.c \
+ContrlBlock/contrl_mode.c \
+ContrlBlock/cpap_adjust.c \
+ContrlBlock/highflow_adjust.c \
 Public/mesg_list.c \
 Hardware/aht20.c \
 Hardware/as5600.c \
@@ -54,7 +55,7 @@ Protocol/protocol_reciver.c \
 Protocol/protocol_transmit.c \
 Public/crc.c \
 Public/fifo.c \
-Src/global_data.c \
+Public/global_data.c \
 Src/main.c \
 Src/gpio.c \
 Src/usart.c \
