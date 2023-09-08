@@ -29,9 +29,7 @@ fsm_cb_t* sys_state_init(void)
   contrl_sys_cb.sig = 0;
   return &contrl_sys_cb;
 }
-
-
-extern fsm_rt_t stop_mode_fsm(fsm_cb_t *me);
+extern fsm_rt_t stop_mode_process(fsm_cb_t *me);
 static fsm_rt_t sys_state_process(fsm_cb_t *me)
 {
     enum {
@@ -60,7 +58,7 @@ static fsm_rt_t sys_state_process(fsm_cb_t *me)
          if(get_keystate() == E_KEY_EVENT_HOLD)
          {
           me->chState = CONTROL_MODE;
-          mode_fsm_init();
+          contrl_mode_init();
          }
         break;
       case CONTROL_MODE:
@@ -69,8 +67,7 @@ static fsm_rt_t sys_state_process(fsm_cb_t *me)
 					printf("exit contorl mode!!!!!!!!\r\n");
           me->chState = IDLE_MODE;
 					/*要保证能够进行当前模式的扫尾工作  要进行一次状态迁移*/
-					TRAN_STATE(&contrl_mode_cb,stop_mode_fsm);
-          mode_fsm_init(); 
+					TRAN_STATE(&contrl_mode_cb,stop_mode_process);
          }else{
 					/*开始调度四个模式状态机*/
 					DISPATCH_FSM(&contrl_mode_cb);	 

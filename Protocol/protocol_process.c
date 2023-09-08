@@ -1,9 +1,4 @@
-/** File name:			main.c
-** Version:				The original version
-** Descriptions£º	main C entry file for EN_FN80_Driver project
-** Copyright@2015-2025: Enmind, All Right Reserved
-**
-**------------------------------------------------------------------------------------------------------
+/**------------------------------------------------------------------------------------------------------
 ** Created by:			
 ** Created date:		2023-08-17
 ** Version:				1.0

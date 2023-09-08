@@ -1,6 +1,6 @@
 #include "highflow_adjust.h"
 #include "fsm.h"
-
+#include "stdio.h"
 #undef NULL
 #define NULL 0                  
 #undef this
@@ -12,6 +12,7 @@ fsm_cb_t hf_adjust_cb;
 fsm_rt_t hf_adjust_process(fsm_cb_t *ptThis);
 fsm_cb_t* hf_adjust_init(void)
 {
+  printf("hf_adj init\r\n");
   hf_adjust_cb.fsm = (fsm_t*)NULL;
   hf_adjust_cb.chState = START;
   hf_adjust_cb.sig = START;
@@ -21,7 +22,13 @@ fsm_cb_t* hf_adjust_init(void)
 #define ABS(x)         ((x)>0?(x):-(x))
 //  float pid(float tar,float cur){}
 //  float get_startflow(void){}
-//  float get_curflow(void){}
+ float get_curflow(void){
+  return 3.2f;
+ }
+ float sensor_getdata(unsigned char index)
+ {
+    return index+0.1f;
+ }
 //  int get_climbtime(void){}
 //  unsigned int HAL_GetTick(void){}
 //  void set_pwm(int output){}
@@ -102,6 +109,7 @@ fsm_rt_t hf_adjust_process(fsm_cb_t *ptThis)
       // output = pid(targe_flow,cur_flow);
       break;               
     case EXIT:
+      printf("hf_adj exit\r\n");
 			output = 0;
       break;
     default:
