@@ -13,5 +13,7 @@
     "cpap_adjust.h": "c",
     "highflow_adjust.h": "c",
     "global_data.h": "c"
+    "eio_pin.h": "c",
+    "stdbool.h": "c"
   }
 }

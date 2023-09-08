@@ -1,64 +1,36 @@
 #include "analog_i2c.h"
 #include "main.h"
-// #include "stm32f0xx.h"
-#define	I2C1_SDA_PORT	GPIOB
-#define	I2C1_SDA_PIN	GPIO_PIN_9
-#define I2C1_SDA_RCC	RCC_AHBPeriph_GPIOB
-
-#define	I2C1_SCL_PORT	GPIOA
-#define	I2C1_SCL_PIN	GPIO_PIN_15
-#define I2C1_SCL_RCC	RCC_AHBPeriph_GPIOA
+#include "eio_pin.h"
 
 /*定义I2C总线对象*/
+const char *i2c_bus_nubmer = "i2c_01";
+eio_pin_t i2c_gpio_scl;
+eio_pin_t i2c_gpio_sda;
 static i2c_bus_t i2c_bus1;
 
 /* i2c1 diver */
 static void gpio_set_sda(int8_t state)
 {
-	if (state)
-	{	
-		HAL_GPIO_WritePin(I2C1_SDA_PORT,I2C1_SDA_PIN,GPIO_PIN_SET);
-	}
-	else
-	{
-		HAL_GPIO_WritePin(I2C1_SDA_PORT,I2C1_SDA_PIN,GPIO_PIN_RESET);
-	}
+		eio_pin_set_status(&i2c_gpio_sda,state);
 }
 
 static void gpio_set_scl(int8_t state)
 {
-	if (state)
-	{	
-		HAL_GPIO_WritePin(I2C1_SCL_PORT,I2C1_SCL_PIN,GPIO_PIN_SET);
-	}
-	else
-	{	
-		HAL_GPIO_WritePin(I2C1_SCL_PORT,I2C1_SCL_PIN,GPIO_PIN_RESET);
-	}
+		eio_pin_set_status(&i2c_gpio_scl,state);
 }
 
 static unsigned char gpio_get_sda(void)
 {
-	return HAL_GPIO_ReadPin(I2C1_SDA_PORT,I2C1_SDA_PIN);
+	return (eio_pin_get_status(&i2c_gpio_sda));
 }
 
 static void gpio_set_sda_out(void)
 {
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
-  GPIO_InitStruct.Pin = I2C1_SDA_PIN;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(I2C1_SDA_PORT, &GPIO_InitStruct);
+	eio_pin_mode(&i2c_gpio_sda,"B.09",PIN_MODE_OUTPUT);
 }
 static void gpio_set_in(void)
 {
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
-  GPIO_InitStruct.Pin = I2C1_SDA_PIN;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(I2C1_SDA_PORT, &GPIO_InitStruct);
+ 	eio_pin_mode(&i2c_gpio_sda,"B.09",PIN_MODE_INPUT);
 }
 
 static void gpio_delayus(unsigned int Time)
@@ -76,23 +48,16 @@ static void gpio_delayus(unsigned int Time)
 **	
 **	返回值:总线对象	
 */
-i2c_bus_t* hw_i2c_init(void)
+i2c_bus_t* hw_i2c_init(const char *i2c_name)
 {
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
-  GPIO_InitStruct.Pin = I2C1_SCL_PIN;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(I2C1_SCL_PORT, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Pin = I2C1_SDA_PIN;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(I2C1_SDA_PORT, &GPIO_InitStruct);  
-	
-	HAL_GPIO_WritePin(I2C1_SDA_PORT,I2C1_SDA_PIN,GPIO_PIN_SET);
-	HAL_GPIO_WritePin(I2C1_SDA_PORT,I2C1_SDA_PIN,GPIO_PIN_SET);
+	if(strcmp(i2c_name,i2c_bus_nubmer) != 0)
+	{
+		return 0;//没有匹配的总线
+	}
+	eio_pin_init(&i2c_gpio_scl,"A.15",PIN_MODE_OUTPUT);
+	eio_pin_init(&i2c_gpio_sda,"B.09",PIN_MODE_OUTPUT);
+	eio_pin_set_status(&i2c_gpio_scl,1);
+	eio_pin_set_status(&i2c_gpio_sda,1);
 	
 	i2c_bus1.set_sda = gpio_set_sda;
 	i2c_bus1.get_sda = gpio_get_sda;
@@ -100,7 +65,7 @@ i2c_bus_t* hw_i2c_init(void)
 	i2c_bus1.set_sda_in = gpio_set_in;
 	i2c_bus1.set_sda_out = gpio_set_sda_out;
 	i2c_bus1.delayus = gpio_delayus;
-	
+
 	return &i2c_bus1;
 }
 

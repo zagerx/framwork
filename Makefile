@@ -40,8 +40,8 @@ ContrlBlock/contrl_block.c \
 ContrlBlock/contrl_mode.c \
 ContrlBlock/cpap_adjust.c \
 ContrlBlock/highflow_adjust.c \
+c_bsp/eio_pin.c \
 Public/mesg_list.c \
-Hardware/aht20.c \
 Hardware/as5600.c \
 Hardware/analog_i2c/i2c_bitops.c \
 Hardware/analog_i2c/i2c_bus.c \
@@ -142,9 +142,13 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
+<<<<<<< HEAD
 -IContrlBlock \
 -ISensor \
 -IMode \
+=======
+-Ic_bsp \
+>>>>>>> dev_i2c
 -IHardware \
 -Ifsm \
 -IPublic \
