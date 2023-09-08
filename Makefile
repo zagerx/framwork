@@ -142,13 +142,10 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
-<<<<<<< HEAD
 -IContrlBlock \
 -ISensor \
 -IMode \
-=======
 -Ic_bsp \
->>>>>>> dev_i2c
 -IHardware \
 -Ifsm \
 -IPublic \
