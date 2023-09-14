@@ -2,7 +2,7 @@
 #include "as5600.h"
 #include "stdio.h"
 #include "fsm.h"
-
+#include "stdio.h"
 #undef NULL
 #define NULL 0                  
 #undef this
@@ -39,9 +39,16 @@ fsm_rt_t as5600_fsm_process(fsm_cb_t *ptThis)
         break;
       case MEASURE_START:
         a_angle = as5600_getangle();
-        printf("a_angle %f\r\n",a_angle);
+        *(float *)(ptThis->pdata) = a_angle;
     }
     return fsm_rt_on_going;
+}
+
+char as5600_updata(void *pdata)
+{
+  as5600_fsm_ctrlblock.pdata = pdata;
+  as5600_fsm_process(&as5600_fsm_ctrlblock);
+  return 0;
 }
 
 

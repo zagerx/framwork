@@ -10,8 +10,8 @@
 
 #define	PRO_FRAME_MAX_SIZE	32
 #define PRO_FRAME_MIN_SIZE  8
-#define PRO_FRAME_HEAD	0x5AA5
-#define PRO_FRAME_TAIL	0xEFEF
+#define PRO_FRAME_HEAD	0xA55A
+#define PRO_FRAME_TAIL	0xFEFE
 
 #define PRO_FUNC_C_M_HEARTPACK	0x00	//主机心跳包
 #define PRO_FUNC_C_S_HEARTPACK	0x01	//从机心跳包

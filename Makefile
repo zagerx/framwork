@@ -36,6 +36,7 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
+contrlsys_input/sensor.c \
 ContrlBlock/contrl_block.c \
 ContrlBlock/contrl_mode.c \
 ContrlBlock/cpap_adjust.c \
@@ -142,6 +143,7 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
+-Icontrlsys_input \
 -IContrlBlock \
 -ISensor \
 -IMode \

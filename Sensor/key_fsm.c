@@ -21,13 +21,6 @@ fsm_rt_t keyfsm_process(fsm_cb_t *me)
     {
     case START:
     case WAIT:
-      if (me->sig == 1)//°´¼ü±»´¥·¢
-      {
-        me->chState = EXIT;
-        buf[0] = 0.78f;
-        buf[1] = 0.89f;
-        // me->pdata = (void *)buf;
-      }
       break;
     case EXIT:
       break;

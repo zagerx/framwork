@@ -26,6 +26,7 @@ struct fsm_cb{
     unsigned char chState;//????????
     unsigned char sig;
     fsm_t *fsm;//¡Á????¨²????
+    void *pdata;
 };
 
 #define DISPATCH_FSM(me_) ((me_)->fsm)((me_))
@@ -38,4 +39,4 @@ struct fsm_cb{
                                   }while(0)
 
 #endif
-
+    

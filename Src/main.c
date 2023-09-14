@@ -31,6 +31,7 @@
 #include "fsm.h"
 #include "as5600_fsm.h"
 #include "contrl_block.h"
+#include "sensor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -107,13 +108,16 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   sys_state_init();
+  get_fram_init();
+  sensor_init();
   while (1)
   {
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
     HAL_Delay(500);
     protocol_parse();
-    as5600_fsm_process(&as5600_fsm_ctrlblock);
+    // as5600_fsm_process(&as5600_fsm_ctrlblock);
     control_proess();
+    sensor_actor();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
