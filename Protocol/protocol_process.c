@@ -17,7 +17,7 @@
 #include "fsm.h"
 #include "global_data.h"
 
-static unsigned char fram_buf[32];
+unsigned char fram_buf[32];
 static unsigned short fram_len = 0;
 
 #undef NULL
@@ -87,7 +87,6 @@ fsm_rt_t get_fram_process(fsm_cb_t *ptThis)
 			bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
 			if(data == (unsigned char)PRO_FRAME_TAIL)
 			{
-				printf("fram process ok\r\n");
 				fram_buf[index++] = data;
 				fram_len = index;
 				index = 0;
@@ -102,6 +101,7 @@ fsm_rt_t get_fram_process(fsm_cb_t *ptThis)
 		default:
 			break;
 		}
+        // printf("%d \r\n",data);
 		return fsm_rt_on_going;
 }
 
@@ -131,39 +131,40 @@ void protocol_parse(void)
 {
 	unsigned char buf[PRO_FRAME_MAX_SIZE];
 	unsigned char cmd;
+	/*读取1帧数据*/
 	if(get_fram_process(&get_fram_cb) != fsm_rt_cpl)
 	{
 		return;
 	}
 	/*获取到完整的数据帧*/
-	for(unsigned char i = 0;i < fram_len;i++)
-	{
-		printf("0x%2x ",fram_buf[i]);
-	}
-	printf("\r\n");
+	// for(unsigned char i = 0;i < fram_len;i++)
+	// {
+	// 	USER_DEBUG("0x%2x ",fram_buf[i]);
+	// }
+	// USER_DEBUG("\r\n");
 	/*开始校验*/
 	
 	/*开始解析*/
-	cmd = fram_buf[3];
+    cmd = fram_buf[2];
 	switch (cmd)
 	{
 		case 0x02:
-			printf("recive cmd 02\r\n");
+			USER_DEBUG("recive cmd 02\r\n");
 			break;
 		case 0x01:
-			printf("recive cmd 01\r\n");
+			USER_DEBUG("recive cmd 01\r\n");
 			break;
 		case 0x03:
-			printf("recive cmd 03\r\n");
+			USER_DEBUG("recive cmd 03\r\n");
 			break;
 		case 0x04://发送温湿度数据给主机，并等待主机响应
-			printf("recive cmd 04\r\n");
+			USER_DEBUG("recive cmd 04\r\n");
 			break;
 		case 0x05:
-			printf("recive cmd 05\r\n");
+			USER_DEBUG("recive cmd 05\r\n");
 			break;
 		case 0x0B:
-			printf("recive cmd 06\r\n");
+			USER_DEBUG("recive cmd 06\r\n");
 //			unsigned char buf[4] = {0};
 //			pro_frame_t test_msg={
 //				.head = PRO_FRAME_HEAD,

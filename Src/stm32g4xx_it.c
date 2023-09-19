@@ -79,7 +79,7 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart)
 
 void USAR_UART_IDLECallback(UART_HandleTypeDef *huart)
 {
-  unsigned char temp_buf[256];
+  unsigned char temp_buf[255];
     HAL_UART_DMAStop(&huart1);                                                     //停止本次DMA传输
     
     uint8_t data_length  = 256 - __HAL_DMA_GET_COUNTER(&hdma_usart1_rx);   //计算接收到的数据长度
@@ -87,11 +87,12 @@ void USAR_UART_IDLECallback(UART_HandleTypeDef *huart)
     for(unsigned char i = 0;i<data_length;i++)
     {
       temp_buf[i] = receive_buff[i];
+    //   printf("0x%2x ",temp_buf[i]);
     }
    bytefifo_writemulitebyge(&uart1_rx_fifo,temp_buf,data_length);
     memset(receive_buff,0,data_length);                                            //清零接收缓冲区
     data_length = 0;
-    HAL_UART_Receive_DMA(&huart1, (uint8_t*)receive_buff, 256);                    //重启开始DMA传输 每次255字节数据
+    HAL_UART_Receive_DMA(&huart1, (uint8_t*)receive_buff, sizeof(receive_buff));                    //重启开始DMA传输 每次255字节数据
 }
 /* USER CODE END EV */
 
@@ -242,7 +243,7 @@ void USART1_IRQHandler(void)
   /* USER CODE BEGIN USART1_IRQn 0 */
 
   /* USER CODE END USART1_IRQn 0 */
-  HAL_UART_IRQHandler(&huart1);
+//   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
   USER_UART_IRQHandler(&huart1);
 

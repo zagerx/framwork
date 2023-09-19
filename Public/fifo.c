@@ -6,6 +6,7 @@
 **
 ********************************************************************************************************/
 #include "fifo.h"
+extern byte_t RX_USART1_ARRY[255];
 
 static char bytefifo_isfull(byte_fifo_t *pfifo)
 {
@@ -79,6 +80,12 @@ char bytefifo_writemulitebyge(byte_fifo_t *pfifo,byte_t *buf,unsigned short len)
 		bytefifo_writebyte(pfifo,*pw);
 		pw++;
 	}
+    // printf("\r\n*****************************************\r\n");
+    // for(unsigned short i = 0;i<32;i++)
+    // {
+    //     printf("0x%2x ",RX_USART1_ARRY[i]);
+    // }
+    // printf("\r\n*****************************************\r\n");
 	return 0;
 }
 char bytefifo_readmulintebyte(byte_fifo_t *pfifo,byte_t *buf,unsigned short len)
@@ -93,7 +100,7 @@ char bytefifo_readmulintebyte(byte_fifo_t *pfifo,byte_t *buf,unsigned short len)
 	{
 		statues = bytefifo_readbyte(pfifo,&temp);
 		*buf++ = temp;
+        printf("temp 0x%2x\r\n",temp);
 	}
 	return statues;
 }
-

@@ -21,7 +21,9 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "protocol.h"
+extern byte_fifo_t uart1_rx_fifo;
+extern byte_t RX_USART1_ARRY[255];
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;

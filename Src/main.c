@@ -24,7 +24,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "stdio.h"
 #include "protocol.h"
 #include "fifo.h"
 #include "as5600.h"
@@ -77,7 +76,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-  
+  get_fram_init();
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/

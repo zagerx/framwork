@@ -40,7 +40,14 @@ extern UART_HandleTypeDef huart1;
 void MX_USART1_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+#define EN_DEBUG
+#ifdef	EN_DEBUG
+    #include "stdio.h"
+//	#define USER_DEBUG_RTT(format,...)	SEGGER_RTT_printf(0,format,##__VA_ARGS__)
+		#define USER_DEBUG(format,...)	printf(format,##__VA_ARGS__)
+#else
+	#define	USER_DEBUG(format,...)
+#endif
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

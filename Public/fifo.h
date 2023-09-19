@@ -1,6 +1,8 @@
 #ifndef _FIFO_H
 #define _FIFO_H
 
+
+
 #define byte_t unsigned char
 typedef struct byte_fifo{
     unsigned short head;
