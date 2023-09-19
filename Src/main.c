@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "dma.h"
+#include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -46,11 +47,7 @@ extern fsm_cb_t as5600_fsm_ctrlblock;
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define RX_BUFFER_SIZE 256
-uint8_t receive_buff[RX_BUFFER_SIZE];
 
-uint8_t fifo_receive_buff[RX_BUFFER_SIZE];
-byte_fifo_t uart1_rx_fifo;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -76,7 +73,6 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-  get_fram_init();
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -99,32 +95,22 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_USART1_UART_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   printf("hello world\r\n");
-  bytefifo_init(&uart1_rx_fifo,fifo_receive_buff,sizeof(fifo_receive_buff));
-  get_fram_init();
-  __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
-  HAL_UART_Receive_DMA(&huart1, (uint8_t*)receive_buff, 256);  /* USER CODE END 2 */  
+  protocol_init();
+ 
 //   as5600_fsm_init(&as5600_fsm_ctrlblock);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 //   sys_state_init();
-  
 //   sensor_init();
-
-HAL_Delay(5000);
-printf("\r\n******************************************\r\n");
-for(unsigned short i = 0;i<32;i++)
-{
-    printf("0x%2x ",receive_buff[i]);
-}
-printf("\r\n******************************************\r\n");
   while (1)
   {
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
-    HAL_Delay(1000);
+    HAL_Delay(20);
     protocol_parse();
     // as5600_fsm_process(&as5600_fsm_ctrlblock);
     // control_proess();

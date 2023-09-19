@@ -17,6 +17,10 @@
 #define PRO_FUNC_C_S_HEARTPACK	0x01	//从机心跳包
 #define PRO_FUNC_C_TEMP	0x0B	//温度数据
 
+#include "fifo.h"
+extern byte_fifo_t uart1_rx_fifo;   //仅protoc_recive.c文件调用
+
+
 
 typedef struct pro_frame{
 	unsigned short head;
@@ -26,13 +30,7 @@ typedef struct pro_frame{
 	unsigned short crc16;
 	unsigned short tail;
 }pro_frame_t;
-
-#include "fifo.h"
-extern byte_fifo_t uart1_rx_fifo;
-
-// extern byte_fifo_t uart1_rx_fifo;
-
-
+extern void protocol_init(void);
 extern signed char protocol_reciver_datafram(unsigned char *pdata,unsigned short len);
 extern void protocol_parse(void);
 extern char protocol_sendfram(pro_frame_t *msg);

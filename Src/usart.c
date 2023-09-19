@@ -21,9 +21,8 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-#include "protocol.h"
-extern byte_fifo_t uart1_rx_fifo;
-extern byte_t RX_USART1_ARRY[255];
+#define RX_BUFFER_SIZE 256
+uint8_t uart_receive_buff[RX_BUFFER_SIZE];
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -69,7 +68,8 @@ void MX_USART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART1_Init 2 */
-
+    __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+    HAL_UART_Receive_DMA(&huart1, (uint8_t*)uart_receive_buff, 256);  /* USER CODE END 2 */ 
   /* USER CODE END USART1_Init 2 */
 
 }

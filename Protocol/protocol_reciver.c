@@ -42,8 +42,6 @@
 ** Created Date（创建日期）:			2023-08-14
 **
 ********************************************************************************************************/
-#include "stdio.h"
-#include "protocol.h"
 signed char protocol_reciver_datafram(unsigned char *pdata,unsigned short len)
 {
 	bytefifo_writemulitebyge(&uart1_rx_fifo,pdata,len);

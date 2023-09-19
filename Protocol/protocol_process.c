@@ -14,22 +14,22 @@
 #include "./protocol.h"
 #include "fifo.h"
 #include "usart.h"
-#include "fsm.h"
 #include "global_data.h"
 
-unsigned char fram_buf[32];
-static unsigned short fram_len = 0;
 
+#include "fsm.h"
+static unsigned char fram_buf[32];
+static unsigned short fram_len = 0;
 #undef NULL
 #define NULL 0                  
 #undef this
 #define this (*ptThis)
-fsm_cb_t get_fram_cb;
-fsm_rt_t get_fram_process(fsm_cb_t *ptThis);
+static fsm_cb_t get_fram_cb;
+static fsm_rt_t get_fram_process(fsm_cb_t *ptThis);
 #define GETFRAM_RESET()               \
         do { this.chState = START; } while(0)
 
-fsm_cb_t* get_fram_init(void)
+static fsm_cb_t* get_fram_init(void)
 {
   get_fram_cb.fsm = (fsm_t*)get_fram_process;
   get_fram_cb.chState = START;
@@ -37,7 +37,7 @@ fsm_cb_t* get_fram_init(void)
   return &get_fram_cb;
 }
 
-fsm_rt_t get_fram_process(fsm_cb_t *ptThis)
+static fsm_rt_t get_fram_process(fsm_cb_t *ptThis)
 {
 		enum {
 			FIRST = USER,
@@ -54,7 +54,6 @@ fsm_rt_t get_fram_process(fsm_cb_t *ptThis)
 			this.chState = FIRST;
 		case FIRST:
 			bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
-            printf("data %d\r\n",data);
 			if(data == (unsigned char)(PRO_FRAME_HEAD>>8))
 			{
 				fram_buf[index++] = data;
@@ -101,7 +100,6 @@ fsm_rt_t get_fram_process(fsm_cb_t *ptThis)
 		default:
 			break;
 		}
-        // printf("%d \r\n",data);
 		return fsm_rt_on_going;
 }
 
@@ -136,12 +134,6 @@ void protocol_parse(void)
 	{
 		return;
 	}
-	/*获取到完整的数据帧*/
-	// for(unsigned char i = 0;i < fram_len;i++)
-	// {
-	// 	USER_DEBUG("0x%2x ",fram_buf[i]);
-	// }
-	// USER_DEBUG("\r\n");
 	/*开始校验*/
 	
 	/*开始解析*/
@@ -180,8 +172,18 @@ void protocol_parse(void)
 	}
 }
 
+/*协议要用到的组件
+1、fifo.c/.h
+2、fsm.h
+*/
 
-
+uint8_t fifo_receive_buff[256];//fifo数据缓存区
+byte_fifo_t uart1_rx_fifo;//fifo控制块
+void protocol_init(void)
+{
+    bytefifo_init(&uart1_rx_fifo,fifo_receive_buff,sizeof(fifo_receive_buff));
+    get_fram_init();
+}
 
 
 

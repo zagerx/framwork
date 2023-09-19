@@ -59,9 +59,8 @@ extern UART_HandleTypeDef huart1;
 /* USER CODE BEGIN EV */
 extern DMA_HandleTypeDef hdma_usart1_rx;
 #include "string.h"
-#include "fifo.h"
 #include "protocol.h"
-extern uint8_t receive_buff[255];
+extern uint8_t uart_receive_buff[255];
 
 void USAR_UART_IDLECallback(UART_HandleTypeDef *huart);
 void USER_UART_IRQHandler(UART_HandleTypeDef *huart)
@@ -81,18 +80,15 @@ void USAR_UART_IDLECallback(UART_HandleTypeDef *huart)
 {
   unsigned char temp_buf[255];
     HAL_UART_DMAStop(&huart1);                                                     //停止本次DMA传输
-    
     uint8_t data_length  = 256 - __HAL_DMA_GET_COUNTER(&hdma_usart1_rx);   //计算接收到的数据长度
-    printf("len %d\r\n",data_length);
     for(unsigned char i = 0;i<data_length;i++)
     {
-      temp_buf[i] = receive_buff[i];
-    //   printf("0x%2x ",temp_buf[i]);
+      temp_buf[i] = uart_receive_buff[i];
     }
-   bytefifo_writemulitebyge(&uart1_rx_fifo,temp_buf,data_length);
-    memset(receive_buff,0,data_length);                                            //清零接收缓冲区
+    protocol_reciver_datafram(temp_buf,data_length);
+    memset(uart_receive_buff,0,data_length);                                            //清零接收缓冲区
     data_length = 0;
-    HAL_UART_Receive_DMA(&huart1, (uint8_t*)receive_buff, sizeof(receive_buff));                    //重启开始DMA传输 每次255字节数据
+    HAL_UART_Receive_DMA(&huart1, (uint8_t*)uart_receive_buff, sizeof(uart_receive_buff));                    //重启开始DMA传输 每次255字节数据
 }
 /* USER CODE END EV */
 
@@ -119,7 +115,6 @@ void NMI_Handler(void)
   */
 void HardFault_Handler(void)
 {
-  printf("hardfault\r\n");
   /* USER CODE BEGIN HardFault_IRQn 0 */
 
   /* USER CODE END HardFault_IRQn 0 */
@@ -243,7 +238,7 @@ void USART1_IRQHandler(void)
   /* USER CODE BEGIN USART1_IRQn 0 */
 
   /* USER CODE END USART1_IRQn 0 */
-//   HAL_UART_IRQHandler(&huart1);
+  HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
   USER_UART_IRQHandler(&huart1);
 
