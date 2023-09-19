@@ -60,6 +60,7 @@ extern UART_HandleTypeDef huart1;
 extern DMA_HandleTypeDef hdma_usart1_rx;
 #include "string.h"
 #include "fifo.h"
+#include "protocol.h"
 extern uint8_t receive_buff[255];
 
 void USAR_UART_IDLECallback(UART_HandleTypeDef *huart);
@@ -82,12 +83,12 @@ void USAR_UART_IDLECallback(UART_HandleTypeDef *huart)
     HAL_UART_DMAStop(&huart1);                                                     //停止本次DMA传输
     
     uint8_t data_length  = 256 - __HAL_DMA_GET_COUNTER(&hdma_usart1_rx);   //计算接收到的数据长度
-
+    printf("len %d\r\n",data_length);
     for(unsigned char i = 0;i<data_length;i++)
     {
       temp_buf[i] = receive_buff[i];
     }
-   bytefifo_writemulitebyge(temp_buf,data_length);
+   bytefifo_writemulitebyge(&uart1_rx_fifo,temp_buf,data_length);
     memset(receive_buff,0,data_length);                                            //清零接收缓冲区
     data_length = 0;
     HAL_UART_Receive_DMA(&huart1, (uint8_t*)receive_buff, 256);                    //重启开始DMA传输 每次255字节数据

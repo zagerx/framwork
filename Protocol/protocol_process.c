@@ -53,7 +53,8 @@ fsm_rt_t get_fram_process(fsm_cb_t *ptThis)
 		case START:
 			this.chState = FIRST;
 		case FIRST:
-			bytefifo_readmulintebyte(&data,1);
+			bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
+            printf("data %d\r\n",data);
 			if(data == (unsigned char)(PRO_FRAME_HEAD>>8))
 			{
 				fram_buf[index++] = data;
@@ -64,7 +65,7 @@ fsm_rt_t get_fram_process(fsm_cb_t *ptThis)
 				break;
 			}
 		case SECOND:
-			bytefifo_readmulintebyte(&data,1);
+			bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
 			if(data == (unsigned char)(PRO_FRAME_HEAD))
 			{
 				this.chState = IDLE;
@@ -74,7 +75,7 @@ fsm_rt_t get_fram_process(fsm_cb_t *ptThis)
 				break;
 			}
 			case IDLE:
-			bytefifo_readmulintebyte(&data,1);
+			bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
 			fram_buf[index++] = data;
 			if(data == (unsigned char)(PRO_FRAME_TAIL>>8))
 			{
@@ -83,7 +84,7 @@ fsm_rt_t get_fram_process(fsm_cb_t *ptThis)
 				break;
 			}
 		case THREE:
-			bytefifo_readmulintebyte(&data,1);
+			bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
 			if(data == (unsigned char)PRO_FRAME_TAIL)
 			{
 				printf("fram process ok\r\n");

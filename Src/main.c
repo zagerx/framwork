@@ -49,6 +49,7 @@ extern fsm_cb_t as5600_fsm_ctrlblock;
 /* USER CODE BEGIN PM */
 #define RX_BUFFER_SIZE 256
 uint8_t receive_buff[RX_BUFFER_SIZE];
+byte_fifo_t uart1_rx_fifo;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -99,25 +100,34 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   printf("hello world\r\n");
-  bytefifo_init();
+  bytefifo_init(&uart1_rx_fifo,receive_buff,sizeof(receive_buff));
+  get_fram_init();
   __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
   HAL_UART_Receive_DMA(&huart1, (uint8_t*)receive_buff, 256);  /* USER CODE END 2 */  
-  as5600_fsm_init(&as5600_fsm_ctrlblock);
+//   as5600_fsm_init(&as5600_fsm_ctrlblock);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  sys_state_init();
-  get_fram_init();
-  sensor_init();
+//   sys_state_init();
+  
+//   sensor_init();
+
+HAL_Delay(5000);
+printf("\r\n******************************************\r\n");
+for(unsigned short i = 0;i<32;i++)
+{
+    printf("0x%2x ",receive_buff[i]);
+}
+printf("\r\n******************************************\r\n");
   while (1)
   {
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
-    HAL_Delay(500);
+    HAL_Delay(1000);
     protocol_parse();
     // as5600_fsm_process(&as5600_fsm_ctrlblock);
-    control_proess();
-    sensor_actor();
+    // control_proess();
+    // sensor_actor();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
