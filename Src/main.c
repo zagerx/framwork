@@ -49,6 +49,8 @@ extern fsm_cb_t as5600_fsm_ctrlblock;
 /* USER CODE BEGIN PM */
 #define RX_BUFFER_SIZE 256
 uint8_t receive_buff[RX_BUFFER_SIZE];
+
+uint8_t fifo_receive_buff[RX_BUFFER_SIZE];
 byte_fifo_t uart1_rx_fifo;
 /* USER CODE END PM */
 
@@ -100,7 +102,7 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   printf("hello world\r\n");
-  bytefifo_init(&uart1_rx_fifo,receive_buff,sizeof(receive_buff));
+  bytefifo_init(&uart1_rx_fifo,fifo_receive_buff,sizeof(fifo_receive_buff));
   get_fram_init();
   __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
   HAL_UART_Receive_DMA(&huart1, (uint8_t*)receive_buff, 256);  /* USER CODE END 2 */  
