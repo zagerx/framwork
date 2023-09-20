@@ -13,13 +13,9 @@
 ********************************************************************************************************/
 #include "./protocol.h"
 #include "fifo.h"
-#include "usart.h"
-#include "global_data.h"
-
-
 #include "fsm.h"
-static unsigned char fram_buf[32];
-static unsigned short fram_len = 0;
+#include "usart.h"
+
 #undef NULL
 #define NULL 0                  
 #undef this
@@ -29,6 +25,8 @@ static fsm_rt_t get_fram_process(fsm_cb_t *ptThis);
 #define GETFRAM_RESET()               \
         do { this.chState = START; } while(0)
 
+static unsigned char fram_buf[32];
+static unsigned short fram_len = 0;
 static fsm_cb_t* get_fram_init(void)
 {
   get_fram_cb.fsm = (fsm_t*)get_fram_process;
@@ -36,7 +34,6 @@ static fsm_cb_t* get_fram_init(void)
   get_fram_cb.sig = 0;
   return &get_fram_cb;
 }
-
 static fsm_rt_t get_fram_process(fsm_cb_t *ptThis)
 {
 		enum {
@@ -176,8 +173,7 @@ void protocol_parse(void)
 1、fifo.c/.h
 2、fsm.h
 */
-
-uint8_t fifo_receive_buff[256];//fifo数据缓存区
+unsigned char fifo_receive_buff[256];//fifo数据缓存区
 byte_fifo_t uart1_rx_fifo;//fifo控制块
 void protocol_init(void)
 {

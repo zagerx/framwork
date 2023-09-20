@@ -28,16 +28,12 @@
 #include "protocol.h"
 #include "fifo.h"
 #include "as5600.h"
-#include "fsm.h"
-#include "as5600_fsm.h"
 #include "contrl_block.h"
 #include "sensor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-extern fsm_cb_t as5600_fsm_ctrlblock;
-
 
 /* USER CODE END PTD */
 
@@ -99,22 +95,20 @@ int main(void)
   /* USER CODE BEGIN 2 */
   printf("hello world\r\n");
   protocol_init();
- 
-//   as5600_fsm_init(&as5600_fsm_ctrlblock);
+    sensor_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 //   sys_state_init();
-//   sensor_init();
+  
   while (1)
   {
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
-    HAL_Delay(20);
+    HAL_Delay(100);
     protocol_parse();
-    // as5600_fsm_process(&as5600_fsm_ctrlblock);
     // control_proess();
-    // sensor_actor();
+    sensor_actor();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
