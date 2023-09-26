@@ -18,88 +18,69 @@
 
 #include "malloc.h"
 
-#undef NULL
-#define NULL 0                  
-#undef this
-#define this (*ptThis)
-static fsm_cb_t get_fram_cb;
-static fsm_rt_t get_fram_process(fsm_cb_t *ptThis);
-#define GETFRAM_RESET()               \
-        do { this.chState = START; } while(0)
 
-static unsigned char fram_buf[32];
-static unsigned short fram_len = 0;
-fsm_cb_t* get_fram_init(void)
+static char get_fram_process(unsigned char *pbuf)
 {
-  get_fram_cb.fsm = (fsm_t*)get_fram_process;
-  get_fram_cb.chState = START;
-  get_fram_cb.sig = 0;
-  return &get_fram_cb;
-}
-static fsm_rt_t get_fram_process(fsm_cb_t *ptThis)
-{
-		enum {
-			FIRST = USER,
-			SECOND,
-			IDLE ,			
-			THREE
-		};
-		static unsigned short index = 0;		
-		unsigned char data;
-		static unsigned int t0 = 0;
-		switch (this.chState)
-		{
-		case START:
-			this.chState = FIRST;
-		case FIRST:
-			bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
-			if(data == (unsigned char)(PRO_FRAME_HEAD>>8))
-			{
-				fram_buf[index++] = data;
-				this.chState = SECOND;
-			}else{
-				index = 0;
-				GETFRAM_RESET();
-				break;
-			}
-		case SECOND:
-			bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
-			if(data == (unsigned char)(PRO_FRAME_HEAD))
-			{
-				this.chState = IDLE;
-				fram_buf[index++] = data;
-			}else{
-				GETFRAM_RESET();
-				break;
-			}
-			case IDLE:
-			bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
-			fram_buf[index++] = data;
-			if(data == (unsigned char)(PRO_FRAME_TAIL>>8))
-			{
-				this.chState = THREE;
-			}else{
-				break;
-			}
-		case THREE:
-			bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
-			if(data == (unsigned char)PRO_FRAME_TAIL)
-			{
-				fram_buf[index++] = data;
-				fram_len = index;
-				index = 0;
-				GETFRAM_RESET();//获取到完整的数据帧  复位状态机
-				return fsm_rt_cpl;				
-			}else{
-				this.chState = IDLE;
-				break;
-			}
-		case EXIT:
-			break;
-		default:
-			break;
-		}
-		return fsm_rt_on_going;
+    enum {
+        START,
+        FIRST ,
+        SECOND,
+        IDLE ,			
+    };
+    unsigned char data;    
+    static unsigned short index = 0;		    
+    unsigned char chState;
+    unsigned short fram_len = 0;        
+    chState = START;
+    switch (chState)
+    {
+    case START:
+        chState = FIRST;
+    case FIRST:
+        bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
+        if(data == (unsigned char)(PRO_FRAME_HEAD>>8))
+        {
+            pbuf[index++] = data;
+            chState = SECOND;
+        }else{
+            index = 0;
+            chState = START;
+            break;
+        }
+    case SECOND:
+        bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
+        if(data == (unsigned char)(PRO_FRAME_HEAD))
+        {
+            chState = IDLE;
+            pbuf[index++] = data;
+        }else{
+            chState = START;
+            break;
+        }
+        case IDLE:
+            do
+            {
+                bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
+                pbuf[index++] = data;
+                if(data == (unsigned char)(PRO_FRAME_TAIL>>8))
+                {
+                    bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
+                    pbuf[index++] = data;
+                    if (data == (unsigned char)(PRO_FRAME_TAIL>>8))
+                    {
+                        /* code */
+                        fram_len = index;
+                        index = 0;
+                        chState = START;//获取到完整的数据帧  复位状态机
+                        return 0;	                        
+                    }
+                }
+            } while (1);
+            break;
+    default:
+        break;
+    }
+    return 1;
 }
 
 
@@ -128,15 +109,20 @@ void protocol_parse(void)
 {
 	unsigned char buf[PRO_FRAME_MAX_SIZE];
 	unsigned char cmd;
+    unsigned short len;
 	/*读取1帧数据*/
-	if(get_fram_process(&get_fram_cb) != fsm_rt_cpl)
+	// if(get_fram_process(&get_fram_cb) != fsm_rt_cpl)
+	// {
+	// 	return;
+	// }
+	if(get_fram_process(&buf[0]) != 0)
 	{
 		return;
-	}
+	}    
 	/*开始校验*/
 	
 	/*开始解析*/
-    cmd = fram_buf[2];
+    cmd = buf[2];
 	switch (cmd)
 	{
 		case 0x02:
