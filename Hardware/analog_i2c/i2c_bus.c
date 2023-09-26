@@ -11,12 +11,12 @@ static i2c_bus_t i2c_bus1;
 /* i2c1 diver */
 static void gpio_set_sda(int8_t state)
 {
-		eio_pin_set_status(&i2c_gpio_sda,state);
+	eio_pin_set_status(&i2c_gpio_sda,state);
 }
 
 static void gpio_set_scl(int8_t state)
 {
-		eio_pin_set_status(&i2c_gpio_scl,state);
+	eio_pin_set_status(&i2c_gpio_scl,state);
 }
 
 static unsigned char gpio_get_sda(void)

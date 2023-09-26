@@ -36,5 +36,5 @@ void sensor_actor(void)
   updata_t pupdata;
   pupdata = (as5600_updata);
   (sensor_as5600.updata)((void *)sensor_as5600.pdata);
-  USER_DEBUG("angle = %f\r\n",*((float *)sensor_as5600.pdata));
+//   USER_DEBUG("angle = %f\r\n",*((float *)sensor_as5600.pdata));
 }

@@ -50,9 +50,12 @@ Hardware/analog_i2c/i2c_core.c \
 Sensor/sensor_fsm_manage.c \
 Sensor/aht20_fsm.c \
 Sensor/key_fsm.c \
+Protocol/protocol.c \
+Protocol/protocol_cmd.c \
 Protocol/protocol_process.c \
 Protocol/protocol_reciver.c \
 Protocol/protocol_transmit.c \
+Public/IPC/ipc_event.c \
 Public/crc.c \
 Public/fifo.c \
 Public/global_data.c \
@@ -150,6 +153,7 @@ C_INCLUDES =  \
 -Ic_bsp \
 -IHardware \
 -Ifsm \
+-IPublic/IPC \
 -IPublic \
 -IProtocol \
 -IInc \

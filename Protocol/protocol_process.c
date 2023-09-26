@@ -16,6 +16,8 @@
 #include "fsm.h"
 #include "usart.h"
 
+#include "malloc.h"
+
 #undef NULL
 #define NULL 0                  
 #undef this
@@ -27,7 +29,7 @@ static fsm_rt_t get_fram_process(fsm_cb_t *ptThis);
 
 static unsigned char fram_buf[32];
 static unsigned short fram_len = 0;
-static fsm_cb_t* get_fram_init(void)
+fsm_cb_t* get_fram_init(void)
 {
   get_fram_cb.fsm = (fsm_t*)get_fram_process;
   get_fram_cb.chState = START;
@@ -141,7 +143,29 @@ void protocol_parse(void)
 			USER_DEBUG("recive cmd 02\r\n");
 			break;
 		case 0x01:
+            // SET_IPC_EVENT(PROTOCOL_CMD_01);
 			USER_DEBUG("recive cmd 01\r\n");
+            /*命令封包*/
+            /*计算帧大小*/
+            unsigned char len;
+            len = sizeof(pro_frame_t) + sizeof(float);
+
+            /*计算消息大小      暂定为8byte*/
+            // void* pmsg;
+            // pmsg = malloc(len+8);
+            // if (!pmsg)
+            // {
+            //     printf(" malloc fail\r\n");
+            // }
+            // /*开始封包*/
+            
+			// pro_frame_t test_cmdtype_01={
+			// 	.head = PRO_FRAME_HEAD,
+			// 	.func_c = PRO_FUNC_C_TEMP | (1<<CMD_RESP) ,
+			// 	.len = 0,
+			// 	.pdata = 0,
+			// 	.tail = PRO_FRAME_TAIL
+			// };
 			break;
 		case 0x03:
 			USER_DEBUG("recive cmd 03\r\n");
@@ -154,14 +178,6 @@ void protocol_parse(void)
 			break;
 		case 0x0B:
 			USER_DEBUG("recive cmd 06\r\n");
-//			unsigned char buf[4] = {0};
-//			pro_frame_t test_msg={
-//				.head = PRO_FRAME_HEAD,
-//				.func_c = PRO_FUNC_C_TEMP,
-//				.len = 4,
-//				.pdata = buf,
-//				.tail = PRO_FRAME_TAIL
-//			};
 //			protocol_sendfram(&test_msg);
 			break;		
 		default:
@@ -169,17 +185,7 @@ void protocol_parse(void)
 	}
 }
 
-/*协议要用到的组件
-1、fifo.c/.h
-2、fsm.h
-*/
-unsigned char fifo_receive_buff[256];//fifo数据缓存区
-byte_fifo_t uart1_rx_fifo;//fifo控制块
-void protocol_init(void)
-{
-    bytefifo_init(&uart1_rx_fifo,fifo_receive_buff,sizeof(fifo_receive_buff));
-    get_fram_init();
-}
+
 
 
 

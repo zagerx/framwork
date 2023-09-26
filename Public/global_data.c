@@ -2,10 +2,6 @@
 #include "key_fsm.h"
 #include "global_data.h"
 
-// unsigned char key_databuf[2] = {0};
-// unsigned char aht20_databuf[2];
-// unsigned short mpu6050_databuf[4] = {0};
-
 typedef struct key_data
 {
   unsigned char key_data;

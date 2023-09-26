@@ -21,11 +21,10 @@ typedef struct fsm_cb fsm_cb_t;
 typedef fsm_rt_t *fsm_t(fsm_cb_t*);
 
 
-/*¡Á????¨²?????¨¦*/
 struct fsm_cb{
-    unsigned char chState;//????????
+    unsigned char chState;
     unsigned char sig;
-    fsm_t *fsm;//¡Á????¨²????
+    fsm_t *fsm;
     void *pdata;
 };
 
