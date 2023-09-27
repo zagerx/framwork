@@ -30,7 +30,6 @@ void protocl_cmd_process(void)
     DISPATCH_FSM(&cmd_cb);
 }
 
-
 static fsm_rt_t protocl_cmdtype_idle_state(fsm_cb_t *ptThis)
 {
     enum {
@@ -59,20 +58,28 @@ static fsm_rt_t protocl_cmdtype_01_state(fsm_cb_t *ptThis)
 {
     enum {
         FIRST = USER,
+        WAIT_ACK,
     };
+    mesg_t *p_readMsg;
+    pro_frame_t *p_readfram;
+    unsigned char buf[32] = {0};
     static unsigned int t0 = 0;
     switch (this.chState)
     {
     case START:
     case FIRST:
-        if(GET_IPC_EVENT(PROTOCOL_CMD_01))
-        {
-            CLEAR_IPC_EVENT(PROTOCOL_CMD_01);
-            TRAN_STATE(&cmd_cb,protocl_cmdtype_idle_state);
-        }
         /*获取要发送的数据帧*/
-        printf("cmd_type01 runing\r\n");
+
+        /*等待消息队列内的消息*/
+
+        /*开始解包*/        
+        p_readMsg = mesgqueue_read();
+        protocol_sendfram((pro_frame_t *)p_readMsg->pdata,p_readMsg->len);      
+        free(p_readMsg);
+        TRAN_STATE(&cmd_cb,protocl_cmdtype_idle_state);
         break;
+    case WAIT_ACK:
+        break;        
     case EXIT:
         break;
     default:

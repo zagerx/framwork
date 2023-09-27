@@ -55,6 +55,7 @@ Protocol/protocol_cmd.c \
 Protocol/protocol_process.c \
 Protocol/protocol_reciver.c \
 Protocol/protocol_transmit.c \
+Protocol/IPC/ipc_mesg.c \
 Public/IPC/ipc_event.c \
 Public/crc.c \
 Public/fifo.c \

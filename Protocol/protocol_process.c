@@ -18,6 +18,8 @@
 
 #include "malloc.h"
 
+extern byte_fifo_t uart1_rx_fifo;//fifo控制块
+
 
 static char get_fram_process(unsigned char *pbuf)
 {
@@ -84,6 +86,55 @@ static char get_fram_process(unsigned char *pbuf)
 }
 
 
+#define __SWP16(A)   (( ((unsigned short)(A) & 0xff00) >> 8)    | \
+                                        (( (unsigned short)(A) & 0x00ff) << 8))  
+ 
+#define __SWP32(A)   ((( (unsigned int)(A) & 0xff000000) >> 24) | \
+                                        (( (unsigned int)(A) & 0x00ff0000) >> 8)   | \
+                                        (( (unsigned int)(A) & 0x0000ff00) << 8)   | \
+                                        (( (unsigned int)(A) & 0x000000ff) << 24))
+
+/*IPC消息封包*/
+mesg_t* ipc_mesg_packet(unsigned short id,unsigned short len)
+{
+    unsigned char* pbuf;
+    pbuf = (unsigned char*)malloc(len);
+    /*开始封包*/
+    mesg_t *pMsg;
+    pMsg = (mesg_t *)&pbuf[0];
+    pMsg->id = 0x01;
+    pMsg->len = len-sizeof(mesg_t);
+    pMsg->pdata = &pbuf[sizeof(mesg_t)];
+    return pMsg;
+}
+
+/*封包加转化*/
+unsigned char* pro_frame_packet(unsigned short cmd,void *pdata,unsigned char len)
+{
+    unsigned char *puctemp;
+    pro_frame_t *pfram;
+    puctemp = malloc(sizeof(pro_frame_t) + len);
+    pfram = (pro_frame_t *)puctemp;
+    pfram->head = __SWP16(PRO_FRAME_HEAD);
+//    pfram->tail = __SWP16(PRO_FRAME_TAIL);
+    pfram->func_c = __SWP16(cmd);
+    pfram->len = __SWP16(len);
+    if(pdata != 0)
+    {
+        memcpy((unsigned char*)&puctemp[FRAM_PDATA_OFFSET],(unsigned char*)pdata,len);
+    }
+
+
+    
+    unsigned short crc_16;
+    crc_16 = CRC16_Subsection(&puctemp[2],0xFFFF,FRAM_PDATA_OFFSET+len-2);
+    crc_16 = __SWP16(crc_16);
+    memcpy((unsigned char*)&puctemp[FRAM_PDATA_OFFSET+len],(unsigned char*)&crc_16,sizeof(crc_16));
+    unsigned short tail_ = __SWP16(PRO_FRAME_TAIL);
+    memcpy((unsigned char*)&puctemp[FRAM_PDATA_OFFSET+len+2],(unsigned char*)&tail_,sizeof(tail_));
+
+    return puctemp;
+}    
 
 
 
@@ -109,7 +160,9 @@ void protocol_parse(void)
 {
 	unsigned char buf[PRO_FRAME_MAX_SIZE];
 	unsigned char cmd;
-    unsigned short len;
+    unsigned char len;
+    float data_buf[2] = {6.4f,2.3f};
+    unsigned char data_len;
 	/*读取1帧数据*/
 	// if(get_fram_process(&get_fram_cb) != fsm_rt_cpl)
 	// {
@@ -126,32 +179,27 @@ void protocol_parse(void)
 	switch (cmd)
 	{
 		case 0x02:
-			USER_DEBUG("recive cmd 02\r\n");
+            /*计算要发送的数据长度*/        
+            data_len = sizeof(data_buf);
+            /*计算消息的整体大小*/
+            len =sizeof(mesg_t) + sizeof(pro_frame_t) + data_len;
+            /*计算消息大小*/
+            unsigned char *puctemp;
+            mesg_t *p_msg;
+
+            p_msg = ipc_mesg_packet(0x01,len);
+        
+            puctemp = pro_frame_packet(PRO_FUNC_C_PF300 | CMD_RESP,data_buf,data_len);           
+            memcpy((unsigned char*)p_msg->pdata,puctemp,sizeof(pro_frame_t) + data_len);
+            free(puctemp);
+            /*添加到消息队列*/
+            mesgqueue_write(p_msg);
+            SET_IPC_EVENT(PROTOCOL_CMD_01);//通知进程
+        
+            // HAL_UART_Transmit(&huart1,(unsigned char*)p_msg->pdata,sizeof(pro_frame_t)+2,0XFFFF);
+            // free(p_msg);        
 			break;
 		case 0x01:
-            // SET_IPC_EVENT(PROTOCOL_CMD_01);
-			USER_DEBUG("recive cmd 01\r\n");
-            /*命令封包*/
-            /*计算帧大小*/
-            unsigned char len;
-            len = sizeof(pro_frame_t) + sizeof(float);
-
-            /*计算消息大小      暂定为8byte*/
-            // void* pmsg;
-            // pmsg = malloc(len+8);
-            // if (!pmsg)
-            // {
-            //     printf(" malloc fail\r\n");
-            // }
-            // /*开始封包*/
-            
-			// pro_frame_t test_cmdtype_01={
-			// 	.head = PRO_FRAME_HEAD,
-			// 	.func_c = PRO_FUNC_C_TEMP | (1<<CMD_RESP) ,
-			// 	.len = 0,
-			// 	.pdata = 0,
-			// 	.tail = PRO_FRAME_TAIL
-			// };
 			break;
 		case 0x03:
 			USER_DEBUG("recive cmd 03\r\n");
@@ -164,7 +212,6 @@ void protocol_parse(void)
 			break;
 		case 0x0B:
 			USER_DEBUG("recive cmd 06\r\n");
-//			protocol_sendfram(&test_msg);
 			break;		
 		default:
 			break;
