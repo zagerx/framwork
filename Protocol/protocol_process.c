@@ -20,7 +20,7 @@
 
 extern byte_fifo_t uart1_rx_fifo;//fifo控制块
 
-
+unsigned short fram_len = 0; 
 static char get_fram_process(unsigned char *pbuf)
 {
     enum {
@@ -32,7 +32,7 @@ static char get_fram_process(unsigned char *pbuf)
     unsigned char data;    
     static unsigned short index = 0;		    
     unsigned char chState;
-    unsigned short fram_len = 0;        
+           
     chState = START;
     switch (chState)
     {
@@ -158,24 +158,68 @@ unsigned char* pro_frame_packet(unsigned short cmd,void *pdata,unsigned char len
 ********************************************************************************************************/
 void protocol_parse(void)
 {
-	unsigned char buf[PRO_FRAME_MAX_SIZE];
+	unsigned char fram_buf[PRO_FRAME_MAX_SIZE];
 	unsigned char cmd;
     unsigned char len;
     float data_buf[2] = {6.4f,2.3f};
     unsigned char data_len;
 	/*读取1帧数据*/
-	// if(get_fram_process(&get_fram_cb) != fsm_rt_cpl)
-	// {
-	// 	return;
-	// }
-	if(get_fram_process(&buf[0]) != 0)
+
+	if(get_fram_process(&fram_buf[0]) != 0)
 	{
 		return;
-	}    
-	/*开始校验*/
-	
-	/*开始解析*/
-    cmd = buf[2];
+	}
+
+
+    /*申请内存*/
+    unsigned char *pr_buf_1;
+    unsigned short r_fram_len;
+    unsigned short r_data_len;
+    unsigned short r_crc_16;
+    r_fram_len = fram_len;
+    // USER_DEBUG_RTT("fram_len %d\r\n",fram_len);
+    pr_buf_1 = malloc(r_fram_len);
+    memcpy(pr_buf_1,fram_buf,fram_len);
+    r_crc_16 = CRC16_Subsection(pr_buf_1,0xFFFF,fram_len-4);
+    if(r_crc_16 != (pr_buf_1[fram_len-4]<<8 | pr_buf_1[fram_len-3]))
+    {
+        free(pr_buf_1);
+        USER_DEBUG_RTT("crc fail   0x%x",r_crc_16);
+        return;
+    }
+    // USER_DEBUG_RTT("crc ok\r\n");
+    /*校验成功*/
+    r_data_len =  pr_buf_1[4]<<8 | pr_buf_1[5];   //获取数据长度
+    // USER_DEBUG_RTT("r_data_len = %d\r\n",r_data_len);
+    unsigned char *pr_buf_2;
+    pr_buf_2 = 0;
+    pr_buf_2 = malloc(sizeof(pro_frame_t)+r_data_len);//申请数据帧内存
+    memcpy(&pr_buf_2[2],pr_buf_1,r_fram_len);
+    free(pr_buf_1);
+
+    unsigned char *pr_buf_data;
+    pr_buf_data = malloc(r_data_len);
+    memcpy(pr_buf_data,&pr_buf_2[FRAM_PDATA_OFFSET],r_data_len);   
+
+    memcpy(&pr_buf_2[FRAM_CRC_OFFSET],&pr_buf_2[FRAM_PDATA_OFFSET+r_data_len],4);
+    memcpy(&pr_buf_2[FRAM_BUF_OFFSET],pr_buf_data,r_data_len);
+    free(pr_buf_data);
+    pro_frame_t *p_r_fram;
+    p_r_fram = (pro_frame_t *)pr_buf_2;
+    p_r_fram->pdata = &pr_buf_2[FRAM_BUF_OFFSET];
+
+
+
+    USER_DEBUG_RTT("fram->head 0x%x\r\n",__SWP16(p_r_fram->head));
+    USER_DEBUG_RTT("fram->crc  0x%x\r\n",__SWP16(p_r_fram->crc16));
+    USER_DEBUG_RTT("fram->tail 0x%x\r\n",__SWP16(p_r_fram->tail));
+    float *pf1;
+    pf1 = (float *)p_r_fram->pdata;
+    USER_DEBUG_RTT("fram->data %f\r\n",pf1[0]);
+    USER_DEBUG_RTT("fram->data %f\r\n",pf1[1]);
+    free(p_r_fram);
+    cmd = fram_buf[2];
+    cmd = 0;
 	switch (cmd)
 	{
 		case 0x02:
@@ -202,16 +246,16 @@ void protocol_parse(void)
 		case 0x01:
 			break;
 		case 0x03:
-			USER_DEBUG("recive cmd 03\r\n");
+			USER_DEBUG_RTT("recive cmd 03\r\n");
 			break;
 		case 0x04://发送温湿度数据给主机，并等待主机响应
-			USER_DEBUG("recive cmd 04\r\n");
+			USER_DEBUG_RTT("recive cmd 04\r\n");
 			break;
 		case 0x05:
-			USER_DEBUG("recive cmd 05\r\n");
+			USER_DEBUG_RTT("recive cmd 05\r\n");
 			break;
 		case 0x0B:
-			USER_DEBUG("recive cmd 06\r\n");
+			USER_DEBUG_RTT("recive cmd 06\r\n");
 			break;		
 		default:
 			break;
