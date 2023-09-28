@@ -1,10 +1,6 @@
 #include "aht20_fsm.h"
 #include "stdio.h"
 #include "aht20.h"
-#include "mesg_list.h"
-
-// #include "systick.h"
-
 
 #undef NULL
 #define NULL 0                  
@@ -16,7 +12,6 @@
 				
 fsm_cb_t aht20_fsm_ctrlblock;
 float buf[6] = {0};
-mesg_node_t mesg_block;
 enum{
 	AHT20_MESG,
 };
@@ -65,10 +60,7 @@ fsm_rt_t aht20_fsm_process(fsm_cb_t *ptThis)
 				/*传感器数据已更新*/
 				printf("%f %f\r\n",buf[0],buf[1]);
 				/*添加到mesg_list*/
-				mesg_block.pmsg->id = AHT20_MESG;
-				mesg_block.pmsg->pdata = buf;
-				mesg_block.pmsg->len = 2;
-				mesg_list_tailinsert(&mesg_block);
+
 				this.chState = GET_END_WAIT;			
 				t0 = HAL_GetTick();			
 			}else{

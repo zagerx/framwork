@@ -42,7 +42,6 @@ ContrlBlock/contrl_mode.c \
 ContrlBlock/cpap_adjust.c \
 ContrlBlock/highflow_adjust.c \
 c_bsp/eio_pin.c \
-Public/mesg_list.c \
 Hardware/as5600.c \
 Hardware/analog_i2c/i2c_bitops.c \
 Hardware/analog_i2c/i2c_bus.c \
@@ -53,7 +52,6 @@ Sensor/key_fsm.c \
 Protocol/protocol.c \
 Protocol/protocol_cmd.c \
 Protocol/protocol_process.c \
-Protocol/protocol_reciver.c \
 Protocol/protocol_transmit.c \
 Protocol/IPC/ipc_mesg.c \
 Public/IPC/ipc_event.c \

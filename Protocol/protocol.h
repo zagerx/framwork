@@ -4,6 +4,9 @@
 
 #include "ipc.h"
 
+enum{
+    PROTOCOL_CMD_01 = 3,
+};
 
 enum{
     CMD_NO_RESP = 8,
@@ -12,11 +15,14 @@ enum{
 };
 
 
-/*
-**从机心跳包
-			head			func_c		len				crc_16						tail
-**0x5A 0xA5 		0x01 			0x00 		 0xFC 0x0D		   	0xEF 0xEF
-*/
+#define __SWP16(A)   (( ((unsigned short)(A) & 0xff00) >> 8)    | \
+                                        (( (unsigned short)(A) & 0x00ff) << 8))  
+ 
+#define __SWP32(A)   ((( (unsigned int)(A) & 0xff000000) >> 24) | \
+                                        (( (unsigned int)(A) & 0x00ff0000) >> 8)   | \
+                                        (( (unsigned int)(A) & 0x0000ff00) << 8)   | \
+                                        (( (unsigned int)(A) & 0x000000ff) << 24))
+
 
 
 #define	PRO_FRAME_MAX_SIZE	32
@@ -57,4 +63,12 @@ extern void protocol_init(void);
 extern void protocol_process(void);
 extern void _protocol_cmd_init(void);
 extern void protocl_cmd_process(void);
+
+
+extern char protocol_sendfram(pro_frame_t *msg,unsigned short len);
+unsigned char* pro_frame_packet(unsigned short cmd,void *pdata,unsigned char len);
+pro_frame_t* pro_frame_packet_sigle(unsigned short cmd,void *pdata,unsigned char len);
+pro_frame_t* pro_frame_unpack(unsigned char *pdata,unsigned short len);
+
+
 #endif

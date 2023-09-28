@@ -105,7 +105,7 @@ int main(void)
   while (1)
   {
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
-    HAL_Delay(100);
+    HAL_Delay(20);
     protocol_process();
     // control_proess();
     sensor_actor();

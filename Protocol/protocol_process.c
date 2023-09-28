@@ -1,11 +1,4 @@
-/**------------------------------------------------------------------------------------------------------
-** Created by:			
-** Created date:		2023-08-17
-** Version:				1.0
-** Descriptions:		
-**
-**------------------------------------------------------------------------------------------------------
-** Modified by:			zager
+/** Modified by:			zager
 ** Modified date:		2023-08-17
 ** Version:
 ** Descriptions:	协议解析
@@ -17,7 +10,7 @@
 #include "usart.h"
 
 #include "malloc.h"
-
+#include "string.h"
 extern byte_fifo_t uart1_rx_fifo;//fifo控制块
 
 unsigned short fram_len = 0; 
@@ -86,58 +79,6 @@ static char get_fram_process(unsigned char *pbuf)
 }
 
 
-#define __SWP16(A)   (( ((unsigned short)(A) & 0xff00) >> 8)    | \
-                                        (( (unsigned short)(A) & 0x00ff) << 8))  
- 
-#define __SWP32(A)   ((( (unsigned int)(A) & 0xff000000) >> 24) | \
-                                        (( (unsigned int)(A) & 0x00ff0000) >> 8)   | \
-                                        (( (unsigned int)(A) & 0x0000ff00) << 8)   | \
-                                        (( (unsigned int)(A) & 0x000000ff) << 24))
-
-/*IPC消息封包*/
-mesg_t* ipc_mesg_packet(unsigned short id,unsigned short len)
-{
-    unsigned char* pbuf;
-    pbuf = (unsigned char*)malloc(len);
-    /*开始封包*/
-    mesg_t *pMsg;
-    pMsg = (mesg_t *)&pbuf[0];
-    pMsg->id = 0x01;
-    pMsg->len = len-sizeof(mesg_t);
-    pMsg->pdata = &pbuf[sizeof(mesg_t)];
-    return pMsg;
-}
-
-/*封包加转化*/
-unsigned char* pro_frame_packet(unsigned short cmd,void *pdata,unsigned char len)
-{
-    unsigned char *puctemp;
-    pro_frame_t *pfram;
-    puctemp = malloc(sizeof(pro_frame_t) + len);
-    pfram = (pro_frame_t *)puctemp;
-    pfram->head = __SWP16(PRO_FRAME_HEAD);
-//    pfram->tail = __SWP16(PRO_FRAME_TAIL);
-    pfram->func_c = __SWP16(cmd);
-    pfram->len = __SWP16(len);
-    if(pdata != 0)
-    {
-        memcpy((unsigned char*)&puctemp[FRAM_PDATA_OFFSET],(unsigned char*)pdata,len);
-    }
-
-
-    
-    unsigned short crc_16;
-    crc_16 = CRC16_Subsection(&puctemp[2],0xFFFF,FRAM_PDATA_OFFSET+len-2);
-    crc_16 = __SWP16(crc_16);
-    memcpy((unsigned char*)&puctemp[FRAM_PDATA_OFFSET+len],(unsigned char*)&crc_16,sizeof(crc_16));
-    unsigned short tail_ = __SWP16(PRO_FRAME_TAIL);
-    memcpy((unsigned char*)&puctemp[FRAM_PDATA_OFFSET+len+2],(unsigned char*)&tail_,sizeof(tail_));
-
-    return puctemp;
-}    
-
-
-
 
 
 
@@ -169,57 +110,18 @@ void protocol_parse(void)
 	{
 		return;
 	}
+    // pro_frame_t * p_r_fram;
+    // p_r_fram = pro_frame_unpack((unsigned char*)fram_buf,fram_len);
 
-
-    /*申请内存*/
-    unsigned char *pr_buf_1;
-    unsigned short r_fram_len;
-    unsigned short r_data_len;
-    unsigned short r_crc_16;
-    r_fram_len = fram_len;
-    // USER_DEBUG_RTT("fram_len %d\r\n",fram_len);
-    pr_buf_1 = malloc(r_fram_len);
-    memcpy(pr_buf_1,fram_buf,fram_len);
-    r_crc_16 = CRC16_Subsection(pr_buf_1,0xFFFF,fram_len-4);
-    if(r_crc_16 != (pr_buf_1[fram_len-4]<<8 | pr_buf_1[fram_len-3]))
-    {
-        free(pr_buf_1);
-        USER_DEBUG_RTT("crc fail   0x%x",r_crc_16);
-        return;
-    }
-    // USER_DEBUG_RTT("crc ok\r\n");
-    /*校验成功*/
-    r_data_len =  pr_buf_1[4]<<8 | pr_buf_1[5];   //获取数据长度
-    // USER_DEBUG_RTT("r_data_len = %d\r\n",r_data_len);
-    unsigned char *pr_buf_2;
-    pr_buf_2 = 0;
-    pr_buf_2 = malloc(sizeof(pro_frame_t)+r_data_len);//申请数据帧内存
-    memcpy(&pr_buf_2[2],pr_buf_1,r_fram_len);
-    free(pr_buf_1);
-
-    unsigned char *pr_buf_data;
-    pr_buf_data = malloc(r_data_len);
-    memcpy(pr_buf_data,&pr_buf_2[FRAM_PDATA_OFFSET],r_data_len);   
-
-    memcpy(&pr_buf_2[FRAM_CRC_OFFSET],&pr_buf_2[FRAM_PDATA_OFFSET+r_data_len],4);
-    memcpy(&pr_buf_2[FRAM_BUF_OFFSET],pr_buf_data,r_data_len);
-    free(pr_buf_data);
-    pro_frame_t *p_r_fram;
-    p_r_fram = (pro_frame_t *)pr_buf_2;
-    p_r_fram->pdata = &pr_buf_2[FRAM_BUF_OFFSET];
-
-
-
-    USER_DEBUG_RTT("fram->head 0x%x\r\n",__SWP16(p_r_fram->head));
-    USER_DEBUG_RTT("fram->crc  0x%x\r\n",__SWP16(p_r_fram->crc16));
-    USER_DEBUG_RTT("fram->tail 0x%x\r\n",__SWP16(p_r_fram->tail));
-    float *pf1;
-    pf1 = (float *)p_r_fram->pdata;
-    USER_DEBUG_RTT("fram->data %f\r\n",pf1[0]);
-    USER_DEBUG_RTT("fram->data %f\r\n",pf1[1]);
-    free(p_r_fram);
+    // USER_DEBUG_RTT("fram->head 0x%x\r\n",__SWP16(p_r_fram->head));
+    // USER_DEBUG_RTT("fram->crc  0x%x\r\n",__SWP16(p_r_fram->crc16));
+    // USER_DEBUG_RTT("fram->tail 0x%x\r\n",__SWP16(p_r_fram->tail));
+    // float *pf1;
+    // pf1 = (float *)p_r_fram->pdata;
+    // USER_DEBUG_RTT("fram->data %f\r\n",pf1[0]);
+    // USER_DEBUG_RTT("fram->data %f\r\n",pf1[1]);
+    // free(p_r_fram);
     cmd = fram_buf[2];
-    cmd = 0;
 	switch (cmd)
 	{
 		case 0x02:
@@ -230,18 +132,14 @@ void protocol_parse(void)
             /*计算消息大小*/
             unsigned char *puctemp;
             mesg_t *p_msg;
-
             p_msg = ipc_mesg_packet(0x01,len);
-        
-            puctemp = pro_frame_packet(PRO_FUNC_C_PF300 | CMD_RESP,data_buf,data_len);           
+            puctemp = (unsigned char*)pro_frame_packet_sigle(PRO_FUNC_C_PF300 | CMD_RESP,data_buf,data_len);
             memcpy((unsigned char*)p_msg->pdata,puctemp,sizeof(pro_frame_t) + data_len);
             free(puctemp);
-            /*添加到消息队列*/
-            mesgqueue_write(p_msg);
+            /*添加到消息池*/
+            // mesgqueue_write(p_msg);
+            ipc_msgpool_write(p_msg);        
             SET_IPC_EVENT(PROTOCOL_CMD_01);//通知进程
-        
-            // HAL_UART_Transmit(&huart1,(unsigned char*)p_msg->pdata,sizeof(pro_frame_t)+2,0XFFFF);
-            // free(p_msg);        
 			break;
 		case 0x01:
 			break;
