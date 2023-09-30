@@ -51,9 +51,9 @@ static fsm_rt_t protocl_cmdtype_idle_state(fsm_cb_t *ptThis)
         }
         CLEAR_IPC_EVENT(PROTOCOL_CMD_01);
     //    p_readMsg = mesgqueue_read();//消息队列不为空
-        p_readMsg = ipc_msgpool_read();
+        p_readMsg = (mesg_t *)ipc_msgpool_read();
         protocol_sendfram((pro_frame_t *)p_readMsg->pdata,p_readMsg->len); 
-        // ipc_msgpool_del(p_readMsg);
+        ipc_msgpool_del(p_readMsg);
         free(p_readMsg);        
         /*查看命令*/
         // p_readfram = (pro_frame_t *)p_readMsg->pdata;

@@ -1,22 +1,7 @@
 #include "ipc.h"
 #include "usart.h"
-
-
-static mesg_t *mesg_buf[5];
-void mesgqueue_init(void)
-{
-//    mesg_buf;
-}
-
-void mesgqueue_write(mesg_t *msg)
-{
-    mesg_buf[0] = msg;
-}
-
-mesg_t * mesgqueue_read(void)
-{
-    return mesg_buf[0];
-}
+#include "stdlib.h"
+#include "malloc.h"
 
 /*IPC消息封包*/
 mesg_t* ipc_mesg_packet(unsigned short id,unsigned short len)
@@ -33,61 +18,116 @@ mesg_t* ipc_mesg_packet(unsigned short id,unsigned short len)
 }
 
 
+_list_t *_01_head;
 
 
-msg_list_t msgpool_cb;
+_node_t *creat_node(mesg_t *pmsg)
+{
+    _node_t *p;
+    p = malloc(sizeof(_node_t));
+    p->next = 0;
+    p->msg = pmsg;
+    return p;
+}
+
+_list_t* list_creat(void)
+{
+    _list_t *phead;
+    phead = malloc(sizeof(_list_t));
+    phead->head = 0;
+    phead->tail = 0;
+    phead->node_numb = 0;
+    return phead;
+}
+
+void list_insert_node(_list_t *pthis, _node_t *node)
+{
+    _node_t *tail_node;
+    /*当前链表是否为空*/
+    if (pthis->head == 0)
+    {
+        /* code */
+        pthis->head = node;
+        pthis->tail = node;
+    }else{
+        tail_node = pthis->tail;
+        tail_node->next = node;
+        pthis->tail = tail_node->next;//更新尾节点
+    }
+    pthis->node_numb++;
+}
+void list_delete_node(_list_t *pthis,_node_t *node)
+{
+    _node_t *cur_node,*pre_node,*next_node;
+    cur_node = pthis->head;
+    /*1、找到该节点*/
+    while (0 != cur_node)//遍历整个链表
+    {
+        /* code */
+        if (cur_node->msg != node->msg)//
+        {
+            /* code */
+            pre_node = cur_node;
+            cur_node = cur_node->next;
+        }else{//找到
+            /*保存上一个节点  保存下一个节点*/
+            pre_node->next = cur_node->next;
+        }
+    }
+    free(cur_node);
+    pthis->node_numb--;
+}
+_node_t* list_read_node(_list_t *pthis)
+{
+    _node_t *p_rnode,*phead;
+    p_rnode = pthis->head;
+    return (_node_t *)p_rnode;
+}
+void list_free(_list_t *pthis, _node_t *node)
+{
+    _node_t *cur_node,*next_node;
+    cur_node = pthis->head;
+
+    while (cur_node !=0 )
+    {
+        /* code */
+        /*记录下一个节点*/
+        next_node = cur_node->next;
+        free(cur_node);
+        cur_node = next_node;
+    }
+    free(pthis);
+}
+
+
+_list_t msgpool_cb;
 void ipc_msgpool_init(void)
 {
-    msgpool_cb.head = 0;
-    msgpool_cb.next = 0;
-    msgpool_cb.pdata = 0;
+    _01_head = list_creat();
 }
 
 void ipc_msgpool_write(mesg_t *msg)
 {
-    mesg_t *cur_node;
-    if(msgpool_cb.head != 0)
-    {
-        do{
-            cur_node = msgpool_cb.head->next;
-            if(cur_node == 0)
-            {
-                cur_node->next = msg;
-                break;
-            }else{
-                cur_node = cur_node->next;//更新节点
-            }
-        }while(1);
-    }else{
-        // USER_DEBUG_RTT("XXXXXX\r\n");
-        msgpool_cb.head = msg;
-    }
-    msgpool_cb.node_numb++;
+    _node_t *pnew_node;
+    pnew_node = creat_node(msg);
+    list_insert_node(_01_head, pnew_node);
 }
 
 mesg_t* ipc_msgpool_read(void)
 {
-    if(msgpool_cb.node_numb<=0)
-    {
-        return 0;
-    }
-    return msgpool_cb.head;
+    static _node_t *pnode;
+    pnode = list_read_node(_01_head);
+    return (pnode)->msg;
+
 }
 
 #include "usart.h"
 void ipc_msgpool_del(mesg_t *msg)
 {
-    mesg_t *cur_node;
-    mesg_t *pre_node;
-    cur_node = msgpool_cb.head;
-    pre_node = cur_node;
-    while(cur_node != msg)
-    {
-        cur_node = cur_node->next;
-    }
-    /*找到要删除的节点*/
-    pre_node->next = cur_node->next;
-    msgpool_cb.node_numb--;
+    _node_t *pdel_node;
+    pdel_node->msg = msg;
+    list_delete_node(_01_head,pdel_node);
+
 }
 
 

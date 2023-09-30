@@ -95,7 +95,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   printf("hello world\r\n");
   protocol_init();
-    sensor_init();
+  // sensor_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -108,7 +108,7 @@ int main(void)
     HAL_Delay(20);
     protocol_process();
     // control_proess();
-    sensor_actor();
+    // sensor_actor();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

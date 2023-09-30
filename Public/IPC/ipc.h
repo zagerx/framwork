@@ -20,26 +20,24 @@ extern unsigned int g_protocol_event;
 typedef struct mesg mesg_t;
 //#pragma pack(push,1)
 struct mesg{
-    mesg_t *next;
     unsigned short id;
     unsigned short len;
     void *pdata;
 };
 
-typedef struct msg_list{
+typedef struct _list{
     mesg_t *head;
-    mesg_t *next;
-    mesg_t *pdata;
+    mesg_t *tail;
     unsigned short node_numb;
-}msg_list_t;
-typedef struct mesg_equene{
-    unsigned short head;
-    unsigned short tail;
-    unsigned short remain_byte;
-    mesg_t  *pbuf;//¶ÓÁÐ»º³åÇø
-    unsigned short buflen;
-}msg_queue_t;
+}_list_t;
 
+
+typedef struct _node
+{
+    /* data */
+    mesg_t *next;
+    mesg_t *msg;
+}_node_t;
 
 
 mesg_t* ipc_mesg_packet(unsigned short id,unsigned short len);
