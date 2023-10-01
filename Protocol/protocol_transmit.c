@@ -25,6 +25,6 @@ char protocol_sendfram(pro_frame_t *msg,unsigned short len)
     memcpy((unsigned char*)&pucmsg[FRAM_PDATA_OFFSET+data_len],(unsigned char*)&crc_16,sizeof(crc_16));   
     
     memcpy((unsigned char*)&pucmsg[FRAM_PDATA_OFFSET+data_len+2],buf,2);    
-    HAL_UART_Transmit(&huart1,(unsigned char*)msg,sizeof(pro_frame_t)+4,0XFFFF);
+    HAL_UART_Transmit(&huart1,(unsigned char*)msg,sizeof(pro_frame_t)-sizeof(void *)+data_len,0XFFFF);
 	return 0;
 }

@@ -3,17 +3,21 @@
 #include "stdlib.h"
 #include "malloc.h"
 
+#undef NULL
+#define NULL 0
+
+
 /*IPC消息封包*/
-mesg_t* ipc_mesg_packet(unsigned short id,unsigned short len)
+msg_t* ipc_mesg_packet(unsigned short id,unsigned short len)
 {
     unsigned char* pbuf;
     pbuf = (unsigned char*)malloc(len);
     /*开始封包*/
-    mesg_t *pMsg;
-    pMsg = (mesg_t *)&pbuf[0];
+    msg_t *pMsg;
+    pMsg = (msg_t *)&pbuf[0];
     pMsg->id = 0x01;
-    pMsg->len = len-sizeof(mesg_t);
-    pMsg->pdata = &pbuf[sizeof(mesg_t)];
+    pMsg->len = len-sizeof(msg_t);
+    pMsg->pdata = &pbuf[sizeof(msg_t)];
     return pMsg;
 }
 
@@ -21,9 +25,9 @@ mesg_t* ipc_mesg_packet(unsigned short id,unsigned short len)
 _list_t *_01_head;
 
 
-_node_t *creat_node(mesg_t *pmsg)
+_node_t *creat_node(msg_t *pmsg)
 {
-    _node_t *p;
+    _node_t *p = NULL;
     p = malloc(sizeof(_node_t));
     p->next = 0;
     p->msg = pmsg;
@@ -58,7 +62,7 @@ void list_insert_node(_list_t *pthis, _node_t *node)
 }
 void list_delete_node(_list_t *pthis,_node_t *node)
 {
-    _node_t *cur_node,*pre_node,*next_node;
+    _node_t *cur_node,*pre_node = NULL;
     cur_node = pthis->head;
     /*1、找到该节点*/
     while (0 != cur_node)//遍历整个链表
@@ -72,6 +76,7 @@ void list_delete_node(_list_t *pthis,_node_t *node)
         }else{//找到
             /*保存上一个节点  保存下一个节点*/
             pre_node->next = cur_node->next;
+            break;
         }
     }
     free(cur_node);
@@ -79,7 +84,11 @@ void list_delete_node(_list_t *pthis,_node_t *node)
 }
 _node_t* list_read_node(_list_t *pthis)
 {
-    _node_t *p_rnode,*phead;
+    _node_t *p_rnode;
+    if (pthis->node_numb == 0)
+    {
+        return (_node_t *)NULL;
+    }
     p_rnode = pthis->head;
     return (_node_t *)p_rnode;
 }
@@ -106,25 +115,33 @@ void ipc_msgpool_init(void)
     _01_head = list_creat();
 }
 
-void ipc_msgpool_write(mesg_t *msg)
+void ipc_msgpool_write(msg_t *msg)
 {
     _node_t *pnew_node;
     pnew_node = creat_node(msg);
     list_insert_node(_01_head, pnew_node);
 }
 
-mesg_t* ipc_msgpool_read(void)
+msg_t* ipc_msgpool_read(void)
 {
     static _node_t *pnode;
     pnode = list_read_node(_01_head);
-    return (pnode)->msg;
+    if (pnode != NULL)
+    {
+        /* code */
+        return (pnode)->msg;
+    }
+    
+    return (msg_t*)NULL;
 
 }
 
 #include "usart.h"
-void ipc_msgpool_del(mesg_t *msg)
+void ipc_msgpool_del(msg_t *msg)
 {
     _node_t *pdel_node;
+    _node_t temp_node;
+    pdel_node = &temp_node;
     pdel_node->msg = msg;
     list_delete_node(_01_head,pdel_node);
 

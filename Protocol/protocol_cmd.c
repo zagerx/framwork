@@ -1,7 +1,8 @@
 #include "fsm.h"
 #include "usart.h"
 #include "protocol.h"
-
+#include "stdlib.h"
+#include "string.h"
 #undef NULL
 #define NULL 0                  
 #undef this
@@ -9,14 +10,13 @@
 
 fsm_cb_t cmd_cb;
 
-static fsm_rt_t protocl_cmdtype_01_state(fsm_cb_t *ptThis);
 static fsm_rt_t protocl_cmdtype_idle_state(fsm_cb_t *ptThis);
 static char protocol_cmd_init(fsm_cb_t *ptThis)
 {
     if(ptThis == NULL) {
         return -1; 
     }
-    this.fsm = protocl_cmdtype_idle_state;
+    this.fsm = (fsm_t *)protocl_cmdtype_idle_state;
     this.sig = 0;
     this.chState = START;
     return 0;
@@ -30,53 +30,101 @@ void protocl_cmd_process(void)
     DISPATCH_FSM(&cmd_cb);
 }
 
+
 static fsm_rt_t protocl_cmdtype_idle_state(fsm_cb_t *ptThis)
 {
     enum {
-        FIRST = USER,
+        IDLE = USER,
+        SEND_NOW,
+        SECOND,
+        THIRD,
+        FOURTH,
+        ERR,
     };
-    mesg_t *p_readMsg;
-    mesg_t readMsg;
+    static msg_t *p_readMsg;
     pro_frame_t *p_readfram;
-    unsigned char *p_ucfram;
-    unsigned char buf[32] = {0};
-    static unsigned int t0 = 0;
+    static unsigned char *p_ucfram;
     static unsigned short fram_len;
+    static unsigned int t0;
+    static unsigned short cmd_ack;
+    unsigned int delta_t;
+    static unsigned char cnt;
+    unsigned short cmd_tmp;
+
     switch (this.chState)
     {
     case START:
-        if(!GET_IPC_EVENT(PROTOCOL_CMD_01))
+        p_readMsg = NULL;
+        p_ucfram = NULL;
+        fram_len = 0;
+        cmd_ack = 0;
+        cnt = 0;
+        cmd_tmp = 0;    
+        /*获取消息池里面的消息*/
+        p_readMsg = (msg_t *)ipc_msgpool_read();
+        if (p_readMsg == NULL)
         {
             break;
         }
-        CLEAR_IPC_EVENT(PROTOCOL_CMD_01);
-    //    p_readMsg = mesgqueue_read();//消息队列不为空
-        p_readMsg = (mesg_t *)ipc_msgpool_read();
+        /*对消息池里面的消息解析*/
+        p_readfram = (pro_frame_t *)p_readMsg->pdata;
+        cmd_tmp = __SWP16(p_readfram->func_c);
+        cmd_ack = (unsigned char)cmd_tmp | (unsigned short)(CMD_ACK<<8); //获取对应命令的ACK
+        if(cmd_tmp>>8 != CMD_RESP)
+        {//该命令不需要响应
+            this.chState = SEND_NOW;
+        }else{
+            this.chState = SECOND;
+        }
+        break;
+    case SEND_NOW:
         protocol_sendfram((pro_frame_t *)p_readMsg->pdata,p_readMsg->len); 
         ipc_msgpool_del(p_readMsg);
-        free(p_readMsg);        
-        /*查看命令*/
-        // p_readfram = (pro_frame_t *)p_readMsg->pdata;
-        // if(p_readfram->func_c == 0x0c00)
-        // {//该命令需要响应
-        //     fram_len = p_readMsg->len;
-        //     p_ucfram = malloc(p_readMsg->len);
-        //     memcpy(p_ucfram,p_readMsg->pdata,p_readMsg->len);
-        //     free(p_readMsg);
-        //     this.chState = FIRST;
-        // }else{//无需响应
-        //     protocol_sendfram((pro_frame_t *)p_readMsg->pdata,p_readMsg->len); 
-        //     ipc_msgpool_del(p_readMsg);
-        //     free(p_readMsg);
-        //     this.chState = START;//状态机复位
-        //     break;
-        // }
+        free(p_readMsg);
+        this.chState = START;
         break;
-    case FIRST:
-        p_readfram = (pro_frame_t *)p_ucfram;
-        protocol_sendfram(p_readfram,fram_len);    
-        free(p_readfram);
-        this.chState = START;//状态机复位
+    case SECOND:
+        fram_len = p_readMsg->len;
+        p_ucfram = malloc(fram_len);
+        memcpy((unsigned char *)p_ucfram,p_readMsg->pdata,fram_len);
+        ipc_msgpool_del(p_readMsg);
+        free(p_readMsg);
+        this.chState = THIRD;
+    case THIRD:
+        protocol_sendfram((pro_frame_t *)p_ucfram,fram_len); //先发送命令给从机
+        t0 = HAL_GetTick();
+        if (cnt++>5)
+        {
+            free(p_ucfram);
+            this.chState = ERR;
+            break;
+        }else{
+            this.chState = FOURTH;
+        }
+    case FOURTH:
+        p_readMsg = (msg_t *)ipc_msgpool_read();
+        if (p_readMsg == NULL)
+        {
+            delta_t = HAL_GetTick()-t0;
+            if(delta_t > 2000)
+            {           
+                this.chState = THIRD;
+            }
+            break;
+        }
+        p_readfram = (pro_frame_t *)p_readMsg->pdata;
+        if (p_readfram->func_c == cmd_ack)
+        {//成功接收到命令的响应
+            ipc_msgpool_del(p_readMsg);
+            free(p_readMsg);
+            free(p_ucfram);
+            this.chState = START;//复位状态机
+        }
+        break;
+    case ERR:
+        USER_DEBUG_RTT("no respond\r\n");
+        this.chState = START;//复位状态机
+        break;    
     case EXIT:
         break;
     default:
@@ -84,3 +132,71 @@ static fsm_rt_t protocl_cmdtype_idle_state(fsm_cb_t *ptThis)
     }
     return fsm_rt_on_going;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// static fsm_rt_t protocl_cmdtype_idle_state(fsm_cb_t *ptThis)
+// {
+//     enum {
+//         FIRST = USER,
+//     };
+//     msg_t *p_readMsg;
+//     pro_frame_t *p_readfram;
+//     unsigned char *p_ucfram;
+//     static unsigned short fram_len;
+//     switch (this.chState)
+//     {
+//     case START:
+//         if(!GET_IPC_EVENT(PROTOCOL_CMD_01))
+//         {
+//             break;
+//         }
+//         CLEAR_IPC_EVENT(PROTOCOL_CMD_01);
+//         // p_readMsg = (msg_t *)ipc_msgpool_read();
+//         // protocol_sendfram((pro_frame_t *)p_readMsg->pdata,p_readMsg->len); 
+//         // ipc_msgpool_del(p_readMsg);
+//         // free(p_readMsg);
+//         /*获取消息*/
+//         p_readMsg = (msg_t *)ipc_msgpool_read();
+//         /*查看命令*/
+//         p_readfram = (pro_frame_t *)p_readMsg->pdata;
+//         if(p_readfram->func_c == 0x0B00)
+//         {//该命令需要响应
+//             fram_len = p_readMsg->len;
+//             p_ucfram = malloc(p_readMsg->len);
+//             memcpy((unsigned char *)p_ucfram,p_readMsg->pdata,p_readMsg->len);
+//             free(p_readMsg);
+//             this.chState = FIRST;
+//         }else{//无需响应
+//             protocol_sendfram((pro_frame_t *)p_readMsg->pdata,p_readMsg->len); 
+//             ipc_msgpool_del(p_readMsg);
+//             free(p_readMsg);
+//             this.chState = START;//状态机复位
+//             break;
+//         }
+//         break;
+//     case FIRST:
+//         p_readfram = (pro_frame_t *)p_ucfram;
+//         protocol_sendfram(p_readfram,fram_len);
+//         free(p_readfram);
+//         this.chState = START;//状态机复位
+//     case EXIT:
+//         break;
+//     default:
+//         break;
+//     }
+//     return fsm_rt_on_going;
+// }

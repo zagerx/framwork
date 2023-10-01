@@ -17,7 +17,7 @@ extern unsigned int g_protocol_event;
 
 
 
-typedef struct mesg mesg_t;
+typedef struct mesg msg_t;
 //#pragma pack(push,1)
 struct mesg{
     unsigned short id;
@@ -25,25 +25,26 @@ struct mesg{
     void *pdata;
 };
 
-typedef struct _list{
-    mesg_t *head;
-    mesg_t *tail;
-    unsigned short node_numb;
-}_list_t;
 
 
-typedef struct _node
+typedef struct _node _node_t;
+
+struct _node
 {
     /* data */
-    mesg_t *next;
-    mesg_t *msg;
-}_node_t;
+    _node_t *next;
+    msg_t *msg;
+};
 
-
-mesg_t* ipc_mesg_packet(unsigned short id,unsigned short len);
+typedef struct _list{
+    _node_t *head;
+    _node_t *tail;
+    unsigned short node_numb;
+}_list_t;
+msg_t* ipc_mesg_packet(unsigned short id,unsigned short len);
 void ipc_msgpool_init(void);
-void ipc_msgpool_write(mesg_t *msg);
-mesg_t* ipc_msgpool_read(void);
-void ipc_msgpool_del(mesg_t *msg);
+void ipc_msgpool_write(msg_t *msg);
+msg_t* ipc_msgpool_read(void);
+void ipc_msgpool_del(msg_t *msg);
 
 #endif

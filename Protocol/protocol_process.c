@@ -100,51 +100,95 @@ static char get_fram_process(unsigned char *pbuf)
 void protocol_parse(void)
 {
 	unsigned char fram_buf[PRO_FRAME_MAX_SIZE];
-	unsigned char cmd;
+	// unsigned char cmd;
     unsigned char len;
     float data_buf[2] = {6.4f,2.3f};
     unsigned char data_len;
+    unsigned char *puctemp;
+    msg_t *p_msg;   
 	/*读取1帧数据*/
 
 	if(get_fram_process(&fram_buf[0]) != 0)
 	{
 		return;
 	}
-    // pro_frame_t * p_r_fram;
-    // p_r_fram = pro_frame_unpack((unsigned char*)fram_buf,fram_len);
+    pro_frame_t * p_r_fram;
+    p_r_fram = pro_frame_unpack((unsigned char*)fram_buf,fram_len);
 
     // USER_DEBUG_RTT("fram->head 0x%x\r\n",__SWP16(p_r_fram->head));
     // USER_DEBUG_RTT("fram->crc  0x%x\r\n",__SWP16(p_r_fram->crc16));
+    // USER_DEBUG_RTT("fram->cmd  0x%x\r\n",__SWP16(p_r_fram->func_c));
     // USER_DEBUG_RTT("fram->tail 0x%x\r\n",__SWP16(p_r_fram->tail));
     // float *pf1;
     // pf1 = (float *)p_r_fram->pdata;
     // USER_DEBUG_RTT("fram->data %f\r\n",pf1[0]);
     // USER_DEBUG_RTT("fram->data %f\r\n",pf1[1]);
     // free(p_r_fram);
-    cmd = fram_buf[2];
-	switch (cmd)
+    // cmd = fram_buf[2];
+
+    unsigned short cmd = __SWP16(p_r_fram->func_c);
+    unsigned char cmd_fun = (unsigned char)cmd;
+    unsigned char cmd_type = (unsigned char)(cmd>>8);
+
+    // USER_DEBUG_RTT("cmd  0x%x\r\n",cmd);
+    // USER_DEBUG_RTT("cmd_fun  0x%x\r\n",cmd_fun);
+    // USER_DEBUG_RTT("cmd_type  0x%x\r\n",cmd_type);
+	switch (cmd_fun)
 	{
 		case 0x02:
             /*计算要发送的数据长度*/        
             data_len = sizeof(data_buf);
             /*计算消息的整体大小*/
-            len =sizeof(mesg_t) + sizeof(pro_frame_t) + data_len;
+            len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
             /*计算消息大小*/
-            unsigned char *puctemp;
-            mesg_t *p_msg;
             p_msg = ipc_mesg_packet(0x01,len);
-            puctemp = (unsigned char*)pro_frame_packet_sigle(PRO_FUNC_C_PF300 | CMD_RESP,data_buf,data_len);
+            puctemp = (unsigned char*)pro_frame_packet_sigle(PRO_FUNC_C_PF300 |(CMD_RESP<<8),data_buf,data_len);
             memcpy((unsigned char*)p_msg->pdata,puctemp,sizeof(pro_frame_t) + data_len);
             free(puctemp);
             /*添加到消息池*/
-            // mesgqueue_write(p_msg);
             ipc_msgpool_write(p_msg);        
             SET_IPC_EVENT(PROTOCOL_CMD_01);//通知进程
 			break;
-		case 0x01:
+		case 0x0A:
+            /*从机的回复ACK 命令类型*/
+            if(cmd_type == 0x00)//命令
+            {
+
+            }else if (cmd_type == 0x01)//命令的应答
+            {
+                // USER_DEBUG_RTT("pf300  ack\r\n");
+                /*计算要发送的数据长度*/        
+                data_len = 0;
+                /*计算消息的整体大小*/
+                len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
+                /*计算消息大小*/
+
+                p_msg = ipc_mesg_packet(0x01,len);
+                puctemp = (unsigned char*)pro_frame_packet_sigle(PRO_FUNC_C_PF300 |(CMD_RESP<<8),data_buf,data_len);
+                memcpy((unsigned char*)p_msg->pdata,puctemp,sizeof(pro_frame_t) + data_len);
+                free(puctemp);
+                /*添加到消息池*/
+                ipc_msgpool_write(p_msg);
+                
+            }else if(cmd_type == 0x02)//命令的回复
+            {
+
+            }else if(cmd_type == 0x03)//命令的响应
+            {}
 			break;
-		case 0x03:
-			USER_DEBUG_RTT("recive cmd 03\r\n");
+		case 0x03://主机获取PF300指令
+            // USER_DEBUG_RTT("pf300  ack\r\n");
+            /*计算要发送的数据长度*/        
+            data_len = 0;
+            /*计算消息的整体大小*/
+            len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
+            /*计算消息大小*/
+            p_msg = ipc_mesg_packet(0x01,len);
+            puctemp = (unsigned char*)pro_frame_packet_sigle(PRO_FUNC_C_PF300 | (CMD_RESP<<8),data_buf,data_len);
+            memcpy((unsigned char*)p_msg->pdata,puctemp,sizeof(pro_frame_t) + data_len);
+            free(puctemp);
+            /*添加到消息池*/
+            ipc_msgpool_write(p_msg);
 			break;
 		case 0x04://发送温湿度数据给主机，并等待主机响应
 			USER_DEBUG_RTT("recive cmd 04\r\n");

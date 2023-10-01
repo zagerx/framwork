@@ -9,8 +9,9 @@ enum{
 };
 
 enum{
-    CMD_NO_RESP = 8,
-    CMD_RESP,
+    CMD_ORIGE = 0x00,
+    CDM_NO_RESP = 0x01,
+    CMD_RESP = 0x02,
     CMD_ACK,
 };
 
