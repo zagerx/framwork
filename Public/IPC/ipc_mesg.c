@@ -53,26 +53,47 @@ void list_delete_node(_list_t *pthis,_node_t *node)
         /* code */
         return;
     }
-    while (cur_node->msg != node->msg)
+    // while (cur_node->msg->id != node->msg->id)
+    // {
+    //     /* code */
+    //     pre_node = cur_node;
+    //     cur_node = cur_node->next;
+    //     if (cur_node == NULL)
+    //     {
+    //         /* code */
+    //         break;
+    //     }
+    // }
+    // pthis->head = cur_node->next;
+
+    while (cur_node != NULL)
     {
-        /* code */
-        pre_node = cur_node;
-        cur_node = cur_node->next;
-        if (cur_node == NULL)
+        if (cur_node->msg->id == node->msg->id)
         {
             /* code */
+            pre_node->next = cur_node->next;
+            if (cur_node->next == NULL)
+            {
+                /* code */
+                pthis->tail = pre_node;
+            }
+            
+            pthis->node_numb--;    
             break;
         }
+        pre_node = cur_node;
+        cur_node = cur_node->next;
     }
-    pthis->head = cur_node->next;
+    
+
+
 
     free(cur_node);
-    pthis->node_numb--;
 }
 
 _node_t* list_read_node_vale(_list_t *pthis,_node_t *node)
 {
-    _node_t *p_rnode;
+    // _node_t *p_rnode;
     _node_t *p_curnode;
     if (pthis->node_numb == 0)
     {
@@ -85,8 +106,13 @@ _node_t* list_read_node_vale(_list_t *pthis,_node_t *node)
     len = node->msg->len;
     p1 = node->msg->pdata;
     p2 = p_curnode->msg->pdata;
-    while (p_curnode->msg != node->msg)
+    while (p_curnode != NULL)
     {
+        if (p_curnode->msg->id == node->msg->id)
+        {
+            /* code */
+            break;
+        }
         p_curnode = p_curnode->next;
     }
     return p_curnode;
@@ -102,6 +128,10 @@ _node_t* list_read_node(_list_t *pthis)
     p_rnode = pthis->head;
     return (_node_t *)p_rnode;
 }
+
+
+
+
 void list_free(_list_t *pthis, _node_t *node)
 {
     _node_t *cur_node,*next_node;
@@ -129,11 +159,15 @@ void _list_printf(_list_t *pthis)
     }
     _node_t *cur_node;
     cur_node = pthis->head;
+    unsigned short id;
+    
     while (cur_node != NULL)
     {
+        id = cur_node->msg->id;
         len = cur_node->msg->len;
         pdata = cur_node->msg->pdata;
-        HAL_UART_Transmit(&huart1,pdata,len,0xFFFF);        
+        HAL_UART_Transmit(&huart1,pdata,len,0xFFFF);
+        HAL_UART_Transmit(&huart1,(unsigned char *)&id,2,0xFFFF);      
         cur_node = cur_node->next;
     }
 
@@ -170,8 +204,9 @@ msg_t* ipc_msgpool_read(void)
 }
 msg_t* ipc_msgpool_read_val(msg_t* msg)
 {
-    static _node_t *pnode;
-    pnode = list_read_node_vale(_01_head,msg);
+    static _node_t *pnode,node;
+    node.msg = msg;
+    pnode = list_read_node_vale(_01_head,&node);
     if (pnode != NULL)
     {
         /* code */

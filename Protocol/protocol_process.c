@@ -211,6 +211,15 @@ void protocol_parse(void)
                 ipc_msgpool_del(p_readMsg);
             }
 			break;
+ 		case 0x07:
+            {
+                msg_t *p_readMsg,temp;
+                temp.id = 5;
+                p_readMsg = &temp;
+                p_readMsg = (msg_t *)ipc_msgpool_read_val(p_readMsg);
+                ipc_msgpool_del(p_readMsg);
+            }
+			break;           
 		case 0x06:
             /*添加数据到链表并打印*/
             ipc_msg_printf();
