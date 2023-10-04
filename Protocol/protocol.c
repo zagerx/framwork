@@ -47,6 +47,7 @@ pro_frame_t* pro_frame_packet_sigle(unsigned short cmd,void *pdata,unsigned char
     pro_frame_t *pfram;
     puctemp = malloc(sizeof(pro_frame_t) + len);
     pfram = (pro_frame_t *)puctemp;
+    pfram->_x_x = 0x00;
     pfram->head = __SWP16(PRO_FRAME_HEAD);
     pfram->tail = __SWP16(PRO_FRAME_TAIL);
     pfram->func_c = __SWP16(cmd);
@@ -58,7 +59,6 @@ pro_frame_t* pro_frame_packet_sigle(unsigned short cmd,void *pdata,unsigned char
     }    
     return pfram;
 }
-
 
 /*封包加转化*/
 unsigned char* pro_frame_packet(unsigned short cmd,void *pdata,unsigned char len)

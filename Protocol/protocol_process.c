@@ -67,7 +67,7 @@ static char get_fram_process(unsigned char *pbuf)
                         fram_len = index;
                         index = 0;
                         chState = START;//获取到完整的数据帧  复位状态机
-                        return 0;	                        
+                        return 0;
                     }
                 }
             } while (1);
@@ -105,7 +105,8 @@ void protocol_parse(void)
     float data_buf[2] = {6.4f,2.3f};
     unsigned char data_len;
     unsigned char *puctemp;
-    msg_t *p_msg;   
+    msg_t *p_msg;
+    static unsigned short msg_id = 3;
 	/*读取1帧数据*/
 
 	if(get_fram_process(&fram_buf[0]) != 0)
@@ -162,7 +163,6 @@ void protocol_parse(void)
                 /*计算消息的整体大小*/
                 len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
                 /*计算消息大小*/
-
                 p_msg = ipc_mesg_packet(0x01,len);
                 puctemp = (unsigned char*)pro_frame_packet_sigle(PRO_FUNC_C_PF300 |(CMD_RESP<<8),data_buf,data_len);
                 memcpy((unsigned char*)p_msg->pdata,puctemp,sizeof(pro_frame_t) + data_len);
@@ -178,7 +178,7 @@ void protocol_parse(void)
 			break;
 		case 0x03://主机获取PF300指令
             // USER_DEBUG_RTT("pf300  ack\r\n");
-            /*计算要发送的数据长度*/        
+            /*计算要发送的数据长度*/
             data_len = 0;
             /*计算消息的整体大小*/
             len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
@@ -190,14 +190,30 @@ void protocol_parse(void)
             /*添加到消息池*/
             ipc_msgpool_write(p_msg);
 			break;
-		case 0x04://发送温湿度数据给主机，并等待主机响应
-			USER_DEBUG_RTT("recive cmd 04\r\n");
+		case 0x04://测试list
+			// USER_DEBUG_RTT("recive cmd 04\r\n");
+            data_len = 0;
+            /*计算消息的整体大小*/
+            len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
+            /*计算消息大小*/
+            p_msg = ipc_mesg_packet(msg_id++,len);
+            puctemp = (unsigned char*)pro_frame_packet_sigle(PRO_FUNC_C_PF300 | (CMD_RESP<<8),data_buf,data_len);
+            memcpy((unsigned char*)p_msg->pdata,puctemp,sizeof(pro_frame_t) + data_len);
+            free(puctemp);
+            /*添加到消息池*/
+            ipc_msgpool_write(p_msg);
+
 			break;
 		case 0x05:
-			USER_DEBUG_RTT("recive cmd 05\r\n");
+            {
+                msg_t *p_readMsg;
+                p_readMsg = (msg_t *)ipc_msgpool_read();
+                ipc_msgpool_del(p_readMsg);
+            }
 			break;
-		case 0x0B:
-			USER_DEBUG_RTT("recive cmd 06\r\n");
+		case 0x06:
+            /*添加数据到链表并打印*/
+            ipc_msg_printf();
 			break;		
 		default:
 			break;

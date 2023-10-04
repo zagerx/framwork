@@ -51,6 +51,11 @@ static fsm_rt_t protocl_cmdtype_idle_state(fsm_cb_t *ptThis)
     static unsigned char cnt;
     unsigned short cmd_tmp;
 
+    unsigned char len;
+    float data_buf[2] = {6.4f,2.3f};
+    unsigned char data_len;
+    unsigned char *puctemp;
+    msg_t *p_msg; 
     switch (this.chState)
     {
     case START:
@@ -59,7 +64,8 @@ static fsm_rt_t protocl_cmdtype_idle_state(fsm_cb_t *ptThis)
         fram_len = 0;
         cmd_ack = 0;
         cnt = 0;
-        cmd_tmp = 0;    
+        cmd_tmp = 0;
+        break;
         /*获取消息池里面的消息*/
         p_readMsg = (msg_t *)ipc_msgpool_read();
         if (p_readMsg == NULL)
@@ -102,11 +108,23 @@ static fsm_rt_t protocl_cmdtype_idle_state(fsm_cb_t *ptThis)
             this.chState = FOURTH;
         }
     case FOURTH:
-        p_readMsg = (msg_t *)ipc_msgpool_read();
+
+        data_len = 0;
+        /*计算消息的整体大小*/
+        len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
+        /*计算消息大小*/
+        p_msg = ipc_mesg_packet(0x01,len);
+        puctemp = (unsigned char*)pro_frame_packet_sigle(PRO_FUNC_C_PF300 | (CMD_RESP<<8),data_buf,data_len);
+        memcpy((unsigned char*)p_msg->pdata,puctemp,sizeof(pro_frame_t) + data_len);
+        free(puctemp);
+
+
+
+        p_readMsg = (msg_t *)ipc_msgpool_read_val(p_msg);
         if (p_readMsg == NULL)
         {
             delta_t = HAL_GetTick()-t0;
-            if(delta_t > 2000)
+            if(delta_t > 1000)
             {           
                 this.chState = THIRD;
             }
