@@ -53,18 +53,12 @@ void list_delete_node(_list_t *pthis,_node_t *node)
         /* code */
         return;
     }
-    // while (cur_node->msg->id != node->msg->id)
-    // {
-    //     /* code */
-    //     pre_node = cur_node;
-    //     cur_node = cur_node->next;
-    //     if (cur_node == NULL)
-    //     {
-    //         /* code */
-    //         break;
-    //     }
-    // }
-    // pthis->head = cur_node->next;
+    if (node->msg == NULL)
+    {
+        USER_DEBUG_RTT("node msg empty\r\n");
+        /* code */
+        return;
+    }
 
     while (cur_node != NULL)
     {
@@ -72,22 +66,23 @@ void list_delete_node(_list_t *pthis,_node_t *node)
         {
             /* code */
             pre_node->next = cur_node->next;
+
+            if (pre_node == cur_node)//
+            {
+                /* code */
+                pthis->head = cur_node->next;
+            }
             if (cur_node->next == NULL)
             {
                 /* code */
                 pthis->tail = pre_node;
             }
-            
             pthis->node_numb--;    
             break;
         }
         pre_node = cur_node;
         cur_node = cur_node->next;
     }
-    
-
-
-
     free(cur_node);
 }
 
@@ -101,11 +96,6 @@ _node_t* list_read_node_vale(_list_t *pthis,_node_t *node)
     }
     p_curnode = pthis->head;
 
-    unsigned char *p1,p2;
-    unsigned short len;
-    len = node->msg->len;
-    p1 = node->msg->pdata;
-    p2 = p_curnode->msg->pdata;
     while (p_curnode != NULL)
     {
         if (p_curnode->msg->id == node->msg->id)
@@ -166,14 +156,18 @@ void _list_printf(_list_t *pthis)
         id = cur_node->msg->id;
         len = cur_node->msg->len;
         pdata = cur_node->msg->pdata;
-        HAL_UART_Transmit(&huart1,pdata,len,0xFFFF);
-        HAL_UART_Transmit(&huart1,(unsigned char *)&id,2,0xFFFF);      
+        // HAL_UART_Transmit(&huart1,pdata,len,0xFFFF);
+        // HAL_UART_Transmit(&huart1,(unsigned char *)&id,2,0xFFFF);
+        USER_DEBUG_RTT("msg id %d\r\n",id);
         cur_node = cur_node->next;
     }
 
 }
 
-
+void _list_printf_number(_list_t *pthis)
+{  
+    USER_DEBUG_RTT("list node number %d\r\n",pthis->node_numb);
+}
 
 
 _list_t msgpool_cb;
@@ -212,15 +206,20 @@ msg_t* ipc_msgpool_read_val(msg_t* msg)
         /* code */
         return (pnode)->msg;
     }
-    
     return (msg_t*)NULL;
-
 }
 #include "usart.h"
 void ipc_msgpool_del(msg_t *msg)
 {
     _node_t *pdel_node;
     _node_t temp_node;
+    if (msg== NULL)
+    {
+        /* code */
+        USER_DEBUG_RTT("no use data\r\n");
+        return ;
+    }
+    
     pdel_node = &temp_node;
     pdel_node->msg = msg;
     list_delete_node(_01_head,pdel_node);
@@ -232,6 +231,13 @@ void ipc_msg_printf(void)
 {
     _list_printf(_01_head);
 }
+
+void ipc_msg_printf_number(void)
+{
+    _list_printf_number(_01_head);
+}
+
+
 
 /*IPCÏûÏ¢·â°ü*/
 msg_t* ipc_mesg_packet(unsigned short id,unsigned short len)

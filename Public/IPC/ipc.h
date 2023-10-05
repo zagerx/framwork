@@ -42,4 +42,6 @@ msg_t* ipc_msgpool_read(void);
 msg_t* ipc_msgpool_read_val(msg_t* msg);
 void ipc_msgpool_del(msg_t *msg);
 void ipc_msg_printf(void);
+void ipc_msg_printf_number(void);
+
 #endif

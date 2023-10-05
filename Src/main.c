@@ -94,6 +94,8 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   printf("hello world\r\n");
+    srand(HAL_GetTick());
+
   protocol_init();
   // sensor_init();
   /* USER CODE END 2 */

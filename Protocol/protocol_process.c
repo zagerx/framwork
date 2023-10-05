@@ -11,6 +11,7 @@
 
 #include "malloc.h"
 #include "string.h"
+#include "stdlib.h"
 extern byte_fifo_t uart1_rx_fifo;//fifo控制块
 
 unsigned short fram_len = 0; 
@@ -106,7 +107,7 @@ void protocol_parse(void)
     unsigned char data_len;
     unsigned char *puctemp;
     msg_t *p_msg;
-    static unsigned short msg_id = 3;
+    unsigned short msg_id = 0 ;
 	/*读取1帧数据*/
 
 	if(get_fram_process(&fram_buf[0]) != 0)
@@ -115,7 +116,12 @@ void protocol_parse(void)
 	}
     pro_frame_t * p_r_fram;
     p_r_fram = pro_frame_unpack((unsigned char*)fram_buf,fram_len);
-
+    if (!p_r_fram)
+    {
+        /* code */
+        return;
+    }
+    
     // USER_DEBUG_RTT("fram->head 0x%x\r\n",__SWP16(p_r_fram->head));
     // USER_DEBUG_RTT("fram->crc  0x%x\r\n",__SWP16(p_r_fram->crc16));
     // USER_DEBUG_RTT("fram->cmd  0x%x\r\n",__SWP16(p_r_fram->func_c));
@@ -169,10 +175,8 @@ void protocol_parse(void)
                 free(puctemp);
                 /*添加到消息池*/
                 ipc_msgpool_write(p_msg);
-                
             }else if(cmd_type == 0x02)//命令的回复
             {
-
             }else if(cmd_type == 0x03)//命令的响应
             {}
 			break;
@@ -196,7 +200,9 @@ void protocol_parse(void)
             /*计算消息的整体大小*/
             len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
             /*计算消息大小*/
-            p_msg = ipc_mesg_packet(msg_id++,len);
+            msg_id = rand()%5;
+            // msg_id = 2;
+            p_msg = ipc_mesg_packet(msg_id,len);
             puctemp = (unsigned char*)pro_frame_packet_sigle(PRO_FUNC_C_PF300 | (CMD_RESP<<8),data_buf,data_len);
             memcpy((unsigned char*)p_msg->pdata,puctemp,sizeof(pro_frame_t) + data_len);
             free(puctemp);
@@ -213,11 +219,29 @@ void protocol_parse(void)
 			break;
  		case 0x07:
             {
+                USER_DEBUG_RTT("***********del befor*************\r\n");
+                ipc_msg_printf_number();
+                ipc_msg_printf();
+                USER_DEBUG_RTT("*********************************\r\n");
                 msg_t *p_readMsg,temp;
-                temp.id = 5;
+                unsigned char _rands;
+                _rands = rand()%5;
+                // _rands = 2;
+                USER_DEBUG_RTT("del node msg id %d\r\n",_rands);
+                temp.id = _rands;
                 p_readMsg = &temp;
                 p_readMsg = (msg_t *)ipc_msgpool_read_val(p_readMsg);
+                if (p_readMsg == NULL)
+                {
+                    /* code */
+                    USER_DEBUG_RTT("del readmsg empty\r\n");
+                    break;
+                }
                 ipc_msgpool_del(p_readMsg);
+                USER_DEBUG_RTT("=================del end=============\r\n");
+                ipc_msg_printf_number();
+                ipc_msg_printf();
+                USER_DEBUG_RTT("=======================================\r\n");                
             }
 			break;           
 		case 0x06:

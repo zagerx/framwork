@@ -99,7 +99,7 @@ pro_frame_t *pro_frame_unpack(unsigned char *pdata,unsigned short len)
     if(r_crc_16 != (pr_buf_1[r_fram_len-4]<<8 | pr_buf_1[r_fram_len-3]))
     {
         free(pr_buf_1);
-        USER_DEBUG_RTT("crc fail   0x%x",r_crc_16);
+        USER_DEBUG_RTT("crc fail   0x%x\r\n",r_crc_16);
         return 0;
     }
     // USER_DEBUG_RTT("crc ok\r\n");
