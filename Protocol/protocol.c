@@ -114,6 +114,16 @@ pro_frame_t *pro_frame_unpack(unsigned char *pdata,unsigned short len)
 
     unsigned char *pr_buf_data;
     pr_buf_data = malloc(r_data_len);
+    if (pr_buf_data == NULL)
+    {
+        USER_DEBUG_RTT("malloc fail\r\n");
+        /* code */
+        while (1)
+        {
+            /* code */
+        }
+    }
+
     memcpy(pr_buf_data,&pr_buf_2[FRAM_PDATA_OFFSET],r_data_len);   
 
     memcpy(&pr_buf_2[FRAM_CRC_OFFSET],&pr_buf_2[FRAM_PDATA_OFFSET+r_data_len],4);

@@ -75,6 +75,10 @@ void fault_test_by_div0(void) {
     z = x / y;
     printf("z:%d\n", z);
 }
+void A_FUNC(void)
+{
+    fault_test_by_div0();
+}
 /* USER CODE END 0 */
 
 /**
@@ -116,7 +120,8 @@ int main(void)
   /* USER CODE END 2 */ 
     cm_backtrace_init(APPNAME,HARDWARE_VERSION,SOFTWARE_VERSION);
 /*≥˝¡„“Ï≥£*/
-    fault_test_by_div0();
+// A_FUNC();
+    // fault_test_by_div0();
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 //   sys_state_init();
