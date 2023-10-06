@@ -51,6 +51,7 @@ Sensor/aht20_fsm.c \
 Sensor/key_fsm.c \
 Protocol/protocol.c \
 Protocol/protocol_cmd.c \
+cm_backtrace/cm_backtrace.c \
 Protocol/protocol_process.c \
 Protocol/protocol_transmit.c \
 Protocol/IPC/ipc_mesg.c \
@@ -91,7 +92,9 @@ Src/i2c.c
 
 # ASM sources
 ASM_SOURCES =  \
-startup_stm32g431xx.s
+startup_stm32g431xx.s \
+cm_backtrace/fault_handler/gcc/cmb_fault.s
+
 
 
 #######################################
@@ -153,6 +156,7 @@ C_INCLUDES =  \
 -IHardware \
 -Ifsm \
 -IPublic/IPC \
+-Icm_backtrace \
 -IPublic \
 -IProtocol \
 -IInc \

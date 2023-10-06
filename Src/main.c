@@ -30,6 +30,8 @@
 #include "as5600.h"
 #include "contrl_block.h"
 #include "sensor.h"
+#include "cm_backtrace.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,11 +57,24 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+#define APPNAME                        "CmBacktrace"
+#define HARDWARE_VERSION               "V1.0.0"
+#define SOFTWARE_VERSION               "V0.0.1"
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void fault_test_by_div0(void) {
+    volatile int * SCB_CCR = (volatile int *) 0xE000ED14; // SCB->CCR
+    int x, y, z;
+
+    *SCB_CCR |= (1 << 4); /* bit4: DIV_0_TRP. */
+
+    x = 10;
+    y = 0;
+    z = x / y;
+    printf("z:%d\n", z);
+}
 /* USER CODE END 0 */
 
 /**
@@ -98,8 +113,10 @@ int main(void)
 
   protocol_init();
   // sensor_init();
-  /* USER CODE END 2 */
-
+  /* USER CODE END 2 */ 
+    cm_backtrace_init(APPNAME,HARDWARE_VERSION,SOFTWARE_VERSION);
+/*³ýÁãÒì³£*/
+    fault_test_by_div0();
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 //   sys_state_init();
