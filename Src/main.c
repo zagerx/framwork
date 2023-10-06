@@ -27,6 +27,8 @@
 #include "stdio.h"
 #include "protocol.h"
 #include "fifo.h"
+#include "cm_backtrace.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,12 +55,24 @@ uint8_t receive_buff[RX_BUFFER_SIZE];
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+#define APPNAME                        "CmBacktrace"
+#define HARDWARE_VERSION               "V1.0.0"
+#define SOFTWARE_VERSION               "V0.0.1"
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void fault_test_by_div0(void) {
+    volatile int * SCB_CCR = (volatile int *) 0xE000ED14; // SCB->CCR
+    int x, y, z;
 
+    *SCB_CCR |= (1 << 4); /* bit4: DIV_0_TRP. */
+
+    x = 10;
+    y = 0;
+    z = x / y;
+    printf("z:%d\n", z);
+}
 /* USER CODE END 0 */
 
 /**
@@ -93,11 +107,12 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   printf("hello world\r\n");
-  bytefifo_init();
-  __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
-  HAL_UART_Receive_DMA(&huart1, (uint8_t*)receive_buff, 256);  /* USER CODE END 2 */  
-  /* USER CODE END 2 */
-
+//   bytefifo_init();
+//   __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+//   HAL_UART_Receive_DMA(&huart1, (uint8_t*)receive_buff, 256);  /* USER CODE END 2 */  
+    cm_backtrace_init(APPNAME,HARDWARE_VERSION,SOFTWARE_VERSION);
+/*³ýÁãÒì³£*/
+    fault_test_by_div0();
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -105,7 +120,7 @@ int main(void)
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
     HAL_Delay(500);
 
-    protocol_parse();
+    // protocol_parse();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

@@ -36,6 +36,7 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
+cm_backtrace/cm_backtrace.c \
 Protocol/protocol_process.c \
 Protocol/protocol_reciver.c \
 Protocol/protocol_transmit.c \
@@ -73,7 +74,9 @@ Src/dma.c
 
 # ASM sources
 ASM_SOURCES =  \
-startup_stm32g431xx.s
+startup_stm32g431xx.s \
+cm_backtrace/fault_handler/gcc/cmb_fault.s
+
 
 
 #######################################
@@ -127,6 +130,7 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
+-Icm_backtrace \
 -IPublic \
 -IProtocol \
 -IInc \

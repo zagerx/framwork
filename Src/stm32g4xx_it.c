@@ -51,7 +51,7 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+#include "stdio.h"
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -92,6 +92,126 @@ void USAR_UART_IDLECallback(UART_HandleTypeDef *huart)
     data_length = 0;
     HAL_UART_Receive_DMA(&huart1, (uint8_t*)receive_buff, 256);                    //重启开始DMA传输 每次255字节数据
 }
+
+
+
+
+
+#define rt_uint32_t unsigned int
+struct exception_info
+{
+    rt_uint32_t exc_return;
+    rt_uint32_t r4;
+    rt_uint32_t r5;
+    rt_uint32_t r6;
+    rt_uint32_t r7;
+    // rt_uint32_t r8;
+    // rt_uint32_t r9;
+    // rt_uint32_t r10;
+    // rt_uint32_t r11;
+    rt_uint32_t r0;
+    rt_uint32_t r1;
+    rt_uint32_t r2;
+    rt_uint32_t r3;
+    rt_uint32_t r12;
+    rt_uint32_t lr;
+    rt_uint32_t pc;
+    rt_uint32_t psr;
+};
+
+
+/*
+ * fault exception handler
+ */
+void rt_hw_hard_fault_exception(struct exception_info * exception_info)
+{
+	unsigned int *app_sp;
+
+	int i;
+	app_sp = (unsigned int *)(exception_info + 1);  /* context + 16*4 */
+	
+    printf("psr: 0x%08x\r\n", exception_info->psr);
+    printf("r00: 0x%08x\r\n", exception_info->r0);
+    printf("r01: 0x%08x\r\n", exception_info->r1);
+    printf("r02: 0x%08x\r\n", exception_info->r2);
+    printf("r03: 0x%08x\r\n", exception_info->r3);
+    printf("r04: 0x%08x\r\n", exception_info->r4);
+    printf("r05: 0x%08x\r\n", exception_info->r5);
+    printf("r06: 0x%08x\r\n", exception_info->r6);
+    printf("r07: 0x%08x\r\n", exception_info->r7);
+    // printf("r08: 0x%08x\r\n", exception_info->r8);
+    // printf("r09: 0x%08x\r\n", exception_info->r9);
+    // printf("r10: 0x%08x\r\n", exception_info->r10);
+    // printf("r11: 0x%08x\r\n", exception_info->r11);
+    printf("r12: 0x%08x\r\n", exception_info->r12);
+    printf(" lr: 0x%08x\r\n", exception_info->lr);
+    printf(" pc: 0x%08x\r\n", exception_info->pc);
+
+
+
+	// printf("stacks: \r\n");
+	// i = 0;
+	// for (i = 0; i < 1024; )
+	// {
+	// 	printf("%08x ", *app_sp);
+	// 	app_sp++;
+	// 	i++;
+	// 	if (i % 16 == 0)
+	// 		printf("\r\n");
+			
+	// }
+	printf("\r\n");
+
+    while (1);
+}
+
+
+void hard_fault_handler_c(unsigned int * hardfault_args, unsigned lr_value)
+{
+			unsigned int stacked_r0;
+			unsigned int stacked_r1;
+			unsigned int stacked_r2;
+			unsigned int stacked_r3;
+			unsigned int stacked_r12;
+			unsigned int stacked_lr;
+			unsigned int stacked_pc;
+			unsigned int stacked_psr;
+			stacked_r0 = ((unsigned long) hardfault_args[0]);
+			stacked_r1 = ((unsigned long) hardfault_args[1]);
+			stacked_r2 = ((unsigned long) hardfault_args[2]);
+			stacked_r3 = ((unsigned long) hardfault_args[3]);
+			stacked_r12 = ((unsigned long) hardfault_args[4]);
+			stacked_lr = ((unsigned long) hardfault_args[5]);
+			stacked_pc = ((unsigned long) hardfault_args[6]);
+			stacked_psr = ((unsigned long) hardfault_args[7]);
+      printf ("[Hard fault handler]\r\n");
+			printf ("R0  = %x\r\n", stacked_r0);
+			printf ("R1  = %x\r\n", stacked_r1);
+			printf ("R2  = %x\r\n", stacked_r2);
+			printf ("R3  = %x\r\n", stacked_r3);
+			printf ("R12 = %x\r\n", stacked_r12);
+			printf ("Stacked LR  = %x\r\n", stacked_lr);
+			printf ("Stacked PC  = %x\r\n", stacked_pc);
+			printf ("Stacked PSR = %x\r\n", stacked_psr);
+			printf ("Current LR  = %x\r\n", lr_value);	
+			while(1)
+			{
+
+ 
+			for(int i = 10000;i>0;i--)
+			    for(int j = 1000;j>0;j--);
+			}
+			
+			//while(1); // endless loop
+}
+
+
+
+
+
+
+
+
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -103,7 +223,6 @@ void USAR_UART_IDLECallback(UART_HandleTypeDef *huart)
 void NMI_Handler(void)
 {
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
-
   /* USER CODE END NonMaskableInt_IRQn 0 */
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
   while (1)
@@ -115,17 +234,18 @@ void NMI_Handler(void)
 /**
   * @brief This function handles Hard fault interrupt.
   */
-void HardFault_Handler(void)
-{
-  /* USER CODE BEGIN HardFault_IRQn 0 */
+// void HardFault_Handler(void)
+// {
+//   /* USER CODE BEGIN HardFault_IRQn 0 */
+//     printf("hardfault irq\r\n");
 
-  /* USER CODE END HardFault_IRQn 0 */
-  while (1)
-  {
-    /* USER CODE BEGIN W1_HardFault_IRQn 0 */
-    /* USER CODE END W1_HardFault_IRQn 0 */
-  }
-}
+//   /* USER CODE END HardFault_IRQn 0 */
+//   while (1)
+//   {
+//     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
+//     /* USER CODE END W1_HardFault_IRQn 0 */
+//   }
+// }
 
 /**
   * @brief This function handles Memory management fault.
