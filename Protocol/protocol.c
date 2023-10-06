@@ -151,6 +151,6 @@ void protocol_init(void)
 void protocol_process(void)
 {
     protocol_parse();
-    protocl_cmd_process();
+    // protocl_cmd_process();
 }
 

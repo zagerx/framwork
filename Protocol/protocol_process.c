@@ -142,58 +142,6 @@ void protocol_parse(void)
     // USER_DEBUG_RTT("cmd_type  0x%x\r\n",cmd_type);
 	switch (cmd_fun)
 	{
-		case 0x02:
-            /*计算要发送的数据长度*/        
-            data_len = sizeof(data_buf);
-            /*计算消息的整体大小*/
-            len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
-            /*计算消息大小*/
-            p_msg = ipc_mesg_packet(0x01,len);
-            puctemp = (unsigned char*)pro_frame_packet_sigle(PRO_FUNC_C_PF300 |(CMD_RESP<<8),data_buf,data_len);
-            memcpy((unsigned char*)p_msg->pdata,puctemp,sizeof(pro_frame_t) + data_len);
-            free(puctemp);
-            /*添加到消息池*/
-            ipc_msgpool_write(p_msg);        
-            SET_IPC_EVENT(PROTOCOL_CMD_01);//通知进程
-			break;
-		case 0x0A:
-            /*从机的回复ACK 命令类型*/
-            if(cmd_type == 0x00)//命令
-            {
-
-            }else if (cmd_type == 0x01)//命令的应答
-            {
-                // USER_DEBUG_RTT("pf300  ack\r\n");
-                /*计算要发送的数据长度*/        
-                data_len = 0;
-                /*计算消息的整体大小*/
-                len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
-                /*计算消息大小*/
-                p_msg = ipc_mesg_packet(0x01,len);
-                puctemp = (unsigned char*)pro_frame_packet_sigle(PRO_FUNC_C_PF300 |(CMD_RESP<<8),data_buf,data_len);
-                memcpy((unsigned char*)p_msg->pdata,puctemp,sizeof(pro_frame_t) + data_len);
-                free(puctemp);
-                /*添加到消息池*/
-                ipc_msgpool_write(p_msg);
-            }else if(cmd_type == 0x02)//命令的回复
-            {
-            }else if(cmd_type == 0x03)//命令的响应
-            {}
-			break;
-		case 0x03://主机获取PF300指令
-            // USER_DEBUG_RTT("pf300  ack\r\n");
-            /*计算要发送的数据长度*/
-            data_len = 0;
-            /*计算消息的整体大小*/
-            len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
-            /*计算消息大小*/
-            p_msg = ipc_mesg_packet(0x01,len);
-            puctemp = (unsigned char*)pro_frame_packet_sigle(PRO_FUNC_C_PF300 | (CMD_RESP<<8),data_buf,data_len);
-            memcpy((unsigned char*)p_msg->pdata,puctemp,sizeof(pro_frame_t) + data_len);
-            free(puctemp);
-            /*添加到消息池*/
-            ipc_msgpool_write(p_msg);
-			break;
 		case 0x04://测试list
 			// USER_DEBUG_RTT("recive cmd 04\r\n");
             data_len = 0;
@@ -208,21 +156,14 @@ void protocol_parse(void)
             free(puctemp);
             /*添加到消息池*/
             ipc_msgpool_write(p_msg);
+			break;
 
-			break;
-		case 0x05:
-            {
-                msg_t *p_readMsg;
-                p_readMsg = (msg_t *)ipc_msgpool_read();
-                ipc_msgpool_del(p_readMsg);
-            }
-			break;
  		case 0x07:
             {
-                USER_DEBUG_RTT("***********del befor*************\r\n");
-                ipc_msg_printf_number();
-                ipc_msg_printf();
-                USER_DEBUG_RTT("*********************************\r\n");
+                // USER_DEBUG_RTT("***********del befor*************\r\n");
+                // ipc_msg_printf_number();
+                // ipc_msg_printf();
+                // USER_DEBUG_RTT("*********************************\r\n");
                 msg_t *p_readMsg,temp;
                 unsigned char _rands;
                 _rands = rand()%5;
@@ -231,17 +172,22 @@ void protocol_parse(void)
                 temp.id = _rands;
                 p_readMsg = &temp;
                 p_readMsg = (msg_t *)ipc_msgpool_read_val(p_readMsg);
+                static unsigned short cnt;
+                USER_DEBUG_RTT("cnt %d\r\n",cnt++);
                 if (p_readMsg == NULL)
                 {
                     /* code */
                     USER_DEBUG_RTT("del readmsg empty\r\n");
+                    free(p_readMsg);
                     break;
                 }
+
                 ipc_msgpool_del(p_readMsg);
-                USER_DEBUG_RTT("=================del end=============\r\n");
-                ipc_msg_printf_number();
-                ipc_msg_printf();
-                USER_DEBUG_RTT("=======================================\r\n");                
+                free(p_readMsg);
+                // USER_DEBUG_RTT("=================del end=============\r\n");
+                // ipc_msg_printf_number();
+                // ipc_msg_printf();
+                // USER_DEBUG_RTT("=======================================\r\n");                
             }
 			break;           
 		case 0x06:
@@ -251,6 +197,8 @@ void protocol_parse(void)
 		default:
 			break;
 	}
+
+    free(p_r_fram);
 }
 
 

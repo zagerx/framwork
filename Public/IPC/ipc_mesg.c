@@ -223,7 +223,6 @@ void ipc_msgpool_del(msg_t *msg)
     pdel_node = &temp_node;
     pdel_node->msg = msg;
     list_delete_node(_01_head,pdel_node);
-
 }
 
 
