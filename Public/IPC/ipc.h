@@ -35,6 +35,7 @@ typedef struct _list{
     unsigned short node_numb;
 }_list_t;
 
+msg_t* ipc_mesg_packet_02(unsigned short id,unsigned short len,void *pbuf);
 msg_t* ipc_mesg_packet(unsigned short id,unsigned short len);
 void ipc_msgpool_init(void);
 void ipc_msgpool_write(msg_t *msg);

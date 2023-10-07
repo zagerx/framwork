@@ -12,10 +12,11 @@
 #include "malloc.h"
 #include "string.h"
 #include "stdlib.h"
-extern byte_fifo_t uart1_rx_fifo;//fifo控制块
 
+
+extern byte_fifo_t uart1_rx_fifo;//fifo控制块
 unsigned short fram_len = 0; 
-static char get_fram_process(unsigned char *pbuf)
+static char get_protocol_fram(unsigned char *pbuf)
 {
     enum {
         START,
@@ -80,7 +81,22 @@ static char get_fram_process(unsigned char *pbuf)
 }
 
 
-
+static fsm_rt_t calib_cmdsend_process(fsm_cb_t *ptThis);
+fsm_rt_t calib_cmdsend_process(fsm_cb_t *ptThis)
+{
+    switch (ptThis->chState)
+    {
+    case START:
+        USER_DEBUG_RTT("FSM  ok!!!!!!!!!!\r\n");
+        ptThis->chState = EXIT;
+        break;
+    case EXIT:
+        break;
+    default:
+        break;
+    }
+    return fsm_rt_cpl;    
+}
 
 
 /*********************************************************************************************************
@@ -109,8 +125,7 @@ void protocol_parse(void)
     msg_t *p_msg;
     unsigned short msg_id = 0 ;
 	/*读取1帧数据*/
-
-	if(get_fram_process(&fram_buf[0]) != 0)
+	if(get_protocol_fram(&fram_buf[0]) != 0)
 	{
 		return;
 	}
@@ -136,6 +151,7 @@ void protocol_parse(void)
     unsigned short cmd = __SWP16(p_r_fram->func_c);
     unsigned char cmd_fun = (unsigned char)cmd;
     unsigned char cmd_type = (unsigned char)(cmd>>8);
+    free(p_r_fram);
 
     // USER_DEBUG_RTT("cmd  0x%x\r\n",cmd);
     // USER_DEBUG_RTT("cmd_fun  0x%x\r\n",cmd_fun);
@@ -143,13 +159,13 @@ void protocol_parse(void)
 	switch (cmd_fun)
 	{
 		case 0x04://测试list
-			// USER_DEBUG_RTT("recive cmd 04\r\n");
             data_len = 0;
             /*计算消息的整体大小*/
             len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
             /*计算消息大小*/
             msg_id = rand()%5;
             // msg_id = 2;
+            
             p_msg = ipc_mesg_packet(msg_id,len);
             puctemp = (unsigned char*)pro_frame_packet_sigle(PRO_FUNC_C_PF300 | (CMD_RESP<<8),data_buf,data_len);
             memcpy((unsigned char*)p_msg->pdata,puctemp,sizeof(pro_frame_t) + data_len);
@@ -157,7 +173,6 @@ void protocol_parse(void)
             /*添加到消息池*/
             ipc_msgpool_write(p_msg);
 			break;
-
  		case 0x07:
             {
                 // USER_DEBUG_RTT("***********del befor*************\r\n");
@@ -189,16 +204,47 @@ void protocol_parse(void)
                 // ipc_msg_printf();
                 // USER_DEBUG_RTT("=======================================\r\n");                
             }
-			break;           
+			break;
+		case 0x05://
+            /*链表打印*/
+            {
+                msg_t *pmsg;
+                fsm_cb_t *cmd_fsm;
+                cmd_fsm = fsm_creat((fsm_t *)calib_cmdsend_process,0,NULL);
+                /*将cmd_fsm添加到状态机链表中*/
+                pmsg = ipc_mesg_packet_02(0xFFFE,sizeof(fsm_cb_t),cmd_fsm);
+                ipc_msgpool_write(pmsg); 
+            }
+			break;                    
 		case 0x06:
             /*添加数据到链表并打印*/
             ipc_msg_printf();
-			break;		
+			break;
+		case 0x08://
+            /*链表打印*/
+            {
+                msg_t *p_readMsg,temp;
+                fsm_cb_t *pfsm;
+                temp.id = 0xFFFE;
+                p_readMsg = &temp;
+                p_readMsg = (msg_t *)ipc_msgpool_read_val(p_readMsg);
+                if (p_readMsg == NULL)
+                {
+                    return;
+                }
+                pfsm = (fsm_cb_t *)p_readMsg->pdata;  
+                if (pfsm)
+                {
+                    fsm_destructor(pfsm);
+                }
+                ipc_msgpool_del(p_readMsg);
+                free(p_readMsg);                
+            }
+			break;    	
 		default:
 			break;
 	}
 
-    free(p_r_fram);
 }
 
 

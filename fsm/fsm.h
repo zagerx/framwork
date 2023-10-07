@@ -25,6 +25,7 @@ struct fsm_cb{
     unsigned char chState;
     unsigned char sig;
     fsm_t *fsm;
+    unsigned short len;
     void *pdata;
 };
 
@@ -37,5 +38,8 @@ struct fsm_cb{
                             (me)->fsm(me);\
                                   }while(0)
 
+
+char fsm_init(fsm_cb_t *pThis,fsm_t *machine);                                            
+fsm_cb_t *fsm_creat(fsm_t *initstat,unsigned short len,void *pdata);
+char fsm_destructor(fsm_cb_t *pthis);
 #endif
-    

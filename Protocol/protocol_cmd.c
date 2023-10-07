@@ -27,7 +27,23 @@ void _protocol_cmd_init(void)
 }
 void protocl_cmd_process(void)
 {
-    DISPATCH_FSM(&cmd_cb);
+    // DISPATCH_FSM(&cmd_cb);
+
+    msg_t *p_readMsg,temp;
+    fsm_cb_t *pfsm;
+    temp.id = 0xFFFE;
+    p_readMsg = &temp;
+    p_readMsg = (msg_t *)ipc_msgpool_read_val(p_readMsg);
+    if (p_readMsg == NULL)
+    {
+        return;
+    }
+    
+    pfsm = (fsm_cb_t *)p_readMsg->pdata;
+    if (pfsm)
+    {
+        DISPATCH_FSM(pfsm);
+    }
 }
 
 

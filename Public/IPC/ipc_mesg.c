@@ -6,7 +6,7 @@
 #undef NULL
 #define NULL 0
 
-_list_t *_01_head;
+static _list_t *_01_head;
 
 _node_t *creat_node(msg_t *pmsg)
 {
@@ -252,4 +252,11 @@ msg_t* ipc_mesg_packet(unsigned short id,unsigned short len)
     return pMsg;
 }
 
-
+msg_t* ipc_mesg_packet_02(unsigned short id,unsigned short len,void *pbuf)
+{
+    msg_t *pMsg = (msg_t *)malloc(sizeof(msg_t));
+    pMsg->id = id;
+    pMsg->len = len;
+    pMsg->pdata = pbuf;
+    return pMsg;
+}
