@@ -4,13 +4,12 @@
 #undef NULL
 #define NULL 0
 
-
-char fsm_init(fsm_cb_t *pThis,fsm_t *machine)
+void fsm_init(fsm_cb_t *pThis,fsm_t *machine)
 {
     pThis->fsm = (fsm_t *)machine;
     pThis->chState = START;
     pThis->sig = 0;
-    return 0;
+    return;
 }
 
 fsm_cb_t *fsm_creat(fsm_t *initstat,unsigned short len,void *pdata)

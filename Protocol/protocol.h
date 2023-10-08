@@ -60,13 +60,16 @@ extern signed char protocol_reciver_datafram(unsigned char *pdata,unsigned short
 extern void protocol_parse(void);
 extern char protocol_sendfram(pro_frame_t *msg,unsigned short len);
 
+#include "fsm.h"
+extern fsm_rt_t protocol_send(fsm_cb_t *ptThis);
+
+
 extern void protocol_init(void);
 extern void protocol_process(void);
 extern void _protocol_cmd_init(void);
 extern void protocl_cmd_process(void);
 
 
-extern char protocol_sendfram(pro_frame_t *msg,unsigned short len);
 unsigned char* pro_frame_packet(unsigned short cmd,void *pdata,unsigned char len);
 pro_frame_t* pro_frame_packet_sigle(unsigned short cmd,void *pdata,unsigned char len);
 pro_frame_t* pro_frame_unpack(unsigned char *pdata,unsigned short len);

@@ -83,6 +83,7 @@ void list_delete_node(_list_t *pthis,_node_t *node)
         pre_node = cur_node;
         cur_node = cur_node->next;
     }
+    free(cur_node->msg);
     free(cur_node);
 }
 

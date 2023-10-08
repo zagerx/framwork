@@ -42,13 +42,15 @@ static fsm_rt_t sys_state_process(fsm_cb_t *me)
     switch (me->chState)
     {
       case START:
+        _calib_mode_init();
         me->chState = SELF_CHECK_MODE;
         break;
       case SELF_CHECK_MODE:
-        printf("self_check start\r\n");  // 原接口
+        // printf("self_check start\r\n");  // 原接口
+        _calib_mode_proess();
         // if(start_selfcheck())
         // {
-          me->chState = IDLE_MODE;
+        //   me->chState = IDLE_MODE;
         // }else{
         //   me->chState = FALUT_MODE;
         // }

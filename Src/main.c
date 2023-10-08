@@ -124,14 +124,14 @@ int main(void)
     // fault_test_by_div0();
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-//   sys_state_init();
+  sys_state_init();
   
   while (1)
   {
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
     HAL_Delay(20);
     protocol_process();
-    // control_proess();
+    control_proess();
     // sensor_actor();
     /* USER CODE END WHILE */
 

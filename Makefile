@@ -38,6 +38,7 @@ BUILD_DIR = build
 C_SOURCES =  \
 fsm/fsm.c \
 contrlsys_input/sensor.c \
+ContrlBlock/calibration_mode.c \
 ContrlBlock/contrl_block.c \
 ContrlBlock/contrl_mode.c \
 ContrlBlock/cpap_adjust.c \

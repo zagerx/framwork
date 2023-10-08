@@ -39,7 +39,7 @@ struct fsm_cb{
                                   }while(0)
 
 
-char fsm_init(fsm_cb_t *pThis,fsm_t *machine);                                            
+void fsm_init(fsm_cb_t *pThis,fsm_t *machine);                                            
 fsm_cb_t *fsm_creat(fsm_t *initstat,unsigned short len,void *pdata);
 char fsm_destructor(fsm_cb_t *pthis);
 #endif

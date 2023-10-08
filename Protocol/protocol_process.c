@@ -204,18 +204,7 @@ void protocol_parse(void)
                 // ipc_msg_printf();
                 // USER_DEBUG_RTT("=======================================\r\n");                
             }
-			break;
-		case 0x05://
-            /*链表打印*/
-            {
-                msg_t *pmsg;
-                fsm_cb_t *cmd_fsm;
-                cmd_fsm = fsm_creat((fsm_t *)calib_cmdsend_process,0,NULL);
-                /*将cmd_fsm添加到状态机链表中*/
-                pmsg = ipc_mesg_packet_02(0xFFFE,sizeof(fsm_cb_t),cmd_fsm);
-                ipc_msgpool_write(pmsg); 
-            }
-			break;                    
+			break;                   
 		case 0x06:
             /*添加数据到链表并打印*/
             ipc_msg_printf();
@@ -240,7 +229,20 @@ void protocol_parse(void)
                 ipc_msgpool_del(p_readMsg);
                 free(p_readMsg);                
             }
-			break;    	
+			break;  
+ 		case 0x0A:
+            {
+                data_len = 0;
+                /*计算消息的整体大小*/
+                len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
+                /*计算消息大小*/
+                msg_id = 0x0A;
+                puctemp = (unsigned char*)pro_frame_packet_sigle(0x0A | (CMD_ACK<<8),data_buf,data_len);
+                p_msg = ipc_mesg_packet_02(msg_id,len,puctemp);
+                /*添加到消息池*/
+                ipc_msgpool_write(p_msg);        
+            }
+			break;                          	
 		default:
 			break;
 	}
