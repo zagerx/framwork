@@ -15,7 +15,7 @@
 
 
 extern byte_fifo_t uart1_rx_fifo;//fifo控制块
-unsigned short fram_len = 0; 
+static unsigned short fram_len = 0; 
 static char get_protocol_fram(unsigned char *pbuf)
 {
     enum {
@@ -80,23 +80,6 @@ static char get_protocol_fram(unsigned char *pbuf)
     return 1;
 }
 
-
-static fsm_rt_t calib_cmdsend_process(fsm_cb_t *ptThis);
-fsm_rt_t calib_cmdsend_process(fsm_cb_t *ptThis)
-{
-    switch (ptThis->chState)
-    {
-    case START:
-        USER_DEBUG_RTT("FSM  ok!!!!!!!!!!\r\n");
-        ptThis->chState = EXIT;
-        break;
-    case EXIT:
-        break;
-    default:
-        break;
-    }
-    return fsm_rt_cpl;    
-}
 
 
 /*********************************************************************************************************
@@ -232,7 +215,7 @@ void protocol_parse(void)
 			break;  
  		case 0x0A:
             {
-                data_len = 0;
+                data_len = 8;
                 /*计算消息的整体大小*/
                 len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
                 /*计算消息大小*/

@@ -13,7 +13,6 @@ extern unsigned int g_protocol_event;
 
 
 typedef struct mesg msg_t;
-//#pragma pack(push,1)
 struct mesg{
     unsigned short id;
     unsigned short len;

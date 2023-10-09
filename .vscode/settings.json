@@ -14,6 +14,7 @@
     "highflow_adjust.h": "c",
     "global_data.h": "c",
     "eio_pin.h": "c",
-    "stdbool.h": "c"
-  }
+    "stdbool.h": "c",
+    "ipc.h": "c"
+}
 }

@@ -49,6 +49,7 @@ static fsm_rt_t calib_mode_process(fsm_cb_t *ptThis)
 /*流量校准*/				
 static fsm_rt_t calib_mode_flow(fsm_cb_t *ptThis)
 {
+
 	unsigned char buf[PRO_FRAME_MAX_SIZE];
 	unsigned char cmd;
     unsigned char len;
@@ -66,53 +67,75 @@ static fsm_rt_t calib_mode_flow(fsm_cb_t *ptThis)
     switch (this.chState)
     {
     case START:
-        USER_DEBUG_RTT("flow calib start\r\n");
-        pro_frame_t* p_fram;
-        /*向从机发送 01 cmd*/
-        cmd = PRO_FUNC_C_PF300;
-        cmd_type = CMD_RESP;
-//        cmd_type = CMD_ORI;
-        len = 0;
-        /*协议帧封包*/
-        p_fram = pro_frame_packet_sigle(PRO_FUNC_C_PF300 | (cmd_type<<8),data_buf,len);
-        /*准备数据*/
-        msg_t msg;
-        msg.id = cmd;
-        msg.len = sizeof(pro_frame_t)+len;
-        /*消息封包*/
-        msg_t *p_msg01;
-        p_msg01 = ipc_mesg_packet_02(msg.id,msg.len,p_fram);
-        /*创建一个命令发送状态机*/
-        fsm_cb_t *p_cmd_fsm;
-        p_cmd_fsm = fsm_creat((fsm_t *)protocol_send,sizeof(msg_t),p_msg01);
-        /*将cmd_fsm添加到状态机链表中*/
-        p_msg02 = ipc_mesg_packet_02(0xFFFE,sizeof(fsm_cb_t),p_cmd_fsm);
-
-        ipc_msgpool_write(p_msg02); 
-        this.chState = CALIB_DATA_READY;
+        {
+            p_msg02 = pro_send_cmd_data(0xFFFE,CMD_RESP,PRO_FUNC_C_PF300,data_buf,sizeof(data_buf));
+            this.chState = CALIB_DATA_READY;
+        }
         break;
     case CALIB_DATA_READY:
         {
             //p_msg02带有状态机的消息句柄
             fsm_cb_t *cmd_fsm;
             cmd_fsm = (fsm_cb_t *)p_msg02->pdata;//状态机句柄
-
-            if(cmd_fsm->sig == 0x02)//发送状态机 已经完成发送并且成功接收到应答,并且数据已更新至状态机的数据域
+            unsigned char sig;
+            sig = cmd_fsm->sig;
+            if(sig == 0x02)//发送状态机 已经完成发送并且成功接收到应答,并且数据已更新至状态机的数据域
             {
                 /*释放接收到的回复消息*/
                 msg_t *pmsg;
                 pro_frame_t *pfram;  
                 pmsg = (msg_t*)cmd_fsm->pdata;
-                pfram =  pmsg->pdata;            
-                free((msg_t*)cmd_fsm->pdata);
+                pfram =  pmsg->pdata;
+                
+                if(!pmsg)
+                {
+                    pfram = NULL;
+                }
+                
+                /****处理数据******/
+                float *a,*p;
+                float buf[2];
+                a = pfram->pdata;
+                p = buf;
+                p = (float *)pfram->pdata;
+//                USER_DEBUG_RTT("a = %3f\r\n",*a);
+                USER_DEBUG_RTT("buf = %3f  %3f\r\n",p[0],p[1]);
+                /****处理结束*****/                
+                
+                ipc_msgpool_del(pmsg);                
+                free(pmsg);
+                
+                fsm_destructor(cmd_fsm);                
+                free(pfram);//(MDK版本下)暂时必须放在状态机的析构函数之后(否则程序再次运行1到2个周期会进入hardfault，后续应打印出hardfault之前的PC指针分析)！！！
+                
+                ipc_msgpool_del(p_msg02);
+                free(p_msg02);                
+                
+                this.chState = START;
+            }
+
+            if(sig == 0x03)//发送状态机 已经完成发送  没有接收到应答信号
+            {
+                /*释放接收到的回复消息*/
+                msg_t *pmsg;
+                pro_frame_t *pfram;  
+                pmsg = (msg_t*)cmd_fsm->pdata;
+                
+                if(!pmsg)
+                {
+                    pfram = NULL;
+                }else{
+                    pfram =  pmsg->pdata;
+                }                
+
+                free(pfram);
                 ipc_msgpool_del(pmsg);
                 free(pmsg);
 
                 fsm_destructor(cmd_fsm);
                 ipc_msgpool_del(p_msg02);
-
-                free(p_msg02);
-                USER_DEBUG_RTT("send ok over\r\n");
+                free(p_msg02);                                              
+                
                 this.chState = CALIB_RUN;
             }
         }
@@ -126,6 +149,7 @@ static fsm_rt_t calib_mode_flow(fsm_cb_t *ptThis)
         break;
     }
     return fsm_rt_cpl;
+
 }
 
 

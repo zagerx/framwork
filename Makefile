@@ -52,7 +52,6 @@ Sensor/sensor_fsm_manage.c \
 Sensor/aht20_fsm.c \
 Sensor/key_fsm.c \
 Protocol/protocol.c \
-Protocol/protocol_cmd.c \
 cm_backtrace/cm_backtrace.c \
 Protocol/protocol_process.c \
 Protocol/protocol_transmit.c \

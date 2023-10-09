@@ -144,13 +144,14 @@ pro_frame_t *pro_frame_unpack(unsigned char *pdata,unsigned short len)
 void protocol_init(void)
 {
     bytefifo_init(&uart1_rx_fifo,fifo_receive_buff,sizeof(fifo_receive_buff));
-    _protocol_cmd_init();
     ipc_msgpool_init();
 }
 
+
+extern void protocol_trans_process(void);
 void protocol_process(void)
 {
     protocol_parse();
-    protocl_cmd_process();
+    protocol_trans_process();
 }
 

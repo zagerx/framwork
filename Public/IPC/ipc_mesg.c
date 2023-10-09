@@ -157,8 +157,6 @@ void _list_printf(_list_t *pthis)
         id = cur_node->msg->id;
         len = cur_node->msg->len;
         pdata = cur_node->msg->pdata;
-        // HAL_UART_Transmit(&huart1,pdata,len,0xFFFF);
-        // HAL_UART_Transmit(&huart1,(unsigned char *)&id,2,0xFFFF);
         USER_DEBUG_RTT("msg id %d\r\n",id);
         cur_node = cur_node->next;
     }
@@ -195,7 +193,6 @@ msg_t* ipc_msgpool_read(void)
     }
     
     return (msg_t*)NULL;
-
 }
 msg_t* ipc_msgpool_read_val(msg_t* msg)
 {
