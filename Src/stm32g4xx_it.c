@@ -60,7 +60,7 @@ extern UART_HandleTypeDef huart1;
 extern DMA_HandleTypeDef hdma_usart1_rx;
 #include "string.h"
 #include "protocol.h"
-extern uint8_t uart_receive_buff[255];
+extern uint8_t uart_receive_buff[PRO_FRAME_MAX_SIZE];
 
 void USAR_UART_IDLECallback(UART_HandleTypeDef *huart);
 void USER_UART_IRQHandler(UART_HandleTypeDef *huart)
@@ -78,9 +78,9 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart)
 
 void USAR_UART_IDLECallback(UART_HandleTypeDef *huart)
 {
-  unsigned char temp_buf[255];
+    unsigned char temp_buf[PRO_FRAME_MAX_SIZE];
     HAL_UART_DMAStop(&huart1);                                                     //停止本次DMA传输
-    uint8_t data_length  = 256 - __HAL_DMA_GET_COUNTER(&hdma_usart1_rx);   //计算接收到的数据长度
+    uint8_t data_length  = PRO_FRAME_MAX_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart1_rx);   //计算接收到的数据长度
     for(unsigned char i = 0;i<data_length;i++)
     {
       temp_buf[i] = uart_receive_buff[i];

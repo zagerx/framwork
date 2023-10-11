@@ -11,6 +11,14 @@
 #undef  this
 #define this (*ptThis)
 
+typedef struct protocol_transmit
+{
+    /* data */
+    unsigned int t0;
+    unsigned int cnt;
+    fsm_cb_t *_fms_cb;
+}trans_cb_t;
+
 
 
 static char protocol_sendfram(pro_frame_t *msg,unsigned short len)
@@ -21,8 +29,10 @@ static char protocol_sendfram(pro_frame_t *msg,unsigned short len)
     unsigned short data_len;
     data_len = len-sizeof(pro_frame_t);
     unsigned char buf[2] = {0};
-
-    pucmsg = (unsigned char*)msg;
+    unsigned char *p1;
+    pucmsg = malloc(len);
+    memcpy(pucmsg,msg,len);
+    // pucmsg = (unsigned char*)msg;
     memcpy(buf,(unsigned char*)&pucmsg[FRAM_TAIL_OFFSET],2);
     pdata = malloc(data_len);
     memcpy(pdata,(unsigned char*)&pucmsg[sizeof(pro_frame_t)],data_len);
@@ -34,7 +44,9 @@ static char protocol_sendfram(pro_frame_t *msg,unsigned short len)
     memcpy((unsigned char*)&pucmsg[FRAM_PDATA_OFFSET+data_len],(unsigned char*)&crc_16,sizeof(crc_16));   
 
     memcpy((unsigned char*)&pucmsg[FRAM_PDATA_OFFSET+data_len+2],buf,2);    
-    HAL_UART_Transmit(&huart1,(unsigned char*)msg,sizeof(pro_frame_t)-sizeof(void *)+data_len,0XFFFF);
+    HAL_UART_Transmit(&huart1,(unsigned char*)pucmsg,sizeof(pro_frame_t)-sizeof(void *)+data_len,0XFFFF);
+
+    free(pucmsg);
 	return 0;
 }
 
@@ -174,10 +186,6 @@ static fsm_rt_t protocol_send(fsm_cb_t *ptThis)
 msg_t* pro_send_cmd_data(unsigned short id_fsm,unsigned char cmd_type,unsigned char cmd,void *pdata,unsigned short data_len)
 {
     pro_frame_t* p_fram;
-    // cmd = PRO_FUNC_C_PF300;
-    // cmd_type = CMD_RESP;
-//  cmd_type = CMD_ORI;
-//    len = 8;
     /*协议帧封包*/
     p_fram = pro_frame_packet_sigle(cmd | (cmd_type<<8),pdata,data_len);
     /*准备数据*/
@@ -193,29 +201,62 @@ msg_t* pro_send_cmd_data(unsigned short id_fsm,unsigned char cmd_type,unsigned c
     /*将cmd_fsm添加到状态机链表中*/
     msg_t *p_msg02;
     p_msg02 = ipc_mesg_packet_02(id_fsm,sizeof(fsm_cb_t),p_cmd_fsm);
-    ipc_msgpool_write(p_msg02);
 
+    ipc_msgpool_write(p_msg02);
     return p_msg02;
-    
 }
+
+msg_t* pro_nowsend_cmd_data(unsigned short id_fsm,unsigned char cmd_type,unsigned char cmd,void *pdata,unsigned short data_len)
+{
+    pro_frame_t* p_fram;
+    /*协议帧封包*/
+    p_fram = pro_frame_packet_sigle(cmd | (cmd_type<<8),pdata,data_len);
+    /*准备数据*/
+    protocol_sendfram(p_fram,sizeof(pro_frame_t)+data_len);
+    free(p_fram);
+    return NULL;
+}
+
 
 
 void protocol_trans_process(void)
 {
     msg_t *p_readMsg,temp;
+
+
     fsm_cb_t *pfsm;
     temp.id = 0xFFFE;
+
+    // trans_cb_t *p_t_cb;
+    // temp.id = 0xFD;
+
+
+    
     p_readMsg = &temp;
     p_readMsg = (msg_t *)ipc_msgpool_read_val(p_readMsg);
+
+
+
+
     if (p_readMsg == NULL)
     {
         return;
-    }    
+    }
+
+
     pfsm = (fsm_cb_t *)p_readMsg->pdata;
     if (pfsm)
     {
         DISPATCH_FSM(pfsm);
     }
+
+    // p_t_cb = (trans_cb_t *)p_readMsg->pdata;
+    // if (p_t_cb->_fms_cb)
+    // {
+    //     /* code */
+    //     DISPATCH_FSM(p_t_cb->_fms_cb);
+    // }
+    
 }
 
 

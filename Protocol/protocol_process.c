@@ -15,6 +15,8 @@
 
 
 extern byte_fifo_t uart1_rx_fifo;//fifo控制块
+unsigned char fram_buf[PRO_FRAME_MAX_SIZE];
+
 static unsigned short fram_len = 0; 
 static char get_protocol_fram(unsigned char *pbuf)
 {
@@ -38,6 +40,7 @@ static char get_protocol_fram(unsigned char *pbuf)
         if(data == (unsigned char)(PRO_FRAME_HEAD>>8))
         {
             pbuf[index++] = data;
+            data = 0;
             chState = SECOND;
         }else{
             index = 0;
@@ -57,10 +60,19 @@ static char get_protocol_fram(unsigned char *pbuf)
         case IDLE:
             do
             {
+                if(index>=sizeof(fram_buf))
+                {
+                    /* code */
+                    fram_len = 0;
+                    index = 0;
+                    chState = START;//获取到完整的数据帧  复位状态机
+                    return 1;
+                }
                 bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
                 pbuf[index++] = data;
                 if(data == (unsigned char)(PRO_FRAME_TAIL>>8))
                 {
+                    data = 0;
                     bytefifo_readmulintebyte(&uart1_rx_fifo,&data,1);
                     pbuf[index++] = data;
                     if (data == (unsigned char)(PRO_FRAME_TAIL>>8))
@@ -99,7 +111,6 @@ static char get_protocol_fram(unsigned char *pbuf)
 ********************************************************************************************************/
 void protocol_parse(void)
 {
-	unsigned char fram_buf[PRO_FRAME_MAX_SIZE];
 	// unsigned char cmd;
     unsigned char len;
     float data_buf[2] = {6.4f,2.3f};
@@ -193,24 +204,8 @@ void protocol_parse(void)
             ipc_msg_printf();
 			break;
 		case 0x08://
-            /*链表打印*/
             {
-                msg_t *p_readMsg,temp;
-                fsm_cb_t *pfsm;
-                temp.id = 0xFFFE;
-                p_readMsg = &temp;
-                p_readMsg = (msg_t *)ipc_msgpool_read_val(p_readMsg);
-                if (p_readMsg == NULL)
-                {
-                    return;
-                }
-                pfsm = (fsm_cb_t *)p_readMsg->pdata;  
-                if (pfsm)
-                {
-                    fsm_destructor(pfsm);
-                }
-                ipc_msgpool_del(p_readMsg);
-                free(p_readMsg);                
+                USER_DEBUG_RTT("OK\r\n");
             }
 			break;  
  		case 0x0A:
@@ -225,7 +220,7 @@ void protocol_parse(void)
                 /*添加到消息池*/
                 ipc_msgpool_write(p_msg);        
             }
-			break;                          	
+			break;   	
 		default:
 			break;
 	}

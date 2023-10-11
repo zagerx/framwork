@@ -41,7 +41,7 @@ signed char protocol_reciver_datafram(unsigned char *pdata,unsigned short len)
 }
 
 /*·â°ü´¦Àí*/
-pro_frame_t* pro_frame_packet_sigle(unsigned short cmd,void *pdata,unsigned char len)
+pro_frame_t* pro_frame_packet_sigle(unsigned short cmd,void *pdata,unsigned short len)
 {
     unsigned char *puctemp;
     pro_frame_t *pfram;

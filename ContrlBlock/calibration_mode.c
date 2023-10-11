@@ -46,19 +46,19 @@ static fsm_rt_t calib_mode_process(fsm_cb_t *ptThis)
     return fsm_rt_cpl;
 }
 
-/*流量校准*/				
+/*流量校准*/
 static fsm_rt_t calib_mode_flow(fsm_cb_t *ptThis)
 {
-
 	unsigned char buf[PRO_FRAME_MAX_SIZE];
 	unsigned char cmd;
     unsigned char len;
     unsigned char cmd_type = 0;
-    float data_buf[2] = {6.4f,2.3f};
+    float data_buf[128] = {0.0f};
     unsigned char data_len;    
     enum {
         CALIB_DATA_READY = USER,
-        CALIB_RUN
+        CALIB_RUN,
+        SEND
     };
     
     static msg_t *p_msg02;
@@ -68,8 +68,17 @@ static fsm_rt_t calib_mode_flow(fsm_cb_t *ptThis)
     {
     case START:
         {
-            p_msg02 = pro_send_cmd_data(0xFFFE,CMD_RESP,PRO_FUNC_C_PF300,data_buf,sizeof(data_buf));
-            this.chState = CALIB_DATA_READY;
+            // for(unsigned char i = 0;i<sizeof(data_buf)-2;i++)
+            // {
+            //     data_buf[i+1] = data_buf[i] + 0.1;
+            // }
+        }
+        this.chState = CALIB_RUN;
+        break;
+    case SEND:
+        {
+            p_msg02 = pro_nowsend_cmd_data(0xFFFE,CMD_RESP,PRO_FUNC_C_PF300,data_buf,sizeof(data_buf));
+            this.chState = SEND;
         }
         break;
     case CALIB_DATA_READY:

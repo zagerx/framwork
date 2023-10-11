@@ -26,8 +26,7 @@ enum{
 
 
 
-#define	PRO_FRAME_MAX_SIZE	32
-#define PRO_FRAME_MIN_SIZE  8
+
 #define PRO_FRAME_HEAD	0x5AA5
 #define PRO_FRAME_TAIL	0xFEFE
 
@@ -48,6 +47,14 @@ typedef struct pro_frame{
 }pro_frame_t;//size  16
 #pragma pack(pop)
 
+
+// typedef struct pro_frame{
+//     unsigned int t0;
+//     unsigned char cnt;
+//     pro_frame_t fram;
+// }pro_frame_send_t;//size  16
+
+
 #define FRAM_HEAD_OFFSET     2
 #define FRAM_FUNC_OFFSET    FRAM_HEAD_OFFSET + sizeof(unsigned short)
 #define FRAM_LEN_OFFSET     FRAM_FUNC_OFFSET + sizeof(unsigned short)
@@ -56,10 +63,18 @@ typedef struct pro_frame{
 #define FRAM_TAIL_OFFSET    FRAM_CRC_OFFSET + sizeof(unsigned short)
 #define FRAM_BUF_OFFSET     FRAM_TAIL_OFFSET + sizeof(unsigned short)
 
+
+#define	PRO_FRAME_MAX_SIZE	512
+#define PRO_FRAME_MIN_SIZE  8
+#define PRO_FIFO_SIZE PRO_FRAME_MAX_SIZE * 5
+
 extern signed char protocol_reciver_datafram(unsigned char *pdata,unsigned short len);
 extern void protocol_parse(void);
 extern msg_t* pro_send_cmd_data(unsigned short id_fsm,unsigned char cmd_type,\
                                 unsigned char cmd,void *pdata,unsigned short data_len);
+msg_t* pro_nowsend_cmd_data(unsigned short id_fsm,unsigned char cmd_type,\
+                        unsigned char cmd,void *pdata,unsigned short data_len);
+
 extern void protocol_init(void);
 extern void protocol_process(void);
 
@@ -68,7 +83,7 @@ extern void protocol_process(void);
 
 
 unsigned char* pro_frame_packet(unsigned short cmd,void *pdata,unsigned char len);
-pro_frame_t* pro_frame_packet_sigle(unsigned short cmd,void *pdata,unsigned char len);
+pro_frame_t* pro_frame_packet_sigle(unsigned short cmd,void *pdata,unsigned short len);
 pro_frame_t* pro_frame_unpack(unsigned char *pdata,unsigned short len);
 
 

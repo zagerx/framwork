@@ -96,28 +96,3 @@ char bytefifo_readmulintebyte(byte_fifo_t *pfifo,byte_t *buf,unsigned short len)
 	}
 	return statues;
 }
-
-
-
-
-// #include "./fifo.h"
-
-// #undef this
-// #define this    (*ptThis)
-
-
-// byte_queue_t fifo_cb;
-
-// char byte_queue_enqueue(byte_queue_t *ptObj, uint8_t chByte)
-// {
-//     /* initialise "this" (i.e. ptThis) to access class members */
-//     class_internal(ptObj, ptThis, byte_queue_t);
-//     if (    (this.hwHead == this.hwTail)
-//         &&  (0 != this.hwCount)) {
-//         //! queue is full
-//         return 0;
-//     }
-// }
-
-
-
