@@ -12,7 +12,7 @@
 1、fifo.c/.h
 2、fsm.h
 */
-unsigned char fifo_receive_buff[256];//fifo数据缓存区
+unsigned char fifo_receive_buff[PRO_FRAME_MAX_SIZE];//fifo数据缓存区
 byte_fifo_t uart1_rx_fifo;//fifo控制块
 
 

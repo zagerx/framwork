@@ -210,15 +210,16 @@ void protocol_parse(void)
 			break;  
  		case 0x0A:
             {
-                data_len = 8;
-                /*计算消息的整体大小*/
-                len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
-                /*计算消息大小*/
-                msg_id = 0x0A;
-                puctemp = (unsigned char*)pro_frame_packet_sigle(0x0A | (CMD_ACK<<8),data_buf,data_len);
-                p_msg = ipc_mesg_packet_02(msg_id,len,puctemp);
-                /*添加到消息池*/
-                ipc_msgpool_write(p_msg);        
+                USER_DEBUG_RTT(".\r\n");
+                // data_len = 8;
+                // /*计算消息的整体大小*/
+                // len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
+                // /*计算消息大小*/
+                // msg_id = 0x0A;
+                // puctemp = (unsigned char*)pro_frame_packet_sigle(0x0A | (CMD_ACK<<8),data_buf,data_len);
+                // p_msg = ipc_mesg_packet_02(msg_id,len,puctemp);
+                // /*添加到消息池*/
+                // ipc_msgpool_write(p_msg);        
             }
 			break;   	
 		default:

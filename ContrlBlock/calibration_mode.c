@@ -53,7 +53,7 @@ static fsm_rt_t calib_mode_flow(fsm_cb_t *ptThis)
 	unsigned char cmd;
     unsigned char len;
     unsigned char cmd_type = 0;
-    float data_buf[128] = {0.0f};
+    float data_buf[120] = {0.0f};
     unsigned char data_len;    
     enum {
         CALIB_DATA_READY = USER,
