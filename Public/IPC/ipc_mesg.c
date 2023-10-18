@@ -258,3 +258,18 @@ msg_t* ipc_mesg_packet_02(unsigned short id,unsigned short len,void *pbuf)
     pMsg->pdata = pbuf;
     return pMsg;
 }
+
+
+
+/*********************/
+
+
+
+
+
+
+
+
+
+
+

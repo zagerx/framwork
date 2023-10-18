@@ -12,13 +12,13 @@
 #include "malloc.h"
 #include "string.h"
 #include "stdlib.h"
-
+#include "macro_defined.h"
 
 extern byte_fifo_t uart1_rx_fifo;//fifo控制块
-unsigned char fram_buf[PRO_FRAME_MAX_SIZE];
 
+unsigned char fram_buf[PRO_FRAME_MAX_SIZE];
 static unsigned short fram_len = 0; 
-static char get_protocol_fram(unsigned char *pbuf)
+static char _get_data_fram(unsigned char *pbuf)
 {
     enum {
         START,
@@ -111,7 +111,6 @@ static char get_protocol_fram(unsigned char *pbuf)
 ********************************************************************************************************/
 void protocol_parse(void)
 {
-	// unsigned char cmd;
     unsigned char len;
     float data_buf[2] = {6.4f,2.3f};
     unsigned char data_len;
@@ -119,7 +118,7 @@ void protocol_parse(void)
     msg_t *p_msg;
     unsigned short msg_id = 0 ;
 	/*读取1帧数据*/
-	if(get_protocol_fram(&fram_buf[0]) != 0)
+	if(_get_data_fram(&fram_buf[0]) != 0)
 	{
 		return;
 	}
@@ -130,96 +129,28 @@ void protocol_parse(void)
         /* code */
         return;
     }
-    
-    // USER_DEBUG_RTT("fram->head 0x%x\r\n",__SWP16(p_r_fram->head));
-    // USER_DEBUG_RTT("fram->crc  0x%x\r\n",__SWP16(p_r_fram->crc16));
-    // USER_DEBUG_RTT("fram->cmd  0x%x\r\n",__SWP16(p_r_fram->func_c));
-    // USER_DEBUG_RTT("fram->tail 0x%x\r\n",__SWP16(p_r_fram->tail));
-    // float *pf1;
-    // pf1 = (float *)p_r_fram->pdata;
-    // USER_DEBUG_RTT("fram->data %f\r\n",pf1[0]);
-    // USER_DEBUG_RTT("fram->data %f\r\n",pf1[1]);
-    // free(p_r_fram);
-    // cmd = fram_buf[2];
-
+    float *pf1;
+    pf1 = (float *)p_r_fram->pdata;
     unsigned short cmd = __SWP16(p_r_fram->func_c);
     unsigned char cmd_fun = (unsigned char)cmd;
     unsigned char cmd_type = (unsigned char)(cmd>>8);
     free(p_r_fram);
 
+    search_msgmap(cmd_fun,pf1,data_len);
+    return;
+
     // USER_DEBUG_RTT("cmd  0x%x\r\n",cmd);
     // USER_DEBUG_RTT("cmd_fun  0x%x\r\n",cmd_fun);
     // USER_DEBUG_RTT("cmd_type  0x%x\r\n",cmd_type);
 	switch (cmd_fun)
-	{
-		case 0x04://测试list
-            data_len = 0;
-            /*计算消息的整体大小*/
-            len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
-            /*计算消息大小*/
-            msg_id = rand()%5;
-            // msg_id = 2;
-            
-            p_msg = ipc_mesg_packet(msg_id,len);
-            puctemp = (unsigned char*)pro_frame_packet_sigle(PRO_FUNC_C_PF300 | (CMD_RESP<<8),data_buf,data_len);
-            memcpy((unsigned char*)p_msg->pdata,puctemp,sizeof(pro_frame_t) + data_len);
-            free(puctemp);
-            /*添加到消息池*/
-            ipc_msgpool_write(p_msg);
-			break;
- 		case 0x07:
-            {
-                // USER_DEBUG_RTT("***********del befor*************\r\n");
-                // ipc_msg_printf_number();
-                // ipc_msg_printf();
-                // USER_DEBUG_RTT("*********************************\r\n");
-                msg_t *p_readMsg,temp;
-                unsigned char _rands;
-                _rands = rand()%5;
-                // _rands = 2;
-                USER_DEBUG_RTT("del node msg id %d\r\n",_rands);
-                temp.id = _rands;
-                p_readMsg = &temp;
-                p_readMsg = (msg_t *)ipc_msgpool_read_val(p_readMsg);
-                static unsigned short cnt;
-                USER_DEBUG_RTT("cnt %d\r\n",cnt++);
-                if (p_readMsg == NULL)
-                {
-                    /* code */
-                    USER_DEBUG_RTT("del readmsg empty\r\n");
-                    free(p_readMsg);
-                    break;
-                }
-
-                ipc_msgpool_del(p_readMsg);
-                free(p_readMsg);
-                // USER_DEBUG_RTT("=================del end=============\r\n");
-                // ipc_msg_printf_number();
-                // ipc_msg_printf();
-                // USER_DEBUG_RTT("=======================================\r\n");                
-            }
-			break;                   
+	{                 
 		case 0x06:
             /*添加数据到链表并打印*/
             ipc_msg_printf();
-			break;
-		case 0x08://
-            {
-                USER_DEBUG_RTT("OK\r\n");
-            }
-			break;  
+			break; 
  		case 0x0A:
             {
-                USER_DEBUG_RTT(".\r\n");
-                // data_len = 8;
-                // /*计算消息的整体大小*/
-                // len =sizeof(msg_t) + sizeof(pro_frame_t) + data_len;
-                // /*计算消息大小*/
-                // msg_id = 0x0A;
-                // puctemp = (unsigned char*)pro_frame_packet_sigle(0x0A | (CMD_ACK<<8),data_buf,data_len);
-                // p_msg = ipc_mesg_packet_02(msg_id,len,puctemp);
-                // /*添加到消息池*/
-                // ipc_msgpool_write(p_msg);        
+                
             }
 			break;   	
 		default:

@@ -37,12 +37,6 @@ BUILD_DIR = build
 # C sources
 C_SOURCES =  \
 fsm/fsm.c \
-contrlsys_input/sensor.c \
-ContrlBlock/calibration_mode.c \
-ContrlBlock/contrl_block.c \
-ContrlBlock/contrl_mode.c \
-ContrlBlock/cpap_adjust.c \
-ContrlBlock/highflow_adjust.c \
 c_bsp/eio_pin.c \
 Hardware/as5600.c \
 Hardware/analog_i2c/i2c_bitops.c \
@@ -51,8 +45,9 @@ Hardware/analog_i2c/i2c_core.c \
 Sensor/sensor_fsm_manage.c \
 Sensor/aht20_fsm.c \
 Sensor/key_fsm.c \
-Protocol/protocol.c \
 cm_backtrace/cm_backtrace.c \
+Protocol/protocol.c \
+Protocol/protocol_msgmap.c \
 Protocol/protocol_process.c \
 Protocol/protocol_transmit.c \
 Protocol/IPC/ipc_mesg.c \
