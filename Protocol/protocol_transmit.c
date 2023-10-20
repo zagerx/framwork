@@ -1,18 +1,23 @@
-#include "protocol.h"
-#include "crc.h"
-#include "stdio.h"
-#include "usart.h"
-#include "stdlib.h"
-#include "string.h"
-#include "macro_defined.h"
+// #include "protocol.h"
+#include "protocol_comment.h"
+#include "protocol_cfg.h"
 
-#include "fsm.h"
 #undef  NULL
-#define NULL 0                  
-#undef  this
-#define this (*ptThis)
+#define NULL 0   
 
-static char _bsp_sendfram(pro_frame_t *msg,unsigned short len)
+/*
+**  协议底层发送接口，应根据硬件接口由外部实现
+*/
+__attribute__((weak)) void protocol_bsp_transmit(unsigned char* pdata,unsigned short len)
+{
+    // HAL_UART_Transmit(&huart1,(unsigned char*)pdata,sizeof(pro_frame_t)-sizeof(void *)+len,0XFFFF);
+}
+
+
+/*
+**  len:
+*/
+static char _protocol_sendfram(pro_frame_t *msg,unsigned short len)
 {
     /*整理帧数据*/
     unsigned char *pucmsg;
@@ -20,10 +25,8 @@ static char _bsp_sendfram(pro_frame_t *msg,unsigned short len)
     unsigned short data_len;
     data_len = len-sizeof(pro_frame_t);
     unsigned char buf[2] = {0};
-    unsigned char *p1;
     pucmsg = malloc(len);
     memcpy(pucmsg,msg,len);
-    // pucmsg = (unsigned char*)msg;
     memcpy(buf,(unsigned char*)&pucmsg[FRAM_TAIL_OFFSET],2);
     pdata = malloc(data_len);
     memcpy(pdata,(unsigned char*)&pucmsg[sizeof(pro_frame_t)],data_len);
@@ -31,25 +34,58 @@ static char _bsp_sendfram(pro_frame_t *msg,unsigned short len)
     free(pdata);
     unsigned short crc_16;
     crc_16 = CRC16_Subsection((unsigned char*)&pucmsg[2],0xFFFF,FRAM_PDATA_OFFSET+data_len-2);
-    crc_16 = __SWP16(crc_16);    
+    crc_16 = __SWP16(crc_16);
     memcpy((unsigned char*)&pucmsg[FRAM_PDATA_OFFSET+data_len],(unsigned char*)&crc_16,sizeof(crc_16));   
     memcpy((unsigned char*)&pucmsg[FRAM_PDATA_OFFSET+data_len+2],buf,2); 
-
-    HAL_UART_Transmit(&huart1,(unsigned char*)pucmsg,sizeof(pro_frame_t)-sizeof(void *)+data_len,0XFFFF);
-
+    protocol_bsp_transmit(pucmsg,sizeof(pro_frame_t)-sizeof(void *)+data_len);
     free(pucmsg);
 	return 0;
 }
-msg_t* pro_nowsend_cmd_data(unsigned short id_fsm,unsigned char cmd_type,unsigned char cmd,void *pdata,unsigned short data_len)
+char protocol_nowtransmit(unsigned char cmd_type,unsigned char cmd,void *pdata,unsigned short data_len)
 {
     pro_frame_t* p_fram;
     /*协议帧封包*/
     p_fram = pro_frame_packet(cmd | (cmd_type<<8),pdata,data_len);
     /*准备数据*/
-    _bsp_sendfram(p_fram,sizeof(pro_frame_t)+data_len);
+    _protocol_sendfram(p_fram,sizeof(pro_frame_t)+data_len);
     free(p_fram);
     return NULL;
 }
+
+
+
+
+#if 0
+
+
+#include "fsm.h"
+#undef  NULL
+#define NULL 0                  
+#undef  this
+#define this (*ptThis)
+
+
+void protocol_trans_process(void)
+{
+    msg_t *p_readMsg,temp;
+    fsm_cb_t *pfsm;
+    temp.id = 0xFFFE;
+    
+    p_readMsg = &temp;
+    p_readMsg = (msg_t *)ipc_msgpool_read_val(p_readMsg);
+
+    if (p_readMsg == NULL)
+    {
+        return;
+    }
+    pfsm = (fsm_cb_t *)p_readMsg->pdata;
+    if (pfsm)
+    {
+        DISPATCH_FSM(pfsm);
+    }
+}
+
+
 /*
 发送状态机  ptThis里面的消息为待发送的消息
 需要完善协议的重发机制
@@ -205,25 +241,4 @@ msg_t* pro_send_cmd_data(unsigned short id_fsm,unsigned char cmd_type,unsigned c
     ipc_msgpool_write(p_msg02);
     return p_msg02;
 }
-
-void protocol_trans_process(void)
-{
-    msg_t *p_readMsg,temp;
-    fsm_cb_t *pfsm;
-    temp.id = 0xFFFE;
-    
-    p_readMsg = &temp;
-    p_readMsg = (msg_t *)ipc_msgpool_read_val(p_readMsg);
-
-    if (p_readMsg == NULL)
-    {
-        return;
-    }
-    pfsm = (fsm_cb_t *)p_readMsg->pdata;
-    if (pfsm)
-    {
-        DISPATCH_FSM(pfsm);
-    }
-}
-
-
+#endif

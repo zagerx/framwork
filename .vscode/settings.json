@@ -17,6 +17,9 @@
     "stdbool.h": "c",
     "ipc.h": "c",
     "usart.h": "c",
-    "fifo.h": "c"
+    "fifo.h": "c",
+    "protocol_cfg.h": "c",
+    "protocol_comment.h": "c",
+    "macro_defined.h": "c"
 }
 }

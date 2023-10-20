@@ -75,6 +75,12 @@ void A_FUNC(void)
 {
     fault_test_by_div0();
 }
+
+void protocol_bsp_transmit(unsigned char* pdata,unsigned short len)
+{
+    HAL_UART_Transmit_DMA(&huart1,pdata,len);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -113,19 +119,17 @@ int main(void)
 
   protocol_init();
   // sensor_init();
-  /* USER CODE END 2 */ 
-    cm_backtrace_init(APPNAME,HARDWARE_VERSION,SOFTWARE_VERSION);
-// A_FUNC();
-    // fault_test_by_div0();
+  /* USER CODE END 2 */
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   
   while (1)
   {
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
-    HAL_Delay(20);
+    HAL_Delay(1);
     protocol_process();
-    // sensor_actor();
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

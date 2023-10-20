@@ -52,50 +52,13 @@
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 #include "stdio.h"
+#include "usart.h"
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DMA_HandleTypeDef hdma_usart1_tx;
 extern UART_HandleTypeDef huart1;
 /* USER CODE BEGIN EV */
-extern DMA_HandleTypeDef hdma_usart1_rx;
-#include "string.h"
-#include "protocol.h"
-extern uint8_t uart_receive_buff[PRO_FRAME_MAX_SIZE];
-
-void USAR_UART_IDLECallback(UART_HandleTypeDef *huart);
-void USER_UART_IRQHandler(UART_HandleTypeDef *huart)
-{
-    if(USART1 == huart1.Instance)                                   //判断是否是串口1（！此处应写(huart->Instance == USART1)
-    {
-        if(RESET != __HAL_UART_GET_FLAG(&huart1, UART_FLAG_IDLE))   //判断是否是空闲中断
-        {
-            __HAL_UART_CLEAR_IDLEFLAG(&huart1);                     //清楚空闲中断标志（否则会一直不断进入中断）
-            // printf("\r\nUART1 Idle IQR Detected\r\n");
-            USAR_UART_IDLECallback(huart);                          //调用中断处理函数
-        }
-    }
-}
-
-void USAR_UART_IDLECallback(UART_HandleTypeDef *huart)
-{
-    unsigned char temp_buf[PRO_FRAME_MAX_SIZE];
-    HAL_UART_DMAStop(&huart1);//停止本次DMA传输
-    unsigned short data_length  = PRO_FRAME_MAX_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart1_rx);   //计算接收到的数据长度
-    // for(unsigned char i = 0;i<data_length;i++)
-    // {
-    //   temp_buf[i] = uart_receive_buff[i];
-    // }
-    // protocol_reciver_datafram(temp_buf,data_length);
-    protocol_reciver_datafram(uart_receive_buff,data_length);
-    memset(uart_receive_buff,0,data_length);                                            //清零接收缓冲区
-    data_length = 0;
-    HAL_UART_Receive_DMA(&huart1, (uint8_t*)uart_receive_buff, sizeof(uart_receive_buff));                    //重启开始DMA传输 每次255字节数据
-}
-
-
-
-
-
 #define rt_uint32_t unsigned int
 struct exception_info
 {
@@ -104,10 +67,6 @@ struct exception_info
     rt_uint32_t r5;
     rt_uint32_t r6;
     rt_uint32_t r7;
-    // rt_uint32_t r8;
-    // rt_uint32_t r9;
-    // rt_uint32_t r10;
-    // rt_uint32_t r11;
     rt_uint32_t r0;
     rt_uint32_t r1;
     rt_uint32_t r2;
@@ -117,18 +76,11 @@ struct exception_info
     rt_uint32_t pc;
     rt_uint32_t psr;
 };
-
-
 /*
  * fault exception handler
  */
 void rt_hw_hard_fault_exception(struct exception_info * exception_info)
 {
-	unsigned int *app_sp;
-
-	int i;
-	app_sp = (unsigned int *)(exception_info + 1);  /* context + 16*4 */
-	
     printf("psr: 0x%08x\r\n", exception_info->psr);
     printf("r00: 0x%08x\r\n", exception_info->r0);
     printf("r01: 0x%08x\r\n", exception_info->r1);
@@ -138,29 +90,10 @@ void rt_hw_hard_fault_exception(struct exception_info * exception_info)
     printf("r05: 0x%08x\r\n", exception_info->r5);
     printf("r06: 0x%08x\r\n", exception_info->r6);
     printf("r07: 0x%08x\r\n", exception_info->r7);
-    // printf("r08: 0x%08x\r\n", exception_info->r8);
-    // printf("r09: 0x%08x\r\n", exception_info->r9);
-    // printf("r10: 0x%08x\r\n", exception_info->r10);
-    // printf("r11: 0x%08x\r\n", exception_info->r11);
     printf("r12: 0x%08x\r\n", exception_info->r12);
     printf(" lr: 0x%08x\r\n", exception_info->lr);
     printf(" pc: 0x%08x\r\n", exception_info->pc);
-
-
-
-	// printf("stacks: \r\n");
-	// i = 0;
-	// for (i = 0; i < 1024; )
-	// {
-	// 	printf("%08x ", *app_sp);
-	// 	app_sp++;
-	// 	i++;
-	// 	if (i % 16 == 0)
-	// 		printf("\r\n");
-			
-	// }
 	printf("\r\n");
-
     while (1);
 }
 
@@ -236,7 +169,7 @@ void NMI_Handler(void)
 // void HardFault_Handler(void)
 // {
 //   /* USER CODE BEGIN HardFault_IRQn 0 */
-//     printf("hardfault irq\r\n");
+// //     printf("hardfault irq\r\n");
 
 //   /* USER CODE END HardFault_IRQn 0 */
 //   while (1)
@@ -352,6 +285,20 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles DMA1 channel2 global interrupt.
+  */
+void DMA1_Channel2_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel2_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel2_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart1_tx);
+  /* USER CODE BEGIN DMA1_Channel2_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel2_IRQn 1 */
+}
+
+/**
   * @brief This function handles USART1 global interrupt / USART1 wake-up interrupt through EXTI line 25.
   */
 void USART1_IRQHandler(void)
@@ -362,7 +309,6 @@ void USART1_IRQHandler(void)
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
   USER_UART_IRQHandler(&huart1);
-
   /* USER CODE END USART1_IRQn 1 */
 }
 

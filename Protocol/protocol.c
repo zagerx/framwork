@@ -1,25 +1,13 @@
-#include "fifo.h"
-#include "fsm.h"
-#include "protocol.h"
-#include "fifo.h"
-#include "stdlib.h"
-#include "crc.h"
-#include "string.h"
-#include "ipc.h"
-#include "usart.h"
+
 #include "macro_defined.h"
+#include "protocol_comment.h"
+#include "protocol_cfg.h"
 
-extern void protocol_trans_process(void);
-
-/*协议要用到的组件
-1、fifo.c/.h
-2、fsm.h
-*/
-unsigned char fifo_receive_buff[PRO_FRAME_MAX_SIZE];//fifo数据缓存区
-byte_fifo_t uart1_rx_fifo;//fifo控制块
+static unsigned char fifo_receive_buff[PRO_FRAME_MAX_SIZE];//fifo数据缓存区
+byte_fifo_t protocol_fifo_handle;//fifo控制块
 
 /*********************************************************************************************************
-** Function name(函数名称):				protocol_reciver_datafram()
+** Function name(函数名称):				protocol_reciver_data()
 **
 ** Descriptions（描述）:				接收一帧数据
 **
@@ -33,11 +21,10 @@ byte_fifo_t uart1_rx_fifo;//fifo控制块
 ** Created Date（创建日期）:			2023-08-14
 **
 ********************************************************************************************************/
-signed char protocol_reciver_datafram(unsigned char *pdata,unsigned short len)
+unsigned char protocol_reciver_data(unsigned char *pdata,unsigned short len)
 {
-	bytefifo_writemulitebyge(&uart1_rx_fifo,pdata,len);
+	bytefifo_writemulitebyge(&protocol_fifo_handle,pdata,len);
 	return 0;
-
 }
 
 /*封包处理*/
@@ -46,6 +33,11 @@ pro_frame_t* pro_frame_packet(unsigned short cmd,void *pdata,unsigned short len)
     unsigned char *puctemp;
     pro_frame_t *pfram;
     puctemp = malloc(sizeof(pro_frame_t) + len);
+    if(!puctemp)
+    {
+        free(puctemp);
+        return NULL;
+    }
     pfram = (pro_frame_t *)puctemp;
     pfram->_x_x = 0x00;
     pfram->head = __SWP16(PRO_FRAME_HEAD);
@@ -105,13 +97,16 @@ pro_frame_t* pro_frame_unpack(unsigned char *pdata,unsigned short len)
 
 void protocol_init(void)
 {
-    bytefifo_init(&uart1_rx_fifo,fifo_receive_buff,sizeof(fifo_receive_buff));
-    ipc_msgpool_init();
+    bytefifo_init(&protocol_fifo_handle,fifo_receive_buff,sizeof(fifo_receive_buff));
 }
 
+/*
+process:线程
+parse:解析
+*/
 void protocol_process(void)
 {
     protocol_parse();
-    protocol_trans_process();
+    // protocol_trans_process();
 }
 

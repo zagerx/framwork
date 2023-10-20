@@ -21,12 +21,15 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+#include "string.h"
+#include "protocol_cfg.h"
 #include "protocol.h"
 uint8_t uart_receive_buff[PRO_FRAME_MAX_SIZE];
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
 DMA_HandleTypeDef hdma_usart1_rx;
+DMA_HandleTypeDef hdma_usart1_tx;
 
 /* USART1 init function */
 
@@ -69,7 +72,7 @@ void MX_USART1_UART_Init(void)
   }
   /* USER CODE BEGIN USART1_Init 2 */
     __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
-    HAL_UART_Receive_DMA(&huart1, (uint8_t*)uart_receive_buff, sizeof(uart_receive_buff));  /* USER CODE END 2 */ 
+    HAL_UART_Receive_DMA(&huart1, (uint8_t*)uart_receive_buff, sizeof(uart_receive_buff));  
   /* USER CODE END USART1_Init 2 */
 
 }
@@ -127,6 +130,23 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 
     __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart1_rx);
 
+    /* USART1_TX Init */
+    hdma_usart1_tx.Instance = DMA1_Channel2;
+    hdma_usart1_tx.Init.Request = DMA_REQUEST_USART1_TX;
+    hdma_usart1_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    hdma_usart1_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_usart1_tx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_usart1_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_usart1_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_usart1_tx.Init.Mode = DMA_NORMAL;
+    hdma_usart1_tx.Init.Priority = DMA_PRIORITY_LOW;
+    if (HAL_DMA_Init(&hdma_usart1_tx) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    __HAL_LINKDMA(uartHandle,hdmatx,hdma_usart1_tx);
+
     /* USART1 interrupt Init */
     HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
@@ -155,6 +175,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
     /* USART1 DMA DeInit */
     HAL_DMA_DeInit(uartHandle->hdmarx);
+    HAL_DMA_DeInit(uartHandle->hdmatx);
 
     /* USART1 interrupt Deinit */
     HAL_NVIC_DisableIRQ(USART1_IRQn);
@@ -172,4 +193,24 @@ int _write(int file, char *data, int len)
 		   // return # of bytes written - as best we can tell
 		   return (status == HAL_OK ? len : 0);
 }
+/*----------------------------------------------------------------------------------------------*/
+
+void USER_UART_IRQHandler(UART_HandleTypeDef *huart)
+{
+    if(USART1 == huart1.Instance)                                   //判断是否是串口1（！此处应写(huart->Instance == USART1)
+    {
+        if(RESET != __HAL_UART_GET_FLAG(&huart1, UART_FLAG_IDLE))   //判断是否是空闲中断
+        {
+            __HAL_UART_CLEAR_IDLEFLAG(&huart1);                     //清楚空闲中断标志（否则会一直不断进入中断）
+            HAL_UART_DMAStop(&huart1);//停止本次DMA传输
+            unsigned short data_length  = sizeof(uart_receive_buff) - __HAL_DMA_GET_COUNTER(&hdma_usart1_rx);   //计算接收到的数据长度
+            protocol_reciver_data(uart_receive_buff,data_length);
+            memset(uart_receive_buff,0,data_length);                                            //清零接收缓冲区
+            data_length = 0;
+            HAL_UART_Receive_DMA(&huart1, (uint8_t*)uart_receive_buff, sizeof(uart_receive_buff));                    //重启开始DMA传输 每次255字节数据                    
+        }
+    }
+}
+/*-----------------------------------------------------------------------------------------------------------------------*/
+
 /* USER CODE END 1 */

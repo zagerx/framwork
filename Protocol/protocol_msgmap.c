@@ -1,8 +1,7 @@
 
-#include "protocol.h"
-#include "stdint.h"
-#include "usart.h"
 #include "macro_defined.h"
+#include "protocol_cfg.h"
+#include "protocol_comment.h"
 /*
 该文件需完善
 */
@@ -12,28 +11,15 @@
 
 bool press_data_updata(msg_item_t *p,void *pdata,uint_fast16_t hwSize)
 {
-    #define POINT_OFFSET 1
-    char buf[] = "%RM3#324\r\n";
-    unsigned char startpos = ((unsigned int)strchr(buf,'#')-(unsigned int)buf);
-    unsigned char endpos = ((unsigned int)strchr(buf,'\r')-(unsigned int)buf);
-    unsigned char len = endpos-startpos;
-    unsigned char int_len = len-POINT_OFFSET-1;
-    USER_DEBUG_RTT("%d %d\r\n",startpos,endpos);
-    char *pbuf = malloc(endpos - startpos);
-    strncpy(pbuf,&buf[startpos+1],int_len);
-    USER_DEBUG_RTT("%s\r\n",pbuf);
-    strcpy(pbuf[int_len],".");
-    USER_DEBUG_RTT("%s\r\n",pbuf);
 }
 
 const msg_item_t c_tMSGTable[] = {
     [0] = {
-        .chID = PRO_FUNC_C_PF300,
-        .chAccess = CMD_ACK,
+        .chID = 8,
+        .chAccess = 9,
         .fnHandler = press_data_updata,
     },
 };
-
 
 static volatile uint8_t s_chCurrentAccessPermission =0x07;
 
@@ -41,7 +27,7 @@ static volatile uint8_t s_chCurrentAccessPermission =0x07;
  *! \retval false  消息不存在或者消息处理函数觉得内容无效
  *! \retval true   消息得到了正确的处理
  */
-bool search_msgmap(uint_fast8_t chID,
+char search_msgmap(uint_fast8_t chID,
                    void *pData,
                    uint_fast16_t hwSize)
 {

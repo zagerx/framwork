@@ -41,8 +41,6 @@ void MX_USART1_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 #define EN_DEBUG
-
-
 #ifdef	EN_DEBUG
     #ifdef EN_DEBUG_RTT
         #define USER_DEBUG_RTT(format,...)	SEGGER_RTT_printf(0,format,##__VA_ARGS__)
@@ -53,6 +51,9 @@ void MX_USART1_UART_Init(void);
 #else
 	#define	USER_DEBUG(format,...)
 #endif
+
+void USER_UART_IRQHandler(UART_HandleTypeDef *huart);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
