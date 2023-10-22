@@ -3,7 +3,7 @@
 
 extern unsigned int g_protocol_event;
 
-
+// #define IPC_SET_EVENT(event) SET_BIT(g_protocol_event,1)
 
 #define GET_IPC_EVENT(event)      (g_protocol_event >> event) & 1
                                     
@@ -12,27 +12,6 @@ extern unsigned int g_protocol_event;
 #define CLEAR_IPC_EVENT(event)    g_protocol_event &= ~(1<<event)
 
 
-typedef struct mesg msg_t;
-struct mesg{
-    unsigned short id;
-    unsigned short len;
-    void *pdata;
-};
-
-typedef struct _node _node_t;
-
-struct _node
-{
-    /* data */
-    _node_t *next;
-    msg_t *msg;
-};
-
-typedef struct _list{
-    _node_t *head;
-    _node_t *tail;
-    unsigned short node_numb;
-}_list_t;
 
 
 
@@ -42,14 +21,19 @@ typedef struct _list{
 
 
 
+#include "list.h"
 
-msg_t* ipc_mesg_packet_02(unsigned short id,unsigned short len,void *pbuf);
-msg_t* ipc_mesg_packet(unsigned short id,unsigned short len);
+
+
+
+
+_lsit_item_t* ipc_mesg_packet_02(unsigned short id,unsigned short len,void *pbuf);
+_lsit_item_t* ipc_mesg_packet(unsigned short id,unsigned short len);
 void ipc_msgpool_init(void);
-void ipc_msgpool_write(msg_t *msg);
-msg_t* ipc_msgpool_read(void);
-msg_t* ipc_msgpool_read_val(msg_t* msg);
-void ipc_msgpool_del(msg_t *msg);
+void ipc_msgpool_write(_lsit_item_t *msg);
+_lsit_item_t* ipc_msgpool_read(void);
+_lsit_item_t* ipc_msgpool_read_val(_lsit_item_t* msg);
+void ipc_msgpool_del(_lsit_item_t *msg);
 void ipc_msg_printf(void);
 void ipc_msg_printf_number(void);
 

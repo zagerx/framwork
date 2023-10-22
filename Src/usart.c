@@ -194,7 +194,10 @@ int _write(int file, char *data, int len)
 		   return (status == HAL_OK ? len : 0);
 }
 /*----------------------------------------------------------------------------------------------*/
-
+void _bsp_protransmit(unsigned char* pdata,unsigned short len)
+{
+    HAL_UART_Transmit_DMA(&huart1,pdata,len);
+}
 void USER_UART_IRQHandler(UART_HandleTypeDef *huart)
 {
     if(USART1 == huart1.Instance)                                   //判断是否是串口1（！此处应写(huart->Instance == USART1)
@@ -204,7 +207,7 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart)
             __HAL_UART_CLEAR_IDLEFLAG(&huart1);                     //清楚空闲中断标志（否则会一直不断进入中断）
             HAL_UART_DMAStop(&huart1);//停止本次DMA传输
             unsigned short data_length  = sizeof(uart_receive_buff) - __HAL_DMA_GET_COUNTER(&hdma_usart1_rx);   //计算接收到的数据长度
-            protocol_reciver_data(uart_receive_buff,data_length);
+            protocol_reciverdata_tofifo(uart_receive_buff,data_length);
             memset(uart_receive_buff,0,data_length);                                            //清零接收缓冲区
             data_length = 0;
             HAL_UART_Receive_DMA(&huart1, (uint8_t*)uart_receive_buff, sizeof(uart_receive_buff));                    //重启开始DMA传输 每次255字节数据                    

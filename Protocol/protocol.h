@@ -5,17 +5,12 @@
 /*--------------------------------------------------
 该文件为模块的接口文件
 --------------------------------------------------*/
-
-
-
 enum{
     CMD_ORIGE = 0x00,
     CDM_NO_RESP = 0x01,
     CMD_RESP = 0x02,
     CMD_ACK,
 };
-
-
 
 #define PRO_FUNC_C_M_HEARTPACK	0x00	//主机心跳包
 #define PRO_FUNC_C_S_HEARTPACK	0x01	//从机心跳包
@@ -26,8 +21,8 @@ enum{
 /*---------------------------------协议接口------------------------------------------*/
 extern void protocol_init(void);
 extern void protocol_process(void);
-extern void protocol_bsp_transmit(unsigned char* pdata,unsigned short len);
-extern unsigned char protocol_reciver_data(unsigned char *pdata,unsigned short len);
+extern void _bsp_protransmit(unsigned char* pdata,unsigned short len);
+extern unsigned char protocol_reciverdata_tofifo(unsigned char *pdata,unsigned short len);
 extern char protocol_nowtransmit(unsigned char cmd_type,\
                         unsigned char cmd,void *pdata,unsigned short data_len);
 /*--------------------------------------------------------------------------------------*/

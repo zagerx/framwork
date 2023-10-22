@@ -36,7 +36,6 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
-fsm/fsm.c \
 c_bsp/eio_pin.c \
 Hardware/as5600.c \
 Hardware/analog_i2c/i2c_bitops.c \
@@ -50,11 +49,12 @@ Protocol/protocol.c \
 Protocol/protocol_msgmap.c \
 Protocol/protocol_process.c \
 Protocol/protocol_transmit.c \
-Protocol/IPC/ipc_mesg.c \
+Protocol/IPC/ipc_msg.c \
 Public/IPC/ipc_event.c \
+Public/Fsm/fsm.c \
+Public/list.c \
 Public/crc.c \
 Public/fifo.c \
-Public/global_data.c \
 Src/main.c \
 Src/gpio.c \
 Src/usart.c \
@@ -150,7 +150,7 @@ C_INCLUDES =  \
 -IMode \
 -Ic_bsp \
 -IHardware \
--Ifsm \
+-IPublic/Fsm \
 -IPublic/IPC \
 -Icm_backtrace \
 -IPublic \

@@ -5,17 +5,31 @@
 #ifndef __PROTOCOL_CFG__H
 #define __PROTOCOL_CFG__H
 
-#include "crc.h"
-#include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
+
 #include "macro_defined.h"
+#include "crc.h"
 #include "fifo.h"
-#include "stdint.h"
 #include "ipc.h"
-#include "stdbool.h"
 
-#define FRAM_MAX_SIZE   
+#undef NULL
+#define NULL 0
+#undef bool
+#define bool	
+#undef true
+#define true	1
+#undef false
+#define false	0
+
+
+
+
+
+
+
+
+#define PRO_FRAME_MIN_SIZE  8
 #define	PRO_FRAME_MAX_SIZE	512
-
+#define PRO_FIFO_SIZE PRO_FRAME_MAX_SIZE * (5)
 #endif

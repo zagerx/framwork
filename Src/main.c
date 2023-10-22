@@ -76,10 +76,7 @@ void A_FUNC(void)
     fault_test_by_div0();
 }
 
-void protocol_bsp_transmit(unsigned char* pdata,unsigned short len)
-{
-    HAL_UART_Transmit_DMA(&huart1,pdata,len);
-}
+
 
 /* USER CODE END 0 */
 

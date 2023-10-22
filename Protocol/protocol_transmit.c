@@ -8,16 +8,14 @@
 /*
 **  协议底层发送接口，应根据硬件接口由外部实现
 */
-__attribute__((weak)) void protocol_bsp_transmit(unsigned char* pdata,unsigned short len)
+__attribute__((weak)) void _bsp_protransmit(unsigned char* pdata,unsigned short len)
 {
-    // HAL_UART_Transmit(&huart1,(unsigned char*)pdata,sizeof(pro_frame_t)-sizeof(void *)+len,0XFFFF);
 }
-
 
 /*
 **  len:
 */
-static char _protocol_sendfram(pro_frame_t *msg,unsigned short len)
+static char _send_proframe(pro_frame_t *msg,unsigned short len)
 {
     /*整理帧数据*/
     unsigned char *pucmsg;
@@ -37,27 +35,38 @@ static char _protocol_sendfram(pro_frame_t *msg,unsigned short len)
     crc_16 = __SWP16(crc_16);
     memcpy((unsigned char*)&pucmsg[FRAM_PDATA_OFFSET+data_len],(unsigned char*)&crc_16,sizeof(crc_16));   
     memcpy((unsigned char*)&pucmsg[FRAM_PDATA_OFFSET+data_len+2],buf,2); 
-    protocol_bsp_transmit(pucmsg,sizeof(pro_frame_t)-sizeof(void *)+data_len);
+    _bsp_protransmit(pucmsg,sizeof(pro_frame_t)-sizeof(void *)+data_len);
     free(pucmsg);
 	return 0;
 }
-char protocol_nowtransmit(unsigned char cmd_type,unsigned char cmd,void *pdata,unsigned short data_len)
+
+char protocol_nowtransmit(unsigned char cmd_type,unsigned char cmd,\
+                            void *pdata,unsigned short data_len)
 {
     pro_frame_t* p_fram;
     /*协议帧封包*/
-    p_fram = pro_frame_packet(cmd | (cmd_type<<8),pdata,data_len);
+    p_fram = _packet_proframe(cmd | (cmd_type<<8),pdata,data_len);
     /*准备数据*/
-    _protocol_sendfram(p_fram,sizeof(pro_frame_t)+data_len);
+    _send_proframe(p_fram,sizeof(pro_frame_t)+data_len);
     free(p_fram);
     return NULL;
 }
 
+/*--------------------------------协议重发机制------------------------------------------------
+
+要求:
+随机发送n条指令，每条指令都必须被响应(如:响应为指令取反)
+没有正确响应的应彻底删除该次发送
+
+1、发送接口:    protocol_transmit(frame，timeout，cnt)
+2、1、创建一个重发的句柄
+        a、可以被随时删除(发送完成被删除)
+        b、每个frame对应一个句柄
+        c、非阻塞式发送
 
 
-
+--------------------------------------------------------------------------------*/
 #if 0
-
-
 #include "fsm.h"
 #undef  NULL
 #define NULL 0                  
@@ -223,7 +232,7 @@ msg_t* pro_send_cmd_data(unsigned short id_fsm,unsigned char cmd_type,unsigned c
 {
     pro_frame_t* p_fram;
     /*协议帧封包*/
-    p_fram = pro_frame_packet(cmd | (cmd_type<<8),pdata,data_len);
+    p_fram = _packet_proframe(cmd | (cmd_type<<8),pdata,data_len);
     /*准备数据*/
     msg_t msg;
     msg.id = cmd;

@@ -20,6 +20,8 @@
     "fifo.h": "c",
     "protocol_cfg.h": "c",
     "protocol_comment.h": "c",
-    "macro_defined.h": "c"
+    "macro_defined.h": "c",
+    "list.h": "c",
+    "malloc.h": "c"
 }
 }
