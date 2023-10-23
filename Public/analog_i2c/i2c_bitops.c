@@ -1,5 +1,11 @@
 #include "analog_i2c.h"
 #include "stdio.h"
+
+/*----------------------------------------------------------------------
+
+改文件为i2c总线的操作方法
+
+------------------------------------------------------------------------*/
 static void i2c_bitops_start(i2c_bus_t *i2c_bus)
 {	
 //	i2c_bus->set_sda_out();
@@ -57,6 +63,10 @@ static char i2c_bitops_wait_ack(i2c_bus_t *i2c_bus)
     i2c_bus->set_scl(0);
     return 0;	
 }
+
+
+
+
 static void i2c_bitops_send_byte(i2c_bus_t *i2c_bus,unsigned char data)
 {
     uint8_t t;

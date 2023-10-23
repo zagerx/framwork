@@ -1,14 +1,10 @@
 #ifndef __ANALOG_I2C__H
 #define __ANALOG_I2C__H
-//#include "./app_cfg.h"
 #include "stdint.h"
-#define I2C_BUS_WR            0x0000
-#define I2C_BUS_RD			  0x0001
-
 #include "stdbool.h"
 #include "main.h"
-
-
+#define I2C_BUS_WR            0x0000
+#define I2C_BUS_RD			  0x0001
 typedef struct i2c_dev_mesg
 {
     unsigned short  addr;
@@ -18,9 +14,11 @@ typedef struct i2c_dev_mesg
     unsigned char   retries;
 }i2c_dev_mesg_t;
 
+
+/*-----------------------I2C总线-------------------------------------------------*/
 typedef struct i2c_bus
 {
-	/*总线方法*/
+	/*总线操作方法*/
 	void (*set_sda)(int8_t state);
     void (*set_scl)(int8_t state);
 	unsigned char (*get_sda)(void);
@@ -29,9 +27,10 @@ typedef struct i2c_bus
 	void (*set_sda_in)(void);
 
 	/*总线名字*/
-	char *i2c_number;//哪个I2C总线
-
+	const char *name;//哪个I2C总线
 }i2c_bus_t;
+/*------------------------------------------------------------------------------*/
+
 
 typedef struct i2c_dev{
 	i2c_bus_t *i2c_phy;

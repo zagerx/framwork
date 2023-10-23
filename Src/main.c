@@ -115,7 +115,7 @@ int main(void)
     srand(HAL_GetTick());
 
   protocol_init();
-  // sensor_init();
+  as5600_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -124,9 +124,11 @@ int main(void)
   while (1)
   {
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
-    HAL_Delay(1);
+    HAL_Delay(200);
     protocol_process();
-
+    float a;
+    as5600_updata(&a);
+    USER_DEBUG_RTT("%f\r\n",a);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

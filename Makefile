@@ -38,9 +38,6 @@ BUILD_DIR = build
 C_SOURCES =  \
 c_bsp/eio_pin.c \
 Hardware/as5600.c \
-Hardware/analog_i2c/i2c_bitops.c \
-Hardware/analog_i2c/i2c_bus.c \
-Hardware/analog_i2c/i2c_core.c \
 Sensor/sensor_fsm_manage.c \
 Sensor/aht20_fsm.c \
 Sensor/key_fsm.c \
@@ -49,7 +46,10 @@ Protocol/protocol.c \
 Protocol/protocol_msgmap.c \
 Protocol/protocol_process.c \
 Protocol/protocol_transmit.c \
-Protocol/IPC/ipc_msg.c \
+Public/IPC/ipc_msg.c \
+Public/analog_i2c/i2c_bitops.c \
+Public/analog_i2c/i2c_bus.c \
+Public/analog_i2c/i2c_core.c \
 Public/IPC/ipc_event.c \
 Public/Fsm/fsm.c \
 Public/list.c \
