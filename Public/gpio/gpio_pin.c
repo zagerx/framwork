@@ -1,19 +1,12 @@
 
 /*
- * eLesson Project
- * Copyright (c) 2023, EventOS Team, <event-os@outlook.com>
  */
 
 /* includes ----------------------------------------------------------------- */
 #include <string.h>
-#include "eio_pin.h"
-// #include "elab_assert.h"
+#include "gpio_pin.h"
+#include "stm32g4xx_hal.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-// ELAB_TAG("EIO_PIN");
 
 /* private variables -------------------------------------------------------- */
 static const GPIO_TypeDef *gpio_table[] =
@@ -23,11 +16,11 @@ static const GPIO_TypeDef *gpio_table[] =
 
 /* private function prototype ----------------------------------------------- */
 static bool _check_pin_name_valid(const char *name);
-static void _translate_pin_name(const char *name, eio_pin_data_t *data);
+static void _translate_pin_name(const char *name, gpio_pin_data_t *data);
 
 /* public functions --------------------------------------------------------- */
 
-void eio_pin_mode(eio_pin_t * const me, const char *name, enum pin_mode mode)
+void gpio_set_pinmode(gpio_pin_t * const me, const char *name, enum pin_mode mode)
 {
     _translate_pin_name(name, &me->data);
     me->mode = mode;
@@ -72,12 +65,9 @@ void eio_pin_mode(eio_pin_t * const me, const char *name, enum pin_mode mode)
   * @param  mode    pin's mode.
   * @retval None
   */
-void eio_pin_init(eio_pin_t * const me, const char *name, enum pin_mode mode)
+void gpio_pininit(gpio_pin_t * const me, const char *name, enum pin_mode mode)
 {
-    //elab_assert(me != NULL);
-    //elab_assert(name != NULL);
     bool valid = _check_pin_name_valid(name);
-    //elab_assert(valid);
 
     _translate_pin_name(name, &me->data);
     me->mode = mode;
@@ -114,7 +104,7 @@ void eio_pin_init(eio_pin_t * const me, const char *name, enum pin_mode mode)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(me->data.gpio_x, &GPIO_InitStruct);
 
-    eio_pin_get_status(me);
+    gpio_get_pinstatus(me);
 }
 
 /**
@@ -122,13 +112,10 @@ void eio_pin_init(eio_pin_t * const me, const char *name, enum pin_mode mode)
   * @param  me      this pointer
   * @retval The pin's status.
   */
-bool eio_pin_get_status(eio_pin_t * const me)
+bool gpio_get_pinstatus(gpio_pin_t * const me)
 {
-    //elab_assert(me != NULL);
-
     GPIO_PinState status = HAL_GPIO_ReadPin(me->data.gpio_x, me->data.pin);
     me->status = (status == GPIO_PIN_SET) ? true : false;
-
     return me->status;
 }
 
@@ -138,20 +125,11 @@ bool eio_pin_get_status(eio_pin_t * const me)
   * @param  status  the input pin status.
   * @retval None.
   */
-void eio_pin_set_status(eio_pin_t * const me, bool status)
+void gpio_set_pinstatus(gpio_pin_t * const me, bool status)
 {
-    //elab_assert(me != NULL);
-    //elab_assert(me->mode == PIN_MODE_OUTPUT || me->mode == PIN_MODE_OUTPUT_OD);
-    
-    // if (status != me->status)
-    // {
-        HAL_GPIO_WritePin(me->data.gpio_x,
-                            me->data.pin,
-                            status ? GPIO_PIN_SET : GPIO_PIN_RESET);
-
-        // eio_pin_get_status(me);
-        //elab_assert(me->status == status);
-    // }
+    HAL_GPIO_WritePin(me->data.gpio_x,
+                        me->data.pin,
+                        status ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
 /* private functions -------------------------------------------------------- */
@@ -196,10 +174,8 @@ exit:
   * @param  data    The pin data output.
   * @retval None.
   */
-static void _translate_pin_name(const char *name, eio_pin_data_t *data)
+static void _translate_pin_name(const char *name, gpio_pin_data_t *data)
 {
-    //elab_assert(data != NULL);
-
     data->gpio_x = (GPIO_TypeDef *)gpio_table[name[0] - 'A'];
     data->pin = (1 << ((uint8_t)((name[2] - '0') * 10 + (name[3] - '0'))));
 

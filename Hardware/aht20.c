@@ -421,7 +421,7 @@ void aht20_init(void)
 {
 	unsigned char data = 0x25;	
 //	HAL_Delay(30);
-	aht200.i2c_phy = hw_i2c_init();
+	aht200.i2c_phy = i2c_bus_init();
 	// data = aht20_get_statusbyte();
 	// printf("data = %x\r\n",data);
 }

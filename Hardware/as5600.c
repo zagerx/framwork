@@ -22,6 +22,7 @@ static void as5600_readmulitbyte(unsigned char *buf,unsigned char len)
 	msg.flags = I2C_BUS_RD;
 	msg.buff = buf;
 	msg.size = len;
+    as5600.dev_msg = &msg;
 	i2c_bus_xfer_read(&as5600,&msg);	
 }
 static void as5600_writemulitbyte(unsigned char *buf,unsigned char len)
@@ -31,6 +32,7 @@ static void as5600_writemulitbyte(unsigned char *buf,unsigned char len)
 	msg.flags = I2C_BUS_WR;
 	msg.buff = buf;
 	msg.size = len;
+    as5600.dev_msg = &msg;
 	i2c_bus_xfer_write(&as5600,&msg);
 }
 
@@ -74,7 +76,7 @@ fsm_rt_t as5600fsm_process(fsm_cb_t *ptThis)
 
 char as5600_init(void)
 {
-	as5600.i2c_phy = hw_i2c_init(i2c_name);
+	as5600.i2c_phy = i2c_bus_init(i2c_name);
     as5600fsm_init(&as5600_cb);
     return 0;
 }
