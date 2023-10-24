@@ -1,10 +1,6 @@
 #ifndef __ANALOG_I2C__H
 #define __ANALOG_I2C__H
-#include "stdint.h"
-#include "stdbool.h"
-#include "main.h"
-#include "gpio_pin.h"
-
+#include "analog_i2c_cfg.h"
 #define I2C_BUS_WR            0x0000
 #define I2C_BUS_RD			  0x0001
 typedef struct i2c_dev_mesg
@@ -14,9 +10,7 @@ typedef struct i2c_dev_mesg
     unsigned short  size;
     unsigned char   *buff;
     unsigned char   retries;
-}i2c_dev_mesg_t;
-
-
+}i2c_dev_info_t;
 /*-----------------------I2C×ÜÏß-------------------------------------------------*/
 typedef struct i2c_bus
 {
@@ -33,20 +27,15 @@ typedef struct i2c_bus
     gpio_pin_data_t *scl;
     gpio_pin_data_t *sda;
 }i2c_bus_t;
-
-int i2c_bitops_bus_xfer_read(i2c_bus_t *i2c_bus,i2c_dev_mesg_t *msgs);
-int i2c_bitops_bus_xfer_write(i2c_bus_t *i2c_bus,i2c_dev_mesg_t *msgs);
 /*------------------------------------------------------------------------------*/
 
 typedef struct i2c_dev{
 	i2c_bus_t *i2c_phy;
-    i2c_dev_mesg_t *dev_msg;
+    i2c_dev_info_t *dev_msg;
 }i2c_dev_t;
 
-int i2c_bus_xfer_read(i2c_dev_t *i2c_dev,i2c_dev_mesg_t *msgs);
-int i2c_bus_xfer_write(i2c_dev_t *i2c_dev,i2c_dev_mesg_t *msgs);
-
+extern int i2c_bus_xfer_read(i2c_dev_t *i2c_dev);
+extern int i2c_bus_xfer_write(i2c_dev_t *i2c_dev);
 extern i2c_bus_t* i2c_bus_init(const char *i2c_name);
-
 
 #endif

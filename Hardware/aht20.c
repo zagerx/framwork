@@ -312,7 +312,7 @@ static i2c_dev_t aht200;
 
 static void aht20_readmulitbyte(unsigned char *buf,unsigned char len)
 {
-	i2c_dev_mesg_t msg;
+	i2c_dev_info_t msg;
 	msg.addr = 0x38;
 	msg.flags = I2C_BUS_RD;
 	msg.buff = buf;
@@ -321,7 +321,7 @@ static void aht20_readmulitbyte(unsigned char *buf,unsigned char len)
 }
 static void aht20_writemulitbyte(unsigned char *buf,unsigned char len)
 {
-	i2c_dev_mesg_t msg;
+	i2c_dev_info_t msg;
 	msg.addr = 0x38;
 	msg.flags = I2C_BUS_WR;
 	msg.buff = buf;
@@ -330,7 +330,7 @@ static void aht20_writemulitbyte(unsigned char *buf,unsigned char len)
 }
 unsigned char aht20_get_statusbyte(void)
 {
-	i2c_dev_mesg_t msg;
+	i2c_dev_info_t msg;
 	unsigned char byte;
 	msg.addr = 0x38;
 	msg.flags = I2C_BUS_RD;
@@ -344,7 +344,7 @@ unsigned char aht20_get_statusbyte(void)
 void aht20_start_ceasure(void)
 {
 	unsigned char buf[3] = {0};
-	i2c_dev_mesg_t msg;
+	i2c_dev_info_t msg;
 	buf[0] = 0xAC;
 	buf[1] = 0x33;
 	buf[2] = 0x00;

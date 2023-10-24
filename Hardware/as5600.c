@@ -17,23 +17,23 @@ static i2c_dev_t as5600;
 const char *i2c_name = "i2c_01";
 static void as5600_readmulitbyte(unsigned char *buf,unsigned char len)
 {
-	i2c_dev_mesg_t msg;
+	i2c_dev_info_t msg;
 	msg.addr = AS5600_ADDR;
 	msg.flags = I2C_BUS_RD;
 	msg.buff = buf;
 	msg.size = len;
     as5600.dev_msg = &msg;
-	i2c_bus_xfer_read(&as5600,&msg);	
+	i2c_bus_xfer_read(&as5600);	
 }
 static void as5600_writemulitbyte(unsigned char *buf,unsigned char len)
 {
-	i2c_dev_mesg_t msg;
+	i2c_dev_info_t msg;
 	msg.addr = AS5600_ADDR;
 	msg.flags = I2C_BUS_WR;
 	msg.buff = buf;
 	msg.size = len;
     as5600.dev_msg = &msg;
-	i2c_bus_xfer_write(&as5600,&msg);
+	i2c_bus_xfer_write(&as5600);
 }
 
 static float as5600_getangle(void)
