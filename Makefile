@@ -37,9 +37,6 @@ BUILD_DIR = build
 # C sources
 C_SOURCES =  \
 Hardware/as5600.c \
-Sensor/sensor_fsm_manage.c \
-Sensor/aht20_fsm.c \
-Sensor/key_fsm.c \
 cm_backtrace/cm_backtrace.c \
 Protocol/protocol.c \
 Protocol/protocol_msgmap.c \
@@ -145,17 +142,12 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
--Icontrlsys_input \
--IContrlBlock \
--ISensor \
--IMode \
--Ic_bsp \
+-Icm_backtrace \
 -IHardware \
+-IPublic \
 -IPublic/Fsm \
 -IPublic/gpio \
 -IPublic/IPC \
--Icm_backtrace \
--IPublic \
 -IProtocol \
 -IInc \
 -IDrivers/STM32G4xx_HAL_Driver/Inc \

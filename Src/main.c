@@ -127,9 +127,6 @@ int main(void)
     HAL_Delay(200);
     protocol_process();
     as5600_process();
-    // float a;
-    // as5600_updata(&a);
-    // USER_DEBUG_RTT("%f\r\n",a);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
