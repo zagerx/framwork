@@ -3,6 +3,13 @@
 #include "analog_i2c_cfg.h"
 #define I2C_BUS_WR            0x0000
 #define I2C_BUS_RD			  0x0001
+typedef struct i2c_bus_info 
+{
+    const char *i2c_name;
+    const char *i2c_scl;
+    const char *i2c_sda;
+}i2c_bus_info_t;
+
 typedef struct i2c_dev_mesg
 {
     unsigned short  addr;
@@ -24,8 +31,8 @@ typedef struct i2c_bus
 
 	/*总线名字*/
 	const char *name;//哪个I2C总线
-    gpio_pin_data_t *scl;
-    gpio_pin_data_t *sda;
+    gpio_pin_t *scl;
+    gpio_pin_t *sda;
 }i2c_bus_t;
 /*------------------------------------------------------------------------------*/
 
@@ -36,6 +43,5 @@ typedef struct i2c_dev{
 
 extern int i2c_bus_xfer_read(i2c_dev_t *i2c_dev);
 extern int i2c_bus_xfer_write(i2c_dev_t *i2c_dev);
-extern i2c_bus_t* i2c_bus_init(const char *i2c_name);
-
+extern i2c_bus_t* i2c_bus_init(i2c_bus_info_t* info);
 #endif

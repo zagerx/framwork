@@ -47,6 +47,7 @@ Protocol/protocol_process.c \
 Protocol/protocol_transmit.c \
 Public/IPC/ipc_msg.c \
 Public/gpio/gpio_pin.c \
+Public/analog_i2c/analog_i2c_cfg.c \
 Public/analog_i2c/i2c_bitops.c \
 Public/analog_i2c/i2c_bus.c \
 Public/analog_i2c/i2c_core.c \

@@ -49,18 +49,18 @@ static void gpio_delayus(unsigned int Time)
 
 
 /*-------------------------I2C总线的初始化------------------------------------*/
-i2c_bus_t* i2c_bus_register(const char* bus_name,const char *io_scl_name,const char* io_sda_name)
+i2c_bus_t* i2c_bus_register(i2c_bus_info_t *info)
 {
     i2c_bus_t *i2c_bus;
     i2c_bus = malloc(sizeof(i2c_bus_t));
 
-    gpio_pin_data_t *gpio_scl;
-    gpio_pin_data_t *gpio_sda;
-    gpio_sda = malloc(sizeof(gpio_pin_data_t));
-    gpio_scl = malloc(sizeof(gpio_pin_data_t));
+    gpio_pin_t *gpio_scl;
+    gpio_pin_t *gpio_sda;
+    gpio_sda = malloc(sizeof(gpio_pin_t));
+    gpio_scl = malloc(sizeof(gpio_pin_t));
 
-	gpio_pininit(gpio_scl,io_scl_name,PIN_MODE_OUTPUT);
-	gpio_pininit(gpio_sda,io_sda_name,PIN_MODE_OUTPUT);
+	gpio_pininit(gpio_scl,info->i2c_scl,PIN_MODE_OUTPUT);
+	gpio_pininit(gpio_sda,info->i2c_sda,PIN_MODE_OUTPUT);    
 	gpio_set_pinstatus(gpio_scl,1);
 	gpio_set_pinstatus(gpio_sda,1);
 
@@ -72,14 +72,11 @@ i2c_bus_t* i2c_bus_register(const char* bus_name,const char *io_scl_name,const c
 	i2c_bus->set_sda_in = gpio_set_in;
 	i2c_bus->set_sda_out = gpio_set_sda_out;
 	i2c_bus->delayus = gpio_delayus;
-    i2c_bus->name = bus_name;
+    i2c_bus->name = info->i2c_name;
     return i2c_bus;
 }
 
-i2c_bus_t* i2c_bus_init(const char *i2c_name)
-{
-    i2c_bus_register("i2c_01","A.15","B.09");
-}
+
 /*------------------------------------------------------------------------*/
 
 

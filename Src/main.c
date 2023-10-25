@@ -27,7 +27,7 @@
 /* USER CODE BEGIN Includes */
 #include "protocol.h"
 #include "cm_backtrace.h"
-
+#include "as5600.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -111,7 +111,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-  printf("hello world\r\n");
+  USER_DEBUG_RTT("hello world\r\n");
     srand(HAL_GetTick());
 
   protocol_init();
@@ -126,9 +126,10 @@ int main(void)
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
     HAL_Delay(200);
     protocol_process();
-    float a;
-    as5600_updata(&a);
-    USER_DEBUG_RTT("%f\r\n",a);
+    as5600_process();
+    // float a;
+    // as5600_updata(&a);
+    // USER_DEBUG_RTT("%f\r\n",a);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

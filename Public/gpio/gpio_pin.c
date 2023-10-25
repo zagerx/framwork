@@ -65,7 +65,7 @@ void gpio_set_pinmode(gpio_pin_t * const me, const char *name, enum pin_mode mod
   * @param  mode    pin's mode.
   * @retval None
   */
-void gpio_pininit(gpio_pin_t * const me, const char *name, enum pin_mode mode)
+void gpio_pininit(gpio_pin_t* const me, const char *name, enum pin_mode mode)
 {
     bool valid = _check_pin_name_valid(name);
 
