@@ -24,6 +24,9 @@
     "list.h": "c",
     "malloc.h": "c",
     "analog_i2c_cfg.h": "c",
-    "gpio_pin.h": "c"
+    "gpio_pin.h": "c",
+    "analog_i2c_com.h": "c",
+    "printf_log.h": "c",
+    "_assert.h": "c"
 }
 }

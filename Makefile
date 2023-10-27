@@ -53,6 +53,8 @@ Public/Fsm/fsm.c \
 Public/list.c \
 Public/crc.c \
 Public/fifo.c \
+Public/_assert.c \
+Public/printf_log.c \
 Src/main.c \
 Src/gpio.c \
 Src/usart.c \
@@ -133,7 +135,9 @@ AS_DEFS =
 # C defines
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
--DSTM32G431xx
+-DSTM32G431xx \
+-DENABLE_DEBUG \
+-DENABLE_ASSERT
 
 
 

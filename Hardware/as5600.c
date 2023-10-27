@@ -63,7 +63,7 @@ void as5600_process(void)
         Step = MEASURE_START;
         break;
       case MEASURE_START:
-        USER_DEBUG_RTT("%3f\r\n",_getangle());
+        USER_DEBUG("%3f\r\n",_getangle());
         break;
     }
 }

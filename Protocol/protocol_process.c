@@ -56,7 +56,8 @@ void protocol_parse(void)
  		case 0x0A:
             {
                 float buf[4] = {0.0f};
-                protocol_nowtransmit(0x03,0x02,buf,16);                
+                // protocol_nowtransmit(0x03,0x02,buf,16); 
+                protocol_transmit(0x03,0x02,buf,16);//≤‚ ‘”√
             }
 			break;   	
 		default:

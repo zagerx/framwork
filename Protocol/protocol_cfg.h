@@ -12,7 +12,10 @@
 #include "crc.h"
 #include "fifo.h"
 #include "ipc.h"
-
+#include "list.h"
+#include "fsm.h"
+#include "printf_log.h"
+#include "_assert.h"
 #undef NULL
 #define NULL 0
 #undef bool

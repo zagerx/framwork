@@ -61,7 +61,7 @@ void ipc_msgpool_del(_lsit_item_t *msg)
     if (msg== NULL)
     {
         /* code */
-        USER_DEBUG_RTT("no use data\r\n");
+        USER_DEBUG("no use data\r\n");
         return ;
     }
     
@@ -91,7 +91,6 @@ _lsit_item_t* ipc_mesg_packet(unsigned short id,unsigned short len)
     /*¿ªÊ¼·â°ü*/
     _lsit_item_t *pMsg;
     pMsg = (_lsit_item_t *)&pbuf[0];
-    pMsg->id = id;
     pMsg->len = len-sizeof(_lsit_item_t);
     pMsg->pdata = &pbuf[sizeof(_lsit_item_t)];
     return pMsg;
@@ -100,7 +99,6 @@ _lsit_item_t* ipc_mesg_packet(unsigned short id,unsigned short len)
 _lsit_item_t* ipc_mesg_packet_02(unsigned short id,unsigned short len,void *pbuf)
 {
     _lsit_item_t *pMsg = (_lsit_item_t *)malloc(sizeof(_lsit_item_t));
-    pMsg->id = id;
     pMsg->len = len;
     pMsg->pdata = pbuf;
     return pMsg;

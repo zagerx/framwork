@@ -1,5 +1,6 @@
 #include "analog_i2c.h"
 #include "analog_i2c_cfg.h"
+#include "analog_i2c_com.h"
 /*-----------------------------------------------------------------------
 该文件主要初始化
 I2C总线相关信息
@@ -47,9 +48,8 @@ static void gpio_delayus(unsigned int Time)
 /*------------------------------------------------------------------------*/
 
 
-
 /*-------------------------I2C总线的初始化------------------------------------*/
-i2c_bus_t* i2c_bus_register(i2c_bus_info_t *info)
+static i2c_bus_t* i2c_bus_register(i2c_bus_info_t *info)
 {
     i2c_bus_t *i2c_bus;
     i2c_bus = malloc(sizeof(i2c_bus_t));
@@ -76,6 +76,28 @@ i2c_bus_t* i2c_bus_register(i2c_bus_info_t *info)
     return i2c_bus;
 }
 
+/*-----------------根据i2c_bus_infoarry初始化i2c_bus_arry数组 系统调用---------------------*/
+void i2c_bus_creat(void)
+{
+    for (unsigned char i = 0; i < dimof(i2c_bus_infoarry); i++)
+    {
+        i2c_bus_arry[i] = i2c_bus_register(&i2c_bus_infoarry[i]);
+    }
+}
+/*-------------------------------供I2C设备调用--------------------------------------------*/
+i2c_bus_t* i2c_bus_init(i2c_bus_info_t* info)
+{
+    /*总线遍历功能待完善*/
+    for (unsigned char i = 0; i < sizeof(i2c_bus_infoarry); i++)
+    {
+        /* code */
+        if (!strcmp(i2c_bus_arry[i]->name,info->i2c_name))//已经存在
+        {
+            return i2c_bus_arry[i];
+        }
+    }
+    return 0;
+}
 
 /*------------------------------------------------------------------------*/
 

@@ -1,9 +1,6 @@
 #include "analog_i2c.h"
 #include "analog_i2c_com.h"
 
-
-
-
 int i2c_bus_xfer_read(i2c_dev_t *i2c_dev)
 {
     i2c_dev_info_t *msgs;

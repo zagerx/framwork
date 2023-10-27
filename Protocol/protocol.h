@@ -25,5 +25,8 @@ extern void _bsp_protransmit(unsigned char* pdata,unsigned short len);
 extern unsigned char protocol_reciverdata_tofifo(unsigned char *pdata,unsigned short len);
 extern char protocol_nowtransmit(unsigned char cmd_type,\
                         unsigned char cmd,void *pdata,unsigned short data_len);
+extern void protocol_transmit(unsigned char cmd_type,unsigned char cmd,\
+                            void *pdata,unsigned short data_len);      
+void protocol_transmitprocess(void);
 /*--------------------------------------------------------------------------------------*/
 #endif

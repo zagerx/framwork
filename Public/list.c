@@ -1,6 +1,6 @@
 
 #include "list.h"
-#include "usart.h"
+#include "printf_log.h"
 #undef NULL
 #define NULL 0
 
@@ -14,6 +14,27 @@ _list_t* list_creat(void)
     return phead;
 }
 
+_lsit_item_t *list_creat_item(void *pdata,unsigned short len)
+{
+    _lsit_item_t *pitem;
+    pitem = malloc(sizeof(_lsit_item_t));
+    pitem->pdata = pdata;
+    pitem->len = len;
+    return pitem;
+}
+
+_node_t *list_creatnode(_lsit_item_t *item)
+{
+    _node_t *pnode;
+    pnode = malloc(sizeof(_node_t));
+    pnode->next = 0;
+    pnode->pitem = item;
+    return pnode;
+}
+
+/*
+**  头插法
+*/
 void list_insert_node(_list_t *pthis, _node_t *node)
 {
     _node_t *tail_node;
@@ -30,6 +51,9 @@ void list_insert_node(_list_t *pthis, _node_t *node)
     }
     pthis->node_numb++;
 }
+
+
+/*--------------根据节点ID/节点本身删除节点-----------------------------------*/
 void list_delete_node(_list_t *pthis,_node_t *node)
 {
     _node_t *cur_node,*pre_node = NULL;
@@ -42,14 +66,14 @@ void list_delete_node(_list_t *pthis,_node_t *node)
     }
     if (node->pitem == NULL)
     {
-        USER_DEBUG_RTT("node msg empty\r\n");
+        USER_DEBUG("node msg empty\r\n");
         /* code */
         return;
     }
 
     while (cur_node != NULL)
     {
-        if (cur_node->pitem->id == node->pitem->id)
+        if ((cur_node->id == node->id) || (cur_node == node))
         {
             /* code */
             pre_node->next = cur_node->next;
@@ -84,7 +108,7 @@ _node_t* list_read_node_vale(_list_t *pthis,_node_t *node)
 
     while (p_curnode != NULL)
     {
-        if (p_curnode->pitem->id == node->pitem->id)
+        if (p_curnode->id == node->id)
         {
             /* code */
             break;
@@ -130,7 +154,7 @@ void _list_printf(_list_t *pthis)
     unsigned char* pdata;    
     if (pthis->node_numb==0)
     {
-        USER_DEBUG_RTT("list no node\r\n");
+        USER_DEBUG("list no node\r\n");
         return;
     }
     _node_t *cur_node;
@@ -139,16 +163,15 @@ void _list_printf(_list_t *pthis)
     
     while (cur_node != NULL)
     {
-        id = cur_node->pitem->id;
+        id = cur_node->id;
         len = cur_node->pitem->len;
         pdata = cur_node->pitem->pdata;
-        USER_DEBUG_RTT("msg id %d\r\n",id);
+        USER_DEBUG("msg id %d\r\n",id);
         cur_node = cur_node->next;
     }
-
 }
 
 void _list_printf_number(_list_t *pthis)
 {  
-    USER_DEBUG_RTT("list node number %d\r\n",pthis->node_numb);
+    USER_DEBUG("list node number %d\r\n",pthis->node_numb);
 }

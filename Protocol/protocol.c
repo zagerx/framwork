@@ -94,7 +94,25 @@ char _get_framedata_fromfifo(unsigned char *pbuf,unsigned short *pframe_len)
     return 1;
 }
 
-/*协议封包处理*/
+
+
+pro_pack_t* _packet_propack(pro_frame_t *frame,unsigned int timeout,unsigned char recnt)
+{   
+    fsm_cb_t test_fsmcb;
+    pro_pack_t* pmsg = malloc(sizeof(pro_pack_t));
+    fsm_init(&test_fsmcb,(fsm_t *)_trancemit_statemach);
+    pmsg->statemach_cb = test_fsmcb;
+    pmsg->timeout = timeout;
+    pmsg->recnt = recnt;
+    pmsg->t0 = 0;
+    pmsg->frame = frame;   
+    return pmsg;
+}
+
+/*
+**协议封包处理
+**return       一段连续的内存
+*/
 pro_frame_t* _packet_proframe(unsigned short cmd,void *pdata,unsigned short len)
 {
     unsigned char *puctemp;
@@ -118,7 +136,10 @@ pro_frame_t* _packet_proframe(unsigned short cmd,void *pdata,unsigned short len)
     }    
     return pfram;
 }
-/*协议解包处理*/
+/*
+协议解包处理
+return 一段连续的内存
+*/
 pro_frame_t* _unpack_proframe(unsigned char *pdata,unsigned short len)
 {
     /*申请内存*/
@@ -161,18 +182,16 @@ pro_frame_t* _unpack_proframe(unsigned char *pdata,unsigned short len)
 
     return p_r_fram;
 }
-/*从fifo模块获取指定内容*/
 
 
 
-
-
-
-
+_list_t *g_transmit_handle;
 
 void protocol_init(void)
 {
     bytefifo_init(&protocol_fifo_handle,fifo_receive_buff,sizeof(fifo_receive_buff));
+    /*创建一个消息发送链表*/
+    g_transmit_handle = list_creat();
 }
 
 /*
@@ -182,6 +201,6 @@ parse:解析
 void protocol_process(void)
 {
     protocol_parse();
-    // protocol_trans_process();
+    protocol_transmitprocess();
 }
 
