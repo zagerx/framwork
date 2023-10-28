@@ -16,8 +16,8 @@
             "externalConsole": true, 
             "targetArchitecture": "arm",
             "MIMode":"gdb",
-            "miDebuggerPath": "D:\\Program Files (x86)\\gcc-arm-none-eabi-10-2020-q4-major-win32\\tool\\bin\\arm-none-eabi-gdb.exe",
-            // "miDebuggerPath": "D://Program Files//gcc-arm-none-eabi-10.3-2021.10//bin//arm-none-eabi-gdb.exe",
+            // "miDebuggerPath": "D:\\Program Files (x86)\\gcc-arm-none-eabi-10-2020-q4-major-win32\\tool\\bin\\arm-none-eabi-gdb.exe",
+            "miDebuggerPath": "D://Program Files//gcc-arm-none-eabi-10.3-2021.10//bin//arm-none-eabi-gdb.exe",
               "setupCommands": [ // 进入GDB以后，自动执行的一些配置  
               {
                   "text": "cd ${workspaceFolder}",

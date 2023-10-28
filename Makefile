@@ -53,6 +53,7 @@ Public/Fsm/fsm.c \
 Public/list.c \
 Public/crc.c \
 Public/fifo.c \
+Public/heap.c \
 Public/_assert.c \
 Public/printf_log.c \
 Src/main.c \
