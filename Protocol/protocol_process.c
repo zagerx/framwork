@@ -44,20 +44,23 @@ void protocol_parse(void)
     unsigned char cmd_type = (unsigned char)(cmd>>8);
     heap_free(p_r_fram);
 
-    // search_msgmap(cmd_fun,pf1,data_len);
-    // return;
-
 	switch (cmd_fun)
 	{                 
 		case 0x06:
-            /*添加数据到链表并打印*/
-            ipc_msg_printf();
+            {
+                USER_DEBUG("cmd 06\r\n");
+                float buf[4] = {0.0f};
+                protocol_transmit(0x03,0x02,buf,16);//测试用
+            }            
 			break; 
  		case 0x0A:
             {
+                unsigned char event;
                 float buf[4] = {0.0f};
-                protocol_nowtransmit(0x03,0x02,buf,16); 
-                // protocol_transmit(0x03,0x02,buf,16);//测试用
+                event =  forch_keymap_enevt(0x0A);
+                IPC_SET_EVENT(g_protocol_event,event);
+                // protocol_nowtransmit(0x03,0x02,buf,16); 
+                // 
             }
 			break;  
  		case 1:

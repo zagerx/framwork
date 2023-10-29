@@ -1,10 +1,37 @@
 
 #include "protocol_comment.h"
 #include "protocol_cfg.h"
-
+#include "protocol.h"
 /*-------------------------------FIFO组件------------------------------------------*/
 static unsigned char fifo_receive_buff[PRO_FRAME_MAX_SIZE];//fifo数据缓存区
 static byte_fifo_t protocol_fifo_handle;//fifo控制块
+
+
+/*-------------------------------协议间同步事件-----------------------------*/
+unsigned short g_protocol_event;
+cmd_keymap_t g_keymap[CMD_NUMBER] = {       \
+                                        {PRO_FUNC_C_M_HEARTPACK,0},
+                                        {PRO_FUNC_C_S_HEARTPACK,1},
+                                        {PRO_FUNC_C_PF300,      2},
+                                        {PRO_FUNC_C_TEMP,       3},
+                                    };
+/*
+**  根据命令搜索对应的同步事件
+*/                                    
+short forch_keymap_enevt(E_CMD key)
+{
+    for (unsigned char i = 0; i < CMD_NUMBER; i++)
+    {
+        /* code */
+        if (g_keymap[i].key == key)
+        {
+            /* code */
+            return g_keymap[i].event;
+        }        
+    }
+    return -1;
+}
+
 
 /*********************************************************************************************************
 ** Function name(函数名称):				protocol_reciverdata_tofifo()
@@ -100,7 +127,7 @@ pro_pack_t* _packet_propack(pro_frame_t *frame,unsigned int timeout,unsigned cha
 {   
     fsm_cb_t test_fsmcb;
     pro_pack_t* pmsg = heap_malloc(sizeof(pro_pack_t));
-    fsm_init(&test_fsmcb,(fsm_t *)_trancemit_statemach);
+    fsm_init(&test_fsmcb,1,(fsm_t *)_trancemit_statemach);
     pmsg->statemach_cb = test_fsmcb;
     pmsg->timeout = timeout;
     pmsg->recnt = recnt;

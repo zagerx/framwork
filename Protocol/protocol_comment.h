@@ -6,7 +6,25 @@
 --------------------------------------------*/
 
 #include "protocol_cfg.h"
+#include "protocol.h"
 extern _list_t *g_transmit_handle;
+extern unsigned short g_protocol_event;
+
+// typedef enum{
+//     CMD_ERR = -1,
+//     CMD_M_HEARTPACK,
+//     CMD_S_HEARTPACK,
+//     CMD_TEMP,
+//     CMD_PF300,
+    
+// }E_CMD_COVMAP;
+
+typedef struct cmd_keymap
+{
+    E_CMD key;
+    unsigned char event;
+}cmd_keymap_t;
+
 
 #define PRO_FRAME_HEAD	    0x5AA5
 #define PRO_FRAME_TAIL	    0xFEFE
@@ -57,6 +75,9 @@ char search_msgmap(unsigned char chID,
                    void *pData,
                    unsigned short  hwSize);
 /*--------------------------------------------------------------------------------------*/
+
+short forch_keymap_enevt(E_CMD key);
+
 fsm_rt_t _trancemit_statemach(fsm_cb_t *ptThis);
 pro_pack_t* _packet_propack(pro_frame_t *frame,unsigned int timeout,unsigned char recnt);
 extern pro_frame_t* _packet_proframe(unsigned short cmd,void *pdata,unsigned short len);

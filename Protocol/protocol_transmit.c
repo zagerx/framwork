@@ -13,7 +13,7 @@ __attribute__((weak)) void _bsp_protransmit(unsigned char* pdata,unsigned short 
 }
 
 /*
-**  len:
+**  len: 帧的总长
 */
 static char _send_proframe(pro_frame_t *msg,unsigned short len)
 {
@@ -51,21 +51,37 @@ char protocol_nowtransmit(unsigned char cmd_type,unsigned char cmd,\
     heap_free(p_fram);
     return NULL;
 }
+
+
+
 /*---------------------------------------协议重发机制--------------------------------------------------*/
 fsm_rt_t _trancemit_statemach(fsm_cb_t *ptThis)
 {
-    unsigned int delta_t;
-    float data_buf[2] = {6.4f,2.3f};
-    
-    pro_pack_t *pmsg = (pro_pack_t*)ptThis;
-    
+    enum{
+        WAIT_ACK = USER,
+        IDLE,
+    };
+    pro_pack_t *pmsg = (pro_pack_t*)ptThis;    
     switch (ptThis->chState)
     {
     case START:
-        if (pmsg->recnt++>7)
+        USER_DEBUG("cmd start send\r\n");
+        _send_proframe(pmsg->frame,pmsg->frame->len+sizeof(pro_frame_t));
+    case WAIT_ACK:
+        if (!IPC_GET_EVENT(g_protocol_event,(unsigned char)pmsg->frame->func_c))
         {
-            return fsm_rt_cpl;
-        }        
+            /* code */
+            if (pmsg->t0++/pmsg->statemach_cb.cycle > 1000)//超时
+            {
+                /* code */
+                USER_DEBUG("cmd timeout\r\n");
+                pmsg->t0 = 0;
+                ptThis->chState = START;
+            }
+            break;
+        }
+        /*在规定时间内接收到响应*/
+        USER_DEBUG("recive cmd ack\r\n");
     case EXIT:
         break;
     default:

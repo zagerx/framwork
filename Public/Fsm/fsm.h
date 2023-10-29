@@ -22,6 +22,7 @@ typedef fsm_rt_t *fsm_t(fsm_cb_t*);
 
 
 struct fsm_cb{
+    unsigned short cycle;
     unsigned char chState;
     fsm_t *fsm;
 };
@@ -36,7 +37,7 @@ struct fsm_cb{
                                   }while(0)
 
 
-void fsm_init(fsm_cb_t *pThis,fsm_t *machine);                                            
-fsm_cb_t *fsm_creat(fsm_t *initstat,unsigned short len,void *pdata);
+void fsm_init(fsm_cb_t *pThis, unsigned short cycle,fsm_t *machine);
+fsm_cb_t *fsm_creat(fsm_t *initstat,unsigned short cycel);
 char fsm_destructor(fsm_cb_t *pthis);
 #endif

@@ -11,11 +11,17 @@ enum{
     CMD_RESP = 0x02,
     CMD_ACK,
 };
-
-#define PRO_FUNC_C_M_HEARTPACK	0x00	//主机心跳包
-#define PRO_FUNC_C_S_HEARTPACK	0x01	//从机心跳包
-#define PRO_FUNC_C_TEMP	        0x0B	//温度数据
-#define PRO_FUNC_C_PF300	    0x0A	//温度数据
+typedef enum{
+    PRO_FUNC_C_M_HEARTPACK = 0,
+    PRO_FUNC_C_S_HEARTPACK,
+    PRO_FUNC_C_PF300,
+    PRO_FUNC_C_TEMP,
+    CMD_NUMBER
+}E_CMD;
+// #define PRO_FUNC_C_M_HEARTPACK	0x00	//主机心跳包
+// #define PRO_FUNC_C_S_HEARTPACK	0x01	//从机心跳包
+// #define PRO_FUNC_C_TEMP	        0x0B	//温度数据
+// #define PRO_FUNC_C_PF300	    0x0A	//温度数据
 
 
 /*---------------------------------协议接口------------------------------------------*/

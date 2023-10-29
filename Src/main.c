@@ -114,8 +114,6 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   USER_DEBUG("hello world\r\n");
-    srand(HAL_GetTick());
-
   protocol_init();
   i2c_bus_creat();
   as5600_init();
