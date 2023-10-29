@@ -52,12 +52,12 @@ static void gpio_delayus(unsigned int Time)
 static i2c_bus_t* i2c_bus_register(i2c_bus_info_t *info)
 {
     i2c_bus_t *i2c_bus;
-    i2c_bus = malloc(sizeof(i2c_bus_t));
+    i2c_bus = pvPortMalloc(sizeof(i2c_bus_t));
 
     gpio_pin_t *gpio_scl;
     gpio_pin_t *gpio_sda;
-    gpio_sda = malloc(sizeof(gpio_pin_t));
-    gpio_scl = malloc(sizeof(gpio_pin_t));
+    gpio_sda = pvPortMalloc(sizeof(gpio_pin_t));
+    gpio_scl = pvPortMalloc(sizeof(gpio_pin_t));
 
 	gpio_pininit(gpio_scl,info->i2c_scl,PIN_MODE_OUTPUT);
 	gpio_pininit(gpio_sda,info->i2c_sda,PIN_MODE_OUTPUT);    

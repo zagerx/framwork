@@ -99,7 +99,7 @@ char _get_framedata_fromfifo(unsigned char *pbuf,unsigned short *pframe_len)
 pro_pack_t* _packet_propack(pro_frame_t *frame,unsigned int timeout,unsigned char recnt)
 {   
     fsm_cb_t test_fsmcb;
-    pro_pack_t* pmsg = malloc(sizeof(pro_pack_t));
+    pro_pack_t* pmsg = pvPortMalloc(sizeof(pro_pack_t));
     fsm_init(&test_fsmcb,(fsm_t *)_trancemit_statemach);
     pmsg->statemach_cb = test_fsmcb;
     pmsg->timeout = timeout;
@@ -117,10 +117,10 @@ pro_frame_t* _packet_proframe(unsigned short cmd,void *pdata,unsigned short len)
 {
     unsigned char *puctemp;
     pro_frame_t *pfram;
-    puctemp = malloc(sizeof(pro_frame_t) + len);
+    puctemp = pvPortMalloc(sizeof(pro_frame_t) + len);
     if(!puctemp)
     {
-        free(puctemp);
+        vPortFree(puctemp);
         return NULL;
     }
     pfram = (pro_frame_t *)puctemp;
@@ -148,33 +148,33 @@ pro_frame_t* _unpack_proframe(unsigned char *pdata,unsigned short len)
     unsigned short r_data_len;
     unsigned short r_crc_16;
     r_fram_len = len;
-    pr_buf_1 = malloc(r_fram_len);
+    pr_buf_1 = pvPortMalloc(r_fram_len);
     memcpy(pr_buf_1,pdata,r_fram_len);
     r_crc_16 = CRC16_Subsection((unsigned char *)pr_buf_1,0xFFFF,r_fram_len-4);
     if(r_crc_16 != (pr_buf_1[r_fram_len-4]<<8 | pr_buf_1[r_fram_len-3]))
     {
-        free(pr_buf_1);
+        vPortFree(pr_buf_1);
         return NULL;
     }
     /*校验成功*/
     r_data_len =  pr_buf_1[4]<<8 | pr_buf_1[5];   //获取数据长度
     unsigned char *pr_buf_2;
     pr_buf_2 = 0;
-    pr_buf_2 = malloc(sizeof(pro_frame_t)+r_data_len);//申请数据帧内存
+    pr_buf_2 = pvPortMalloc(sizeof(pro_frame_t)+r_data_len);//申请数据帧内存
     memcpy(&pr_buf_2[2],pr_buf_1,r_fram_len);
-    free(pr_buf_1);
+    vPortFree(pr_buf_1);
 
     unsigned char *pr_buf_data;
-    pr_buf_data = malloc(r_data_len);
+    pr_buf_data = pvPortMalloc(r_data_len);
     if (pr_buf_data == NULL)
     {
-        free(pr_buf_data);
+        vPortFree(pr_buf_data);
         return NULL;
     }
     memcpy(pr_buf_data,&pr_buf_2[FRAM_PDATA_OFFSET],r_data_len);   
     memcpy(&pr_buf_2[FRAM_CRC_OFFSET],&pr_buf_2[FRAM_PDATA_OFFSET+r_data_len],4);
     memcpy(&pr_buf_2[FRAM_BUF_OFFSET],pr_buf_data,r_data_len);    
-    free(pr_buf_data);
+    vPortFree(pr_buf_data);
 
     pro_frame_t *p_r_fram;
     p_r_fram = (pro_frame_t *)pr_buf_2;

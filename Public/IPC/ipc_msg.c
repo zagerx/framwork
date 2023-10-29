@@ -10,7 +10,7 @@ static _list_t *_01_head;
 _node_t *creat_node(_lsit_item_t *pmsg)
 {
     _node_t *p = NULL;
-    p = malloc(sizeof(_node_t));
+    p = pvPortMalloc(sizeof(_node_t));
     p->next = 0;
     p->pitem = pmsg;
     return p;
@@ -87,7 +87,7 @@ void ipc_msg_printf_number(void)
 _lsit_item_t* ipc_mesg_packet(unsigned short id,unsigned short len)
 {
     unsigned char* pbuf;
-    pbuf = (unsigned char*)malloc(len);
+    pbuf = (unsigned char*)pvPortMalloc(len);
     /*¿ªÊ¼·â°ü*/
     _lsit_item_t *pMsg;
     pMsg = (_lsit_item_t *)&pbuf[0];
@@ -98,7 +98,7 @@ _lsit_item_t* ipc_mesg_packet(unsigned short id,unsigned short len)
 
 _lsit_item_t* ipc_mesg_packet_02(unsigned short id,unsigned short len,void *pbuf)
 {
-    _lsit_item_t *pMsg = (_lsit_item_t *)malloc(sizeof(_lsit_item_t));
+    _lsit_item_t *pMsg = (_lsit_item_t *)pvPortMalloc(sizeof(_lsit_item_t));
     pMsg->len = len;
     pMsg->pdata = pbuf;
     return pMsg;

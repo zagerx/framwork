@@ -23,20 +23,20 @@ static char _send_proframe(pro_frame_t *msg,unsigned short len)
     unsigned short data_len;
     data_len = len-sizeof(pro_frame_t);
     unsigned char buf[2] = {0};
-    pucmsg = malloc(len);
+    pucmsg = pvPortMalloc(len);
     memcpy(pucmsg,msg,len);
     memcpy(buf,(unsigned char*)&pucmsg[FRAM_TAIL_OFFSET],2);
-    pdata = malloc(data_len);
+    pdata = pvPortMalloc(data_len);
     memcpy(pdata,(unsigned char*)&pucmsg[sizeof(pro_frame_t)],data_len);
     memcpy((unsigned char*)&pucmsg[FRAM_PDATA_OFFSET],pdata,data_len);    
-    free(pdata);
+    vPortFree(pdata);
     unsigned short crc_16;
     crc_16 = CRC16_Subsection((unsigned char*)&pucmsg[2],0xFFFF,FRAM_PDATA_OFFSET+data_len-2);
     crc_16 = __SWP16(crc_16);
     memcpy((unsigned char*)&pucmsg[FRAM_PDATA_OFFSET+data_len],(unsigned char*)&crc_16,sizeof(crc_16));   
     memcpy((unsigned char*)&pucmsg[FRAM_PDATA_OFFSET+data_len+2],buf,2); 
     _bsp_protransmit(pucmsg,sizeof(pro_frame_t)-sizeof(void *)+data_len);
-    free(pucmsg);
+    vPortFree(pucmsg);
 	return 0;
 }
 
@@ -48,7 +48,7 @@ char protocol_nowtransmit(unsigned char cmd_type,unsigned char cmd,\
     p_fram = _packet_proframe(cmd | (cmd_type<<8),pdata,data_len);
     /*准备数据*/
     _send_proframe(p_fram,sizeof(pro_frame_t)+data_len);
-    free(p_fram);
+    vPortFree(p_fram);
     return NULL;
 }
 /*---------------------------------------协议重发机制--------------------------------------------------*/
@@ -102,15 +102,6 @@ void protocol_transmitprocess(void)
     pro_pack_t *pack;
     pro_frame_t* p_fram;     
     cur_node = g_transmit_handle->head;
-    unsigned char *p = 0;
-    p = malloc(20000);
-    if (!p)
-    {
-        /* code */
-        USER_DEBUG("malloc fail\r\n");
-    }
-    
-    // user_assert_param(malloc(2000)==0);
     while (cur_node != 0)//遍历整个链表
     {
         cur_item = cur_node->pitem;
@@ -119,8 +110,8 @@ void protocol_transmitprocess(void)
         if(DISPATCH_FSM(((fsm_cb_t *)pack)) == fsm_rt_cpl)
         {
             /*当前状态机执行结束  可以删除*/
-            free(p_fram);
-            free(pack);
+            vPortFree(p_fram);
+            vPortFree(pack);
             list_delete_node(g_transmit_handle,cur_node);
             USER_DEBUG("free \r\n");
         }

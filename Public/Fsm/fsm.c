@@ -14,7 +14,7 @@ void fsm_init(fsm_cb_t *pThis,fsm_t *machine)
 fsm_cb_t *fsm_creat(fsm_t *initstat,unsigned short len,void *pdata)
 {
     fsm_cb_t *pthis;
-    pthis = (fsm_cb_t *)malloc(sizeof(fsm_cb_t));
+    pthis = (fsm_cb_t *)pvPortMalloc(sizeof(fsm_cb_t));
     if(pthis==NULL)
     {
         return NULL;
@@ -28,7 +28,7 @@ char fsm_destructor(fsm_cb_t *pthis)
 {
     if (pthis!=NULL)
     {
-        free(pthis);
+        vPortFree(pthis);
     }
     return 0;
 }
