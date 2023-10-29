@@ -1,6 +1,5 @@
 
 #include <stdlib.h>
-
 #include "_assert.h"
 #include "stdint.h"
 #define TOTAL_HEAP_SIZE                    ((size_t)4096)
