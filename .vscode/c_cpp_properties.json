@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**"
             ],
             "defines": [
-                "_DEBUG",
+                "ENABLE_DEBUG",
+                "ENABLE_ASSERT",
                 "UNICODE",
                 "_UNICODE",
                 "USE_HAL_DRIVER",

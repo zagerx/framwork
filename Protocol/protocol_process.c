@@ -42,7 +42,7 @@ void protocol_parse(void)
     unsigned short cmd = __SWP16(p_r_fram->func_c);
     unsigned char cmd_fun = (unsigned char)cmd;
     unsigned char cmd_type = (unsigned char)(cmd>>8);
-    vPortFree(p_r_fram);
+    heap_free(p_r_fram);
 
     // search_msgmap(cmd_fun,pf1,data_len);
     // return;

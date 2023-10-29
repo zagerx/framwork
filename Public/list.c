@@ -7,7 +7,7 @@
 _list_t* list_creat(void)
 {
     _list_t *phead;
-    phead = pvPortMalloc(sizeof(_list_t));
+    phead = heap_malloc(sizeof(_list_t));
     phead->head = 0;
     phead->tail = 0;
     phead->node_numb = 0;
@@ -17,7 +17,7 @@ _list_t* list_creat(void)
 _lsit_item_t *list_creat_item(void *pdata,unsigned short len)
 {
     _lsit_item_t *pitem;
-    pitem = pvPortMalloc(sizeof(_lsit_item_t));
+    pitem = heap_malloc(sizeof(_lsit_item_t));
     pitem->pdata = pdata;
     pitem->len = len;
     return pitem;
@@ -26,7 +26,7 @@ _lsit_item_t *list_creat_item(void *pdata,unsigned short len)
 _node_t *list_creatnode(_lsit_item_t *item)
 {
     _node_t *pnode;
-    pnode = pvPortMalloc(sizeof(_node_t));
+    pnode = heap_malloc(sizeof(_node_t));
     pnode->next = 0;
     pnode->pitem = item;
     return pnode;
@@ -94,8 +94,8 @@ void list_delete_node(_list_t *pthis,_node_t *node)
         pre_node = cur_node;
         cur_node = cur_node->next;
     }
-    vPortFree(cur_node->pitem);
-    vPortFree(cur_node);
+    heap_free(cur_node->pitem);
+    heap_free(cur_node);
 }
 _node_t* list_read_node_vale(_list_t *pthis,_node_t *node)
 {
@@ -141,10 +141,10 @@ void list_free(_list_t *pthis, _node_t *node)
     {
         /*记录下一个节点*/
         next_node = cur_node->next;
-        vPortFree(cur_node);
+        heap_free(cur_node);
         cur_node = next_node;
     }
-    vPortFree(pthis);
+    heap_free(pthis);
 }
 
 

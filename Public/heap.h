@@ -3,10 +3,10 @@
 
 
 #include "stdlib.h"
-void *pvPortMalloc( size_t xSize ) ;
-void vPortFree( void *pv ) ;
+void *heap_malloc( size_t xSize ) ;
+void heap_free( void *pv ) ;
 void vPortInitialiseBlocks( void ) ;
-size_t xPortGetFreeHeapSize( void ) ;
-size_t xPortGetMinimumEverFreeHeapSize( void ) ;
+size_t heap_get_freeheap_size( void ) ;
+size_t heap_get_minimumever_freeheapsize( void ) ;
 
 #endif
