@@ -65,11 +65,15 @@ void protocol_parse(void)
                 
             }
 			break;  
- 		case 1:
+ 		case 0x0B:
             {
+                unsigned char event;
                 float buf[4] = {0.0f};
-                protocol_nowtransmit(0x03,0x02,buf,16); 
-                // protocol_transmit(0x03,0x02,buf,16);//²âÊÔÓÃ
+                event =  forch_keymap_enevt(0x0B);
+                if (event>=0)
+                {
+                    IPC_SET_EVENT(g_protocol_event,event);
+                }
             }
 			break;              	
 		default:

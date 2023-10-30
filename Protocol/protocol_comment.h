@@ -7,7 +7,7 @@
 
 #include "protocol_cfg.h"
 #include "protocol.h"
-extern _list_t *g_transmit_handle;
+extern _list_t *gtransmit_list;
 extern unsigned short g_protocol_event;
 
 // typedef enum{

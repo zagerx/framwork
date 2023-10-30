@@ -8,8 +8,6 @@
 #define RESEND_CNT  5
 #define TIMEOUT     1000
 
-
-
 /*
 **  协议底层发送接口，应根据硬件接口由外部实现
 */
@@ -91,16 +89,16 @@ fsm_rt_t _trancemit_statemach(fsm_cb_t *ptThis)
         ptThis->chState = SEND_CMD;
     case SEND_CMD:
         // _send_proframe(pframe,data_len+sizeof(pro_frame_t));
-        USER_DEBUG("send one cmd\r\n");
+        USER_DEBUG("send one cmd = 0x%x\r\n",cmd_fun);
         ptThis->chState = WAIT_ACK;        
     case WAIT_ACK:
         if (pmsg->recnt >= RESEND_CNT)
         {
             pmsg->recnt = 0;
             /* 没有接收到该命令的响应 */
-            USER_DEBUG("cmd no ack\r\n");
-            ptThis->chState = EXIT;  
-            return fsm_rt_cpl;
+            USER_DEBUG("cmd=0x%x no ack\r\n",cmd_fun);
+            ptThis->chState = EXIT;
+            break;
         }
         event = forch_keymap_enevt(cmd_fun);
         if (!IPC_GET_EVENT(g_protocol_event,event))//没有接收到响应
@@ -109,20 +107,23 @@ fsm_rt_t _trancemit_statemach(fsm_cb_t *ptThis)
             if (pmsg->timeout++ >= TIMEOUT/fsm_cycle)//超时
             {
                 /* code */
-                USER_DEBUG("cmd timeout\r\n");
+                USER_DEBUG("cmd=0x%x timeout\r\n",cmd_fun);
                 pmsg->timeout = 0;
                 pmsg->recnt++;
                 ptThis->chState = SEND_CMD;
             }
             break;
         }
+        IPC_CLEAR_EVENT(g_protocol_event,event);
         ptThis->chState = RECIVE_ACK;
     case RECIVE_ACK:
-        USER_DEBUG("recive cmd ack\r\n");
+        USER_DEBUG("recive cmd(0x%x) ack\r\n",cmd_fun);
         /*接收到命令对应的响应 进行数据处理*/
-        ptThis->chState = EXIT;
-        return fsm_rt_cpl;
+        ptThis->chState = EXIT;        
     case EXIT:
+        pmsg->timeout = 0;
+        pmsg->recnt = 0;
+        return fsm_rt_cpl;
         break;
     default:
         break;
@@ -147,7 +148,7 @@ void protocol_transmit(unsigned char cmd_type,unsigned char cmd,\
     pnode = list_creatnode(pitem);
 /*-----------------------------------------------------------------*/    
     /*添加到消息列表即可*/
-    list_insert_node(g_transmit_handle,pnode);
+    list_insert_node(gtransmit_list,pnode);
 }
 
 void protocol_transmitprocess(void)
@@ -157,7 +158,7 @@ void protocol_transmitprocess(void)
     _lsit_item_t *cur_item;
     pro_pack_t *pack;
     pro_frame_t* p_fram;     
-    cur_node = g_transmit_handle->head;
+    cur_node = gtransmit_list->head;
     while (cur_node != 0)//遍历整个链表
     {
         cur_item = cur_node->pitem;
@@ -168,7 +169,7 @@ void protocol_transmitprocess(void)
             /*当前状态机执行结束  可以删除*/
             heap_free(p_fram);
             heap_free(pack);
-            list_delete_node(g_transmit_handle,cur_node);
+            list_delete_node(gtransmit_list,cur_node);
             USER_DEBUG("free \r\n");
         }
         cur_node = cur_node->next; 

@@ -114,6 +114,7 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   USER_DEBUG("hello world\r\n");
+  cm_backtrace_init(APPNAME,HARDWARE_VERSION,SOFTWARE_VERSION);
   protocol_init();
   i2c_bus_creat();
   as5600_init();

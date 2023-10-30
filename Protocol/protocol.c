@@ -1,4 +1,18 @@
+/*-----------------------------模块提交说明--------------------------------------
+1、测试协议重发流程
+    1、使用串口助手发送
+        5A A5 00 06 00 BE 05 FE FE指令，触发数据重发功能
+    2、观察串口助手的打印数据    
+        可以观察到有两组命令同时在发送
 
+        1、使用串口助手发送5A A5 02 0A 00 08 CD CC CC 40 33 33 13 40 44 71 FE FE/5A A5 00 0B 00 08 CD CC CC 40 33 33 13 40 9A D2 FE FE
+            可观察到对应的命令停止发送
+
+2、存在的问题点 1、申请内存失败存在
+               2、状态机调度过程中会发生hardfalt
+3、结论：
+    该例程基本上可以实现消息的非阻塞式重发功能，但还需继续优化
+*/
 #include "protocol_comment.h"
 #include "protocol_cfg.h"
 #include "protocol.h"
@@ -8,6 +22,7 @@ static byte_fifo_t protocol_fifo_handle;//fifo控制块
 
 
 /*-------------------------------协议间同步事件-----------------------------*/
+_list_t *gtransmit_list;
 unsigned short g_protocol_event;
 cmd_keymap_t g_keymap[CMD_NUMBER] = {       \
                                         {PRO_FUNC_C_M_HEARTPACK,0},
@@ -212,13 +227,12 @@ pro_frame_t* _unpack_proframe(unsigned char *pdata,unsigned short len)
 
 
 
-_list_t *g_transmit_handle;
 
 void protocol_init(void)
 {
     bytefifo_init(&protocol_fifo_handle,fifo_receive_buff,sizeof(fifo_receive_buff));
     /*创建一个消息发送链表*/
-    g_transmit_handle = list_creat();
+    gtransmit_list = list_creat();
 }
 
 /*
