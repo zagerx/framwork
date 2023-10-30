@@ -129,8 +129,8 @@ pro_pack_t* _packet_propack(pro_frame_t *frame,unsigned int timeout,unsigned cha
     pro_pack_t* pmsg = heap_malloc(sizeof(pro_pack_t));
     fsm_init(&test_fsmcb,1,(fsm_t *)_trancemit_statemach);
     pmsg->statemach_cb = test_fsmcb;
-    pmsg->timeout = timeout;
-    pmsg->recnt = recnt;
+    pmsg->timeout = 0;
+    pmsg->recnt = 0;
     pmsg->t0 = 0;
     pmsg->frame = frame;   
     return pmsg;

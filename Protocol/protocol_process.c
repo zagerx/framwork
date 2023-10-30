@@ -48,19 +48,21 @@ void protocol_parse(void)
 	{                 
 		case 0x06:
             {
-                USER_DEBUG("cmd 06\r\n");
-                float buf[4] = {0.0f};
-                protocol_transmit(0x03,0x02,buf,16);//²âÊÔÓÃ
-            }            
+                float buf[4] = {6.2f,0.0f,0.0f,3.1f};
+                protocol_transmit(CMD_RESP,PRO_FUNC_C_PF300,buf,16);//²âÊÔÓÃ
+                protocol_transmit(CMD_RESP,PRO_FUNC_C_TEMP,buf,16);//²âÊÔÓÃ
+            }
 			break; 
  		case 0x0A:
             {
                 unsigned char event;
                 float buf[4] = {0.0f};
                 event =  forch_keymap_enevt(0x0A);
-                IPC_SET_EVENT(g_protocol_event,event);
-                // protocol_nowtransmit(0x03,0x02,buf,16); 
-                // 
+                if (event>=0)
+                {
+                    IPC_SET_EVENT(g_protocol_event,event);
+                }
+                
             }
 			break;  
  		case 1:

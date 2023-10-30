@@ -5,6 +5,11 @@
 #undef  NULL
 #define NULL 0   
 
+#define RESEND_CNT  5
+#define TIMEOUT     1000
+
+
+
 /*
 **  协议底层发送接口，应根据硬件接口由外部实现
 */
@@ -58,30 +63,65 @@ char protocol_nowtransmit(unsigned char cmd_type,unsigned char cmd,\
 fsm_rt_t _trancemit_statemach(fsm_cb_t *ptThis)
 {
     enum{
-        WAIT_ACK = USER,
+        SEND_CMD = USER,
+        WAIT_ACK,
+        RECIVE_ACK,
         IDLE,
     };
-    pro_pack_t *pmsg = (pro_pack_t*)ptThis;    
+    pro_pack_t *pmsg = (pro_pack_t*)ptThis;
+    pro_frame_t *pframe;
+    unsigned short cmd ;    
+    unsigned char cmd_fun;  
+    unsigned char cmd_type;
+    unsigned short data_len;
+    unsigned char data[16] = {0};
+    unsigned short fsm_cycle = 0;
+    fsm_cycle = pmsg->statemach_cb.cycle;
+    pframe = pmsg->frame;
+    cmd  = __SWP16(pframe->func_c);
+    cmd_fun  = (unsigned char)cmd;
+    cmd_type  = (unsigned char)(cmd>>8); 
+    data_len = __SWP16(pframe->len);
+
+    unsigned char event = 0;
+    float buf[4] = {0.0f};
     switch (ptThis->chState)
     {
     case START:
-        USER_DEBUG("cmd start send\r\n");
-        _send_proframe(pmsg->frame,pmsg->frame->len+sizeof(pro_frame_t));
+        ptThis->chState = SEND_CMD;
+    case SEND_CMD:
+        // _send_proframe(pframe,data_len+sizeof(pro_frame_t));
+        USER_DEBUG("send one cmd\r\n");
+        ptThis->chState = WAIT_ACK;        
     case WAIT_ACK:
-        if (!IPC_GET_EVENT(g_protocol_event,(unsigned char)pmsg->frame->func_c))
+        if (pmsg->recnt >= RESEND_CNT)
+        {
+            pmsg->recnt = 0;
+            /* 没有接收到该命令的响应 */
+            USER_DEBUG("cmd no ack\r\n");
+            ptThis->chState = EXIT;  
+            return fsm_rt_cpl;
+        }
+        event = forch_keymap_enevt(cmd_fun);
+        if (!IPC_GET_EVENT(g_protocol_event,event))//没有接收到响应
         {
             /* code */
-            if (pmsg->t0++/pmsg->statemach_cb.cycle > 1000)//超时
+            if (pmsg->timeout++ >= TIMEOUT/fsm_cycle)//超时
             {
                 /* code */
                 USER_DEBUG("cmd timeout\r\n");
-                pmsg->t0 = 0;
-                ptThis->chState = START;
+                pmsg->timeout = 0;
+                pmsg->recnt++;
+                ptThis->chState = SEND_CMD;
             }
             break;
         }
-        /*在规定时间内接收到响应*/
+        ptThis->chState = RECIVE_ACK;
+    case RECIVE_ACK:
         USER_DEBUG("recive cmd ack\r\n");
+        /*接收到命令对应的响应 进行数据处理*/
+        ptThis->chState = EXIT;
+        return fsm_rt_cpl;
     case EXIT:
         break;
     default:

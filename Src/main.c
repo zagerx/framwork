@@ -125,8 +125,7 @@ int main(void)
   while (1)
   {
     HAL_GPIO_TogglePin(LED_01_GPIO_Port,LED_01_Pin);
-    HAL_Delay(200);
-    // USER_DEBUG("heap %f\r\n",heap_get_freeheap_size()/4096.0f);
+    HAL_Delay(1);
     protocol_process();
     
     // as5600_process();

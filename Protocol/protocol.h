@@ -7,14 +7,14 @@
 --------------------------------------------------*/
 enum{
     CMD_ORIGE = 0x00,
-    CDM_NO_RESP = 0x01,
-    CMD_RESP = 0x02,
+    // CDM_NO_RESP = 0x01,
+    CMD_RESP,
     CMD_ACK,
 };
 typedef enum{
-    PRO_FUNC_C_M_HEARTPACK = 0,
+    PRO_FUNC_C_M_HEARTPACK ,
     PRO_FUNC_C_S_HEARTPACK,
-    PRO_FUNC_C_PF300,
+    PRO_FUNC_C_PF300= 0x0A,
     PRO_FUNC_C_TEMP,
     CMD_NUMBER
 }E_CMD;
