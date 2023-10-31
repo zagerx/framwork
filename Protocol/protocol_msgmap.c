@@ -6,19 +6,40 @@
 */
 
 
-
-
-
-bool press_data_updata(msg_item_t *p,void *pdata,unsigned short hwSize)
+bool pro_testfunc(msg_item_t *p,void *pdata,unsigned short hwSize)
 {
+    float buf[4] = {6.2f,0.0f,0.0f,3.1f};
+    protocol_transmit(CMD_RESP,PRO_FUNC_C_PF300,buf,16);//测试用
+    protocol_transmit(CMD_RESP,PRO_FUNC_C_TEMP,buf,16);//测试用
+}
+
+
+bool read_sensordata(msg_item_t *p,void *pdata,unsigned short hwSize)
+{
+    short event;
+    event = p->event;
+    IPC_SET_EVENT(g_protocol_event,event);
 }
 
 const msg_item_t c_tMSGTable[] = {
     [0] = {
-        .chID = 8,
+        .chID = PRO_FUNC_TESTCMD01,
         .chAccess = 9,
-        .fnHandler = press_data_updata,
+        .fnHandler = pro_testfunc,
+        .event = CMD_EVENT_UNINVAIL,
+    }, 
+    [1] = {
+        .chID = PRO_FUNC_C_PF300,
+        .chAccess = 9,
+        .fnHandler = read_sensordata,
+        .event = CMD_EVENT_01,
     },
+    [2] = {
+        .chID = PRO_FUNC_C_TEMP,
+        .chAccess = 9,
+        .fnHandler = read_sensordata,
+        .event = CMD_EVENT_02,
+    },   
 };
 
 static volatile unsigned char s_chCurrentAccessPermission =0x07;
@@ -36,12 +57,6 @@ char search_msgmap(unsigned char chID,
         if (chID != ptItem->chID) {
             continue;
         }
-        if (!(ptItem->chAccess & s_chCurrentAccessPermission)) {
-            continue;  //!< 当前的访问属性没有一个符合要求
-        }
-        if (hwSize < ptItem->hwValidDataSize) {
-            continue;  //!< 数据太小了
-        }
         if (NULL == ptItem->fnHandler) {
             continue;  //!< 无效的指令？（不应该发生）
         }
@@ -50,3 +65,16 @@ char search_msgmap(unsigned char chID,
     }    
     return false;   //!< 没找到对应的消息
 }
+
+short search_msgmap_event(unsigned char chID)
+{
+    for (int n = 0; n < dimof(c_tMSGTable); n++) {
+        msg_item_t *ptItem = &c_tMSGTable[n];
+        if (chID != ptItem->chID) {
+            continue;
+        }
+        return ptItem->event;
+    }  
+
+}
+

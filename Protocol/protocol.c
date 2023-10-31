@@ -1,7 +1,9 @@
 /*-----------------------------模块提交说明--------------------------------------
+更新了协议的消息地图！！！
+
 1、测试协议重发流程
     1、使用串口助手发送
-        5A A5 00 06 00 BE 05 FE FE指令，触发数据重发功能
+        5A A5 00 01 00 27 92 FE FE指令，触发数据重发功能
     2、观察串口助手的打印数据    
         可以观察到有两组命令同时在发送
 
@@ -20,33 +22,9 @@
 static unsigned char fifo_receive_buff[PRO_FRAME_MAX_SIZE];//fifo数据缓存区
 static byte_fifo_t protocol_fifo_handle;//fifo控制块
 
-
-/*-------------------------------协议间同步事件-----------------------------*/
 _list_t *gtransmit_list;
 unsigned short g_protocol_event;
-cmd_keymap_t g_keymap[CMD_NUMBER] = {       \
-                                        {PRO_FUNC_C_M_HEARTPACK,0},
-                                        {PRO_FUNC_C_S_HEARTPACK,1},
-                                        {PRO_FUNC_C_PF300,      2},
-                                        {PRO_FUNC_C_TEMP,       3},
-                                    };
-/*
-**  根据命令搜索对应的同步事件
-*/                                    
-short forch_keymap_enevt(E_CMD key)
-{
-    for (unsigned char i = 0; i < CMD_NUMBER; i++)
-    {
-        /* code */
-        if (g_keymap[i].key == key)
-        {
-            /* code */
-            return g_keymap[i].event;
-        }        
-    }
-    return -1;
-}
-
+/*-------------------------------协议间同步事件-----------------------------*/
 
 /*********************************************************************************************************
 ** Function name(函数名称):				protocol_reciverdata_tofifo()
@@ -137,22 +115,21 @@ char _get_framedata_fromfifo(unsigned char *pbuf,unsigned short *pframe_len)
 }
 
 
-
+/*----------------------------封包协议包----------------------------------------------------------*/
 pro_pack_t* _packet_propack(pro_frame_t *frame,unsigned int timeout,unsigned char recnt)
 {   
-    fsm_cb_t test_fsmcb;
-    pro_pack_t* pmsg = heap_malloc(sizeof(pro_pack_t));
-    fsm_init(&test_fsmcb,1,(fsm_t *)_trancemit_statemach);
-    pmsg->statemach_cb = test_fsmcb;
-    pmsg->timeout = 0;
-    pmsg->recnt = 0;
-    pmsg->t0 = 0;
-    pmsg->frame = frame;   
-    return pmsg;
+    fsm_cb_t fsmcb;
+    pro_pack_t* p_propack = heap_malloc(sizeof(pro_pack_t));
+    fsm_init(&fsmcb,1,(fsm_t *)_trancemit_statemach);
+    p_propack->statemach_cb = fsmcb;
+    p_propack->timeout = 0;
+    p_propack->recnt = 0;
+    p_propack->t0 = 0;
+    p_propack->frame = frame;   
+    return p_propack;
 }
 
-/*
-**协议封包处理
+/*-----------------------------封包协议帧-------------------------------------------------------
 **return       一段连续的内存
 */
 pro_frame_t* _packet_proframe(unsigned short cmd,void *pdata,unsigned short len)
@@ -178,8 +155,7 @@ pro_frame_t* _packet_proframe(unsigned short cmd,void *pdata,unsigned short len)
     }    
     return pfram;
 }
-/*
-协议解包处理
+/*-----------------------------解包协议帧-------------------------------------------------------
 return 一段连续的内存
 */
 pro_frame_t* _unpack_proframe(unsigned char *pdata,unsigned short len)

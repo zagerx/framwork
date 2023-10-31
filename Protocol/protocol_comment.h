@@ -10,19 +10,10 @@
 extern _list_t *gtransmit_list;
 extern unsigned short g_protocol_event;
 
-// typedef enum{
-//     CMD_ERR = -1,
-//     CMD_M_HEARTPACK,
-//     CMD_S_HEARTPACK,
-//     CMD_TEMP,
-//     CMD_PF300,
-    
-// }E_CMD_COVMAP;
-
 typedef struct cmd_keymap
 {
-    E_CMD key;
-    unsigned char event;
+    E_CMD key;//命令
+    unsigned char event;//命令对应事件
 }cmd_keymap_t;
 
 
@@ -55,18 +46,20 @@ typedef struct pro_pack
     /* data */
     unsigned int timeout;//超时时间
     unsigned short recnt;//重发次数
-    unsigned short t0;//   
+    unsigned short t0;   //   
     pro_frame_t *frame; 
 }pro_pack_t;
 #pragma pack(pop)
 
 
 /*-----------------------------------消息地图相关-----------------------------------------*/
+
 typedef struct msg_item_t msg_item_t;
 struct msg_item_t {
     unsigned char chID;                 //!< 指令
     unsigned char chAccess;             //!< 访问权限检测
     unsigned short hwValidDataSize;     //!< 数据长度要求
+    unsigned short event;
     char (*fnHandler)(msg_item_t *ptMSG,   
                       void *pData, 
                       unsigned short  hwSize);
@@ -74,6 +67,7 @@ struct msg_item_t {
 char search_msgmap(unsigned char chID,
                    void *pData,
                    unsigned short  hwSize);
+short search_msgmap_event(unsigned char chID);                   
 /*--------------------------------------------------------------------------------------*/
 
 short forch_keymap_enevt(E_CMD key);

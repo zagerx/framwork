@@ -6,9 +6,6 @@
 ********************************************************************************************************/
 #include "protocol_comment.h"
 #include "protocol_cfg.h"
-
-
-
 /*********************************************************************************************************
 ** Function name(º¯ÊýÃû³Æ):						protocol_parse()
 **
@@ -44,6 +41,8 @@ void protocol_parse(void)
     unsigned char cmd_type = (unsigned char)(cmd>>8);
     heap_free(p_r_fram);
 
+    search_msgmap(cmd_fun,0,0);
+    return;
 	switch (cmd_fun)
 	{                 
 		case 0x06:
@@ -62,7 +61,6 @@ void protocol_parse(void)
                 {
                     IPC_SET_EVENT(g_protocol_event,event);
                 }
-                
             }
 			break;  
  		case 0x0B:
