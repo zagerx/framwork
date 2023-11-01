@@ -20,7 +20,6 @@ enum {
 typedef struct fsm_cb fsm_cb_t;
 typedef fsm_rt_t *fsm_t(fsm_cb_t*);
 
-
 struct fsm_cb{
     unsigned short cycle;
     unsigned char chState;

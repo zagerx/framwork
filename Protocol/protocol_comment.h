@@ -1,7 +1,7 @@
 #ifndef __PROTOCOL_COMMENT__H
 #define __PROTOCOL_COMMENT__H
 /*------------------------------------------
-该文件仅供模块内部使用
+该文件仅供模块内部使用，禁止被接口文件包含
 必须使用相对路径包含该文件
 --------------------------------------------*/
 
@@ -9,13 +9,6 @@
 #include "protocol.h"
 extern _list_t *gtransmit_list;
 extern unsigned short g_protocol_event;
-
-typedef struct cmd_keymap
-{
-    E_CMD key;//命令
-    unsigned char event;//命令对应事件
-}cmd_keymap_t;
-
 
 #define PRO_FRAME_HEAD	    0x5AA5
 #define PRO_FRAME_TAIL	    0xFEFE
@@ -51,23 +44,26 @@ typedef struct pro_pack
 }pro_pack_t;
 #pragma pack(pop)
 
-
 /*-----------------------------------消息地图相关-----------------------------------------*/
+typedef enum{
+    CMD_EVENT_UNINVAIL = -1,
+    CMD_EVENT_01,
+    CMD_EVENT_02,
+    CMD_EVENT_NUMBER
+}E_CMD_EVENT;//事件   1、用来同步协议之间的通信
 
-typedef struct msg_item_t msg_item_t;
-struct msg_item_t {
-    unsigned char chID;                 //!< 指令
-    unsigned char chAccess;             //!< 访问权限检测
-    unsigned short hwValidDataSize;     //!< 数据长度要求
-    unsigned short event;
-    char (*fnHandler)(msg_item_t *ptMSG,   
-                      void *pData, 
-                      unsigned short  hwSize);
+typedef struct cmdmsg_t cmdmsg_t;
+struct cmdmsg_t {
+    unsigned short cmd;                 //!< 指令
+    E_CMD_EVENT flagbit;
+    char (*fnHandler)(cmdmsg_t *pmsg,   
+                      void *pdata, 
+                      unsigned short  datalen);
 };
-char search_msgmap(unsigned char chID,
+char search_msgmap(unsigned char cmd,
                    void *pData,
                    unsigned short  hwSize);
-short search_msgmap_event(unsigned char chID);                   
+short search_msgmap_event(unsigned char cmd);                   
 /*--------------------------------------------------------------------------------------*/
 
 short forch_keymap_enevt(E_CMD key);

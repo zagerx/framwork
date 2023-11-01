@@ -11,12 +11,7 @@ enum{
     CMD_ACK,
 };
 #if 1
-    enum{
-        CMD_EVENT_UNINVAIL = -1,
-        CMD_EVENT_01,
-        CMD_EVENT_02,
-        CMD_EVENT_NUMBER
-    };//事件1、用来同步协议之间的通信 2、也可以供外部调用以用来同步其他
+
 
     typedef enum{
         PRO_FUNC_TESTCMD01 = 1,

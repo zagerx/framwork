@@ -100,7 +100,6 @@ fsm_rt_t _trancemit_statemach(fsm_cb_t *ptThis)
             ptThis->chState = EXIT;
             break;
         }
-        // event = forch_keymap_enevt(cmd_fun);
         event =search_msgmap_event(cmd_fun);
         if (!IPC_GET_EVENT(g_protocol_event,event))//没有接收到响应
         {
