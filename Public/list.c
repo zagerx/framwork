@@ -15,21 +15,22 @@ _list_t* list_creat(void)
     return phead;
 }
 
-_lsit_item_t *list_creat_item(void *pdata,unsigned short len)
+node_item_t *list_creat_nodeitem(void *pdata,unsigned short len)
 {
-    _lsit_item_t *pitem;
-    pitem = heap_malloc(sizeof(_lsit_item_t));
+    node_item_t *pitem;
+    pitem = heap_malloc(sizeof(node_item_t));
     pitem->pdata = pdata;
     pitem->len = len;
     return pitem;
 }
-
-_node_t *list_creatnode(_lsit_item_t *item)
+_node_t *list_creatnode(void *pdata,unsigned short len)
 {
     _node_t *pnode;
+    node_item_t *pitem;
     pnode = heap_malloc(sizeof(_node_t));
+    pitem = list_creat_nodeitem(pdata,len);
     pnode->next = 0;
-    pnode->pitem = item;
+    pnode->pitem = pitem;
     return pnode;
 }
 
@@ -93,6 +94,7 @@ void list_delete_node(_list_t *pthis,_node_t *node)
         pre_node = cur_node;
         cur_node = cur_node->next;
     }
+    heap_free(cur_node->pitem->pdata);
     heap_free(cur_node->pitem);
     heap_free(cur_node);
 }

@@ -139,11 +139,9 @@ void protocol_transmit(unsigned char cmd_type,unsigned char cmd,\
     pro_pack_t *pmsg;
     pmsg = _packet_propack(p_fram,1000,5);
 /*-------------------------------list node 封包--------------------*/
-    /*节点item*/
-    _lsit_item_t *pitem = list_creat_item(pmsg,sizeof(_lsit_item_t));
     /*list节点封包*/
     _node_t *pnode;
-    pnode = list_creatnode(pitem);
+    pnode = list_creatnode(pmsg,sizeof(node_item_t));
 /*-----------------------------------------------------------------*/    
     /*添加到消息列表即可*/
     list_insert_node(gtransmit_list,pnode);
@@ -153,7 +151,7 @@ void protocol_transmitprocess(void)
 {
     /*获取链表 查看是否有待发送的消息*/
     _node_t *cur_node;
-    _lsit_item_t *cur_item;
+    node_item_t *cur_item;
     pro_pack_t *pack;
     pro_frame_t* p_fram;     
     cur_node = gtransmit_list->head;
@@ -165,8 +163,6 @@ void protocol_transmitprocess(void)
         if(DISPATCH_FSM(((fsm_cb_t *)pack)) == fsm_rt_cpl)
         {
             /*当前状态机执行结束  可以删除*/
-            heap_free(p_fram);
-            heap_free(pack);
             list_delete_node(gtransmit_list,cur_node);
             USER_DEBUG("free \r\n");
         }

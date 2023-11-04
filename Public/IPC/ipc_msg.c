@@ -6,7 +6,7 @@
 #define NULL 0
 static _list_t *_01_head;
 
-_node_t *creat_node(_lsit_item_t *pmsg)
+_node_t *creat_node(node_item_t *pmsg)
 {
     _node_t *p = NULL;
     p = heap_malloc(sizeof(_node_t));
@@ -20,14 +20,14 @@ void ipc_msgpool_init(void)
     _01_head = list_creat();
 }
 
-void ipc_msgpool_write(_lsit_item_t *msg)
+void ipc_msgpool_write(node_item_t *msg)
 {
     _node_t *pnew_node;
     pnew_node = creat_node(msg);
     list_insert_node(_01_head, pnew_node);
 }
 
-_lsit_item_t* ipc_msgpool_read(void)
+node_item_t* ipc_msgpool_read(void)
 {
     static _node_t *pnode;
     pnode = list_read_node(_01_head);
@@ -37,9 +37,9 @@ _lsit_item_t* ipc_msgpool_read(void)
         return (pnode)->pitem;
     }
     
-    return (_lsit_item_t*)NULL;
+    return (node_item_t*)NULL;
 }
-_lsit_item_t* ipc_msgpool_read_val(_lsit_item_t* msg)
+node_item_t* ipc_msgpool_read_val(node_item_t* msg)
 {
     static _node_t *pnode,node;
     node.pitem = msg;
@@ -49,9 +49,9 @@ _lsit_item_t* ipc_msgpool_read_val(_lsit_item_t* msg)
         /* code */
         return (pnode)->pitem;
     }
-    return (_lsit_item_t*)NULL;
+    return (node_item_t*)NULL;
 }
-void ipc_msgpool_del(_lsit_item_t *msg)
+void ipc_msgpool_del(node_item_t *msg)
 {
     _node_t *pdel_node;
     _node_t temp_node;
@@ -81,21 +81,21 @@ void ipc_msg_printf_number(void)
 
 
 /*IPC消息封包*/
-_lsit_item_t* ipc_mesg_packet(unsigned short id,unsigned short len)
+node_item_t* ipc_mesg_packet(unsigned short id,unsigned short len)
 {
     unsigned char* pbuf;
     pbuf = (unsigned char*)heap_malloc(len);
     /*开始封包*/
-    _lsit_item_t *pMsg;
-    pMsg = (_lsit_item_t *)&pbuf[0];
-    pMsg->len = len-sizeof(_lsit_item_t);
-    pMsg->pdata = &pbuf[sizeof(_lsit_item_t)];
+    node_item_t *pMsg;
+    pMsg = (node_item_t *)&pbuf[0];
+    pMsg->len = len-sizeof(node_item_t);
+    pMsg->pdata = &pbuf[sizeof(node_item_t)];
     return pMsg;
 }
 
-_lsit_item_t* ipc_mesg_packet_02(unsigned short id,unsigned short len,void *pbuf)
+node_item_t* ipc_mesg_packet_02(unsigned short id,unsigned short len,void *pbuf)
 {
-    _lsit_item_t *pMsg = (_lsit_item_t *)heap_malloc(sizeof(_lsit_item_t));
+    node_item_t *pMsg = (node_item_t *)heap_malloc(sizeof(node_item_t));
     pMsg->len = len;
     pMsg->pdata = pbuf;
     return pMsg;

@@ -70,7 +70,8 @@ char search_msgmap(unsigned char cmd,
 short search_msgmap_event(unsigned char cmd)
 {
     const cmdmsg_t *ptItem ;
-    for (int n = 0; n < dimof(sgMsgTable); n++) {
+    for (int n = 0; n < dimof(sgMsgTable); n++) 
+    {
         ptItem = &sgMsgTable[n];
         if (cmd != ptItem->cmd) {
             continue;
@@ -78,4 +79,5 @@ short search_msgmap_event(unsigned char cmd)
         return ptItem->flagbit;
     }
     return 0;
+
 }
