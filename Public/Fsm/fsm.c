@@ -1,5 +1,5 @@
 #include "fsm.h"
-#include "stdlib.h"
+#include "heap.h"
 
 #undef NULL
 #define NULL 0

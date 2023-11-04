@@ -1,10 +1,9 @@
 #include "ipc.h"
-#include "usart.h"
-#include "stdlib.h"
-#include "malloc.h"
 
 
 
+#undef NULL 
+#define NULL 0
 static _list_t *_01_head;
 
 _node_t *creat_node(_lsit_item_t *pmsg)
@@ -16,7 +15,6 @@ _node_t *creat_node(_lsit_item_t *pmsg)
     return p;
 }
 
-// _list_t msgpool_cb;
 void ipc_msgpool_init(void)
 {
     _01_head = list_creat();
@@ -53,7 +51,6 @@ _lsit_item_t* ipc_msgpool_read_val(_lsit_item_t* msg)
     }
     return (_lsit_item_t*)NULL;
 }
-#include "usart.h"
 void ipc_msgpool_del(_lsit_item_t *msg)
 {
     _node_t *pdel_node;

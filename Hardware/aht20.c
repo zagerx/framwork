@@ -406,6 +406,8 @@ unsigned char aht20_get_temp_humi(float *data)
 	return statues;	
 }
 #endif
+
+
 void aht20_test(void)
 {
 	float buf[2];

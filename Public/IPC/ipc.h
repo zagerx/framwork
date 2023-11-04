@@ -1,22 +1,11 @@
 #ifndef __IPC__H
 #define __IPC__H
 
-
+#include "list.h"
 #include "macro_defined.h"
 #define IPC_SET_EVENT(__me,event)        USER_SET_BIT(__me,event)
 #define IPC_GET_EVENT(__me,event)        USER_GET_BIT(__me,event)
 #define IPC_CLEAR_EVENT(__me,event)      USER_CLEAR_BIT(__me,event)
-
-
-
-
-
-
-#include "list.h"
-
-
-
-
 
 _lsit_item_t* ipc_mesg_packet_02(unsigned short id,unsigned short len,void *pbuf);
 _lsit_item_t* ipc_mesg_packet(unsigned short id,unsigned short len);

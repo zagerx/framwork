@@ -1,5 +1,6 @@
 
 #include "list.h"
+#include "heap.h"
 #include "printf_log.h"
 #undef NULL
 #define NULL 0
@@ -66,8 +67,6 @@ void list_delete_node(_list_t *pthis,_node_t *node)
     }
     if (node->pitem == NULL)
     {
-        USER_DEBUG("node msg empty\r\n");
-        /* code */
         return;
     }
 
@@ -154,7 +153,6 @@ void _list_printf(_list_t *pthis)
     unsigned char* pdata;    
     if (pthis->node_numb==0)
     {
-        USER_DEBUG("list no node\r\n");
         return;
     }
     _node_t *cur_node;
@@ -166,12 +164,8 @@ void _list_printf(_list_t *pthis)
         id = cur_node->id;
         len = cur_node->pitem->len;
         pdata = cur_node->pitem->pdata;
-        USER_DEBUG("msg id %d\r\n",id);
         cur_node = cur_node->next;
     }
 }
 
-void _list_printf_number(_list_t *pthis)
-{  
-    USER_DEBUG("list node number %d\r\n",pthis->node_numb);
-}
+ 

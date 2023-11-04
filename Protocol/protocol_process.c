@@ -48,8 +48,8 @@ void protocol_parse(void)
 		case 0x06:
             {
                 float buf[4] = {6.2f,0.0f,0.0f,3.1f};
-                protocol_transmit(CMD_RESP,PRO_FUNC_C_PF300,buf,16);//≤‚ ‘”√
-                protocol_transmit(CMD_RESP,PRO_FUNC_C_TEMP,buf,16);//≤‚ ‘”√
+                protocol_transmit(CMD_RESP,PRO_FUNC_CMD03,buf,16);//≤‚ ‘”√
+                protocol_transmit(CMD_RESP,PRO_FUNC_CMD04,buf,16);//≤‚ ‘”√
             }
 			break; 
  		case 0x0A:

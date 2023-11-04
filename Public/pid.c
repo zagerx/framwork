@@ -1,8 +1,4 @@
 #include "pid.h"
-
-
-
-
 void pid_init(pid_cb_t *pid,float kp,float ki,float kc,float outmax,float outmin)
 {
     pid->kp = kp;
@@ -21,14 +17,9 @@ void pid_reset(pid_cb_t *pid)
 }
 
 /*PID积分抗饱和*/
-float a_ki,a_kp = 100;//调试Ki\Kp参数用，可删除调试结束
 float pid_contrl(pid_cb_t *pid,float tar,float cur){
-#if 0
-//	return ENPidCalc(&(gPatternCtrlInfo.climbCtrl.flowPid),cur,tar);
-	return ENPidDiffFirstCalc2(&(gPatternCtrlInfo.climbCtrl.flowPid),cur,tar);
-#else
+
     float err,u_p,v_out,presat;
-//    static float satErr;
     err = tar - cur;
     u_p = pid->kp*err;
     pid->u_i = pid->u_i + pid->ki*u_p + pid->kc*pid->satErr;
@@ -51,5 +42,4 @@ float pid_contrl(pid_cb_t *pid,float tar,float cur){
         pid->presat = u_p + u_i + u_d;
     #endif
     return v_out;
-#endif
 }

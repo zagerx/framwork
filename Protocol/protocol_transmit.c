@@ -72,7 +72,6 @@ fsm_rt_t _trancemit_statemach(fsm_cb_t *ptThis)
     unsigned char cmd_fun;  
     unsigned char cmd_type;
     unsigned short data_len;
-    unsigned char data[16] = {0};
     unsigned short fsm_cycle = 0;
     fsm_cycle = pmsg->statemach_cb.cycle;
     pframe = pmsg->frame;
@@ -82,7 +81,6 @@ fsm_rt_t _trancemit_statemach(fsm_cb_t *ptThis)
     data_len = __SWP16(pframe->len);
 
     unsigned char event = 0;
-    float buf[4] = {0.0f};
     switch (ptThis->chState)
     {
     case START:

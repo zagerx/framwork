@@ -66,8 +66,6 @@ char search_msgmap(unsigned char cmd,
 short search_msgmap_event(unsigned char cmd);                   
 /*--------------------------------------------------------------------------------------*/
 
-short forch_keymap_enevt(E_CMD key);
-
 fsm_rt_t _trancemit_statemach(fsm_cb_t *ptThis);
 pro_pack_t* _packet_propack(pro_frame_t *frame,unsigned int timeout,unsigned char recnt);
 extern pro_frame_t* _packet_proframe(unsigned short cmd,void *pdata,unsigned short len);

@@ -11,21 +11,19 @@ enum{
     CMD_ACK,
 };
 #if 1
-
-
     typedef enum{
         PRO_FUNC_TESTCMD01 = 1,
-        PRO_FUNC_C_M_HEARTPACK ,
-        PRO_FUNC_C_S_HEARTPACK,        
-        PRO_FUNC_C_PF300= 0x0A,
-        PRO_FUNC_C_TEMP,
+        PRO_FUNC_CMD01 ,
+        PRO_FUNC_CMD02,        
+        PRO_FUNC_CMD03= 0x0A,
+        PRO_FUNC_CMD04,
         CMD_NUMBER
     }E_CMD;
 #else
-    #define PRO_FUNC_C_M_HEARTPACK	0x00	//主机心跳包
-    #define PRO_FUNC_C_S_HEARTPACK	0x01	//从机心跳包
-    #define PRO_FUNC_C_TEMP	        0x0B	//温度数据
-    #define PRO_FUNC_C_PF300	    0x0A	//温度数据
+    #define PRO_FUNC_CMD01	0x00	//主机心跳包
+    #define PRO_FUNC_CMD02	0x01	//从机心跳包
+    #define PRO_FUNC_CMD04	        0x0B	//温度数据
+    #define PRO_FUNC_CMD03	    0x0A	//温度数据
 #endif
 
 /*---------------------------------协议接口------------------------------------------*/
